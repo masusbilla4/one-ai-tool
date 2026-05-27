@@ -130,12 +130,14 @@
                         <h2 class="text-xl font-semibold mb-4">Add New Sentence</h2>
                         <form action="{{ url_for('sentencedb.add') }}" method="POST" class="space-y-4 max-w-lg">
                             <textarea name="sentence" rows="3" class="input-field" placeholder="Enter sentence..." required></textarea>
-                            <select name="category" class="input-field">
-                                <option value="Basic">Basic</option>
-                                <option value="Navigation">Navigation</option>
-                                <option value="System">System</option>
-                                <option value="Category">Category</option>
-                            </select>
+                            <input type="text" name="category" class="input-field" 
+                                   placeholder="Enter category (e.g., Camera, Settings, Phone)..." 
+                                   list="category-list" required>
+                            <datalist id="category-list">
+                                {% for cat in categories %}
+                                <option value="{{ cat }}">
+                                {% endfor %}
+                            </datalist>
                             <select name="language" class="input-field">
                                 <option value="fil">Filipino</option>
                                 <option value="en">English</option>
