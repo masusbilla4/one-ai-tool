@@ -80,7 +80,8 @@ def get_filtered_sentences(category: str, language: str, word_count: int = None)
     
     query = client.table(table_name).select("sentence,category,language,word_count").eq("used", 0)
     
-    if category:
+    # Only filter by category if it's not "All"
+    if category and category != "All":
         query = query.eq("category", category)
     
     result = query.execute()
