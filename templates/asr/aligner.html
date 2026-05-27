@@ -1,266 +1,680 @@
-{% extends "base.html" %}
-
-{% block title %}ASR Aligner - One AI Tool{% endblock %}
-
-{% block content %}
-<div class="bg-white rounded-lg shadow-lg p-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">
-            <i class="fas fa-microphone-alt mr-2 text-purple-600"></i>ASR Aligner
-        </h1>
-        <a href="{{ url_for('index') }}" class="text-gray-600 hover:text-gray-800">
-            <i class="fas fa-home mr-1"></i>Home
-        </a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASR Aligner - One AI Tool</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #7C3AED;
+            --primary-dark: #5B21B6;
+            --primary-light: #8B5CF6;
+            --bg: #F5F7FA;
+            --surface: #FFFFFF;
+            --text: #212121;
+            --text-sec: #757575;
+            --success: #2E7D32;
+            --error: #C62828;
+            --warning: #F57C00;
+            --border: #E0E0E0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); }
+        
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed var(--border); border-radius: 8px; padding: 25px;
+            text-align: center; cursor: pointer; transition: all 0.2s;
+            background: #FAFAFA; margin-bottom: 10px;
+        }
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: var(--primary); background: #E3F2FD;
+        }
+        .drop-zone-content { color: var(--text-sec); }
+        .drop-zone-content strong { color: var(--primary); }
+        .drop-zone-hint { font-size: 0.8rem; margin-top: 6px; color: var(--text-sec); opacity: 0.7; }
+        
+        /* Textarea with line numbers */
+        .textarea-wrap {
+            display: flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+        }
+        .line-numbers {
+            width: 42px; min-height: 120px; padding: 10px 6px;
+            background: #E8EAF0; color: #888; font-family: 'Consolas', monospace;
+            font-size: 0.85rem; text-align: right; user-select: none;
+            overflow: hidden; line-height: 1.45; white-space: pre-line;
+        }
+        textarea {
+            width: 100%; min-height: 120px; padding: 10px 12px;
+            border: none; border-radius: 0;
+            font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9rem;
+            resize: vertical; outline: none; background: #FAFAFA;
+            line-height: 1.45;
+        }
+        textarea:focus { box-shadow: inset 0 0 0 1px var(--primary); }
+        .textarea-wrap.drag-over { border-color: var(--primary); background: #E3F2FD; }
+        
+        /* Progress */
+        .progress-bar { width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.3s; width: 0%; }
+        
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 30px; right: 30px; padding: 14px 24px;
+            border-radius: 8px; color: white; font-weight: 600; z-index: 2000;
+            transform: translateY(100px); opacity: 0; transition: all 0.3s;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast-success { background: var(--success); }
+        .toast-error { background: var(--error); }
+        .toast-warning { background: var(--warning); }
+        
+        /* Loading overlay */
+        #loading { z-index: 1000; }
+    </style>
+</head>
+<body>
+<div class="container mx-auto max-w-7xl p-6">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800">
+                <i class="fas fa-microphone-alt mr-2 text-purple-600"></i>ASR Aligner
+            </h1>
+            <a href="/" class="text-gray-600 hover:text-gray-800">
+                <i class="fas fa-home mr-1"></i>Home
+            </a>
+        </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <!-- True Text -->
-        <div>
-            <label class="block text-gray-700 font-semibold mb-2">
-                <i class="fas fa-check-circle mr-2 text-green-600"></i>Reference Text (True)
-            </label>
-            <textarea id="true-text" rows="12"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-sm"
-                placeholder="Paste reference text here (one sentence per line)..."></textarea>
-            <p class="text-sm text-gray-500 mt-1">Lines: <span id="true-lines">0</span></p>
+    <!-- ASR Splitter Drop Zone -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-lg font-semibold mb-3 text-purple-800">
+            <i class="fas fa-file-import mr-2"></i>ASR Splitter — Drop .txt Files
+        </h2>
+        <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
+            <div class="drop-zone-content">
+                <span style="font-size:2rem">📄</span>
+                <div><strong>Drop .txt files here</strong> — or click to browse</div>
+                <div class="drop-zone-hint">Files are sorted A→Z. First half = ASR, Second half = Translation</div>
+            </div>
         </div>
+        <input type="file" id="fileInput" multiple accept=".txt" style="display:none" onchange="handleFileSelect(event)">
+        <div id="fileList" class="bg-gray-100 border border-gray-300 rounded p-3" style="display:none">
+            <div class="flex justify-between items-center mb-2 font-semibold text-sm">
+                <span id="fileCountLabel">0 files</span>
+                <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" onclick="clearSplitterFiles()">✕ Clear</button>
+            </div>
+            <div id="fileListItems"></div>
+        </div>
+    </div>
 
-        <!-- ASR Text -->
-        <div>
-            <label class="block text-gray-700 font-semibold mb-2">
-                <i class="fas fa-microphone mr-2 text-red-600"></i>ASR Transcription
-            </label>
-            <textarea id="asr-text" rows="12"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono text-sm"
-                placeholder="Paste ASR output here..."></textarea>
-            <p class="text-sm text-gray-500 mt-1">Lines: <span id="asr-lines">0</span></p>
+    <!-- Input Section -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h2 class="text-lg font-semibold mb-4 text-purple-800">
+            <i class="fas fa-edit mr-2"></i>Input — True Text / ASR / Translation
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- True Text -->
+            <div class="textarea-group">
+                <div class="textarea-label bg-green-500 text-white p-2 font-semibold rounded-t">
+                    📝 True Text (Reference) — drop .txt here
+                </div>
+                <div class="textarea-wrap" id="trueWrap">
+                    <div class="line-numbers" id="trueLines">1</div>
+                    <textarea id="trueText" placeholder="Paste reference text here, or drop a .txt file..."></textarea>
+                </div>
+                <div class="text-right text-sm text-white bg-green-500 p-1 rounded-b" id="trueCount">Lines: 0</div>
+            </div>
+            
+            <!-- ASR Text -->
+            <div class="textarea-group">
+                <div class="textarea-label bg-blue-500 text-white p-2 font-semibold rounded-t">
+                    🎤 ASR Result (Hypothesis)
+                </div>
+                <div class="textarea-wrap" id="asrWrap">
+                    <div class="line-numbers" id="asrLines">1</div>
+                    <textarea id="asrText" placeholder="Paste ASR result here, one sentence per line..."></textarea>
+                </div>
+                <div class="text-right text-sm text-white bg-blue-500 p-1 rounded-b" id="asrCount">Lines: 0</div>
+            </div>
+            
+            <!-- Translation -->
+            <div class="textarea-group">
+                <div class="textarea-label bg-green-600 text-white p-2 font-semibold rounded-t">
+                    🌐 English Translation
+                </div>
+                <div class="textarea-wrap" id="transWrap">
+                    <div class="line-numbers" id="transLines">1</div>
+                    <textarea id="transText" placeholder="Paste English translation here..."></textarea>
+                </div>
+                <div class="text-right text-sm text-white bg-green-600 p-1 rounded-b" id="transCount">Lines: 0</div>
+            </div>
         </div>
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex space-x-4 mb-6">
-        <button onclick="runAlignment()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg">
-            <i class="fas fa-play mr-2"></i>Align
-        </button>
-        <button onclick="clearAll()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg">
-            <i class="fas fa-eraser mr-2"></i>Clear
-        </button>
-        <button onclick="loadSample()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg">
-            <i class="fas fa-flask mr-2"></i>Load Sample
-        </button>
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div class="flex flex-wrap gap-3">
+            <button class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded font-semibold" id="btnAlign" onclick="runAlignment()">
+                <i class="fas fa-play mr-2"></i>Align ASR
+            </button>
+            <button class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded font-semibold" onclick="clearAll()">
+                <i class="fas fa-trash mr-2"></i>Clear All
+            </button>
+            <span class="flex-1"></span>
+            <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded font-semibold" id="btnResults" onclick="toggleResults()" disabled>
+                <i class="fas fa-chart-bar mr-2"></i>Show Results
+            </button>
+        </div>
+        <div class="mt-4">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="text-sm text-gray-600 mt-2" id="statusText">Ready to align</div>
+        </div>
     </div>
 
     <!-- Results Section -->
-    <div id="results-section" class="hidden">
-        <div class="border-t pt-6">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold">
-                    <i class="fas fa-chart-bar mr-2"></i>Alignment Results
-                </h2>
-                <div class="space-x-2">
-                    <span class="text-lg font-semibold">
-                        Overall WER: <span id="overall-wer" class="text-purple-600">-</span>%
-                    </span>
-                    <button onclick="exportResults('csv')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
-                        <i class="fas fa-file-csv mr-2"></i>Export CSV
-                    </button>
-                    <button onclick="exportResults('excel')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-                        <i class="fas fa-file-excel mr-2"></i>Export Excel
-                    </button>
-                </div>
-            </div>
-
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="bg-green-50 p-4 rounded-lg text-center">
-                    <p class="text-2xl font-bold text-green-600" id="stat-refs">0</p>
-                    <p class="text-sm text-gray-600">Reference Words</p>
-                </div>
-                <div class="bg-red-50 p-4 rounded-lg text-center">
-                    <p class="text-2xl font-bold text-red-600" id="stat-subs">0</p>
-                    <p class="text-sm text-gray-600">Substitutions</p>
-                </div>
-                <div class="bg-orange-50 p-4 rounded-lg text-center">
-                    <p class="text-2xl font-bold text-orange-600" id="stat-dels">0</p>
-                    <p class="text-sm text-gray-600">Deletions</p>
-                </div>
-                <div class="bg-blue-50 p-4 rounded-lg text-center">
-                    <p class="text-2xl font-bold text-blue-600" id="stat-ins">0</p>
-                    <p class="text-sm text-gray-600">Insertions</p>
-                </div>
-            </div>
-
-            <!-- Alignment Table -->
-            <div class="overflow-x-auto">
-                <table class="min-w-full bg-white border">
-                    <thead class="bg-gray-100">
-                        <tr>
-                            <th class="py-2 px-4 text-left">#</th>
-                            <th class="py-2 px-4 text-left">Reference</th>
-                            <th class="py-2 px-4 text-left">ASR Output</th>
-                            <th class="py-2 px-4 text-left">WER</th>
-                            <th class="py-2 px-4 text-left">Score</th>
-                            <th class="py-2 px-4 text-left">AI Reason</th>
-                        </tr>
-                    </thead>
-                    <tbody id="alignment-body">
-                    </tbody>
-                </table>
+    <div class="results-section bg-white rounded-lg shadow-lg p-6 mb-6" id="resultsSection" style="display:none">
+        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+            <h2 class="text-xl font-bold" id="resultsTitle">📊 Alignment Results</h2>
+            <div class="flex flex-wrap gap-2">
+                <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded" onclick="exportExcel()">
+                    <i class="fas fa-file-excel mr-2"></i>Export Excel
+                </button>
+                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded" onclick="openModal('transAiModal')">
+                    <i class="fas fa-language mr-2"></i>Align Translation (AI)
+                </button>
+                <button class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded" onclick="reevaluate()">
+                    <i class="fas fa-redo mr-2"></i>Re-evaluate
+                </button>
             </div>
         </div>
-    </div>
-
-    <!-- Translation Alignment -->
-    <div id="translation-section" class="hidden mt-6 border-t pt-6">
-        <h2 class="text-xl font-bold mb-4">
-            <i class="fas fa-language mr-2"></i>Translation Alignment
-        </h2>
-        <div class="mb-4">
-            <label class="block text-gray-700 font-semibold mb-2">Translation Text</label>
-            <textarea id="translation-text" rows="6"
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                placeholder="Paste translation text here..."></textarea>
-        </div>
-        <button onclick="alignTranslation()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg">
-            <i class="fas fa-sync mr-2"></i>Align Translation
-        </button>
-    </div>
-
-    <!-- Loading Overlay -->
-    <div id="loading" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-lg text-center">
-            <i class="fas fa-spinner fa-spin text-4xl text-purple-600 mb-4"></i>
-            <p class="text-lg font-semibold">Running alignment...</p>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-purple-600 text-white">
+                    <tr>
+                        <th class="py-2 px-3 text-center">No</th>
+                        <th class="py-2 px-3">Test Language</th>
+                        <th class="py-2 px-3">ASR Separated</th>
+                        <th class="py-2 px-3">Differences</th>
+                        <th class="py-2 px-3 text-center">WER%</th>
+                        <th class="py-2 px-3 text-center">AI Score</th>
+                        <th class="py-2 px-3">Translation</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+            </table>
         </div>
     </div>
 </div>
 
+<!-- AI Translation Modal -->
+<div class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" id="transAiModal" style="display:none">
+    <div class="bg-white rounded-lg p-6 max-w-lg w-full mx-4">
+        <h2 class="text-xl font-bold mb-4">🌐 AI Translation Alignment</h2>
+        <label class="block font-semibold mb-2">🔑 Gemini API Key</label>
+        <input type="password" id="transApiKey" class="w-full border p-2 rounded mb-3" placeholder="Enter your Gemini API key">
+        <label class="block font-semibold mb-2">🤖 AI Model</label>
+        <select id="transModel" class="w-full border p-2 rounded mb-4">
+            <option value="gemini-2.5-flash">gemini-2.5-flash</option>
+            <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite</option>
+            <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+            <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+            <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+        </select>
+        <div class="flex gap-2">
+            <button class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded flex-1" onclick="alignTranslationAi()">
+                🌐 Start AI Alignment
+            </button>
+            <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded" onclick="closeModal('transAiModal')">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
 <script>
-let currentTaskId = null;
+// State
 let alignmentData = [];
+let overallWer = 0;
+let overallStats = {};
+let currentTaskId = null;
 
-// Line counter
-document.getElementById('true-text').addEventListener('input', function() {
-    document.getElementById('true-lines').textContent = this.value.split('\n').filter(l => l.trim()).length;
-});
-document.getElementById('asr-text').addEventListener('input', function() {
-    document.getElementById('asr-lines').textContent = this.value.split('\n').filter(l => l.trim()).length;
-});
+// Line numbers + counting
+const lineNumIds = { trueText: 'trueLines', asrText: 'asrLines', transText: 'transLines' };
 
-function clearAll() {
-    document.getElementById('true-text').value = '';
-    document.getElementById('asr-text').value = '';
-    document.getElementById('true-lines').textContent = '0';
-    document.getElementById('asr-lines').textContent = '0';
-    document.getElementById('results-section').classList.add('hidden');
-    document.getElementById('translation-section').classList.add('hidden');
-    currentTaskId = null;
-    alignmentData = [];
+function updateLineNumbers(taId) {
+    const ta = document.getElementById(taId);
+    const lnEl = document.getElementById(lineNumIds[taId]);
+    const lines = ta.value.split('\n');
+    const nums = [];
+    for (let i = 1; i <= lines.length; i++) nums.push(i);
+    lnEl.textContent = nums.join('\n');
 }
 
-function loadSample() {
-    document.getElementById('true-text').value = `Good morning! How are you today?
-I am doing well, thank you.
-The weather is nice outside.
-Let us go for a walk in the park.
-That sounds like a great idea!`;
-    document.getElementById('asr-text').value = `Good morning! How are you today?
-I'm doing well thank you
-The weather is nice outside
-Let's go for a walk in the park
-That sounds like a great idea!`;
-    document.getElementById('true-lines').textContent = '5';
-    document.getElementById('asr-lines').textContent = '5';
+function syncScroll(taId) {
+    const ta = document.getElementById(taId);
+    const lnEl = document.getElementById(lineNumIds[taId]);
+    lnEl.scrollTop = ta.scrollTop;
 }
 
-function showLoading() { document.getElementById('loading').classList.remove('hidden'); }
-function hideLoading() { document.getElementById('loading').classList.add('hidden'); }
+// Init textareas
+Object.keys(lineNumIds).forEach(taId => {
+    const ta = document.getElementById(taId);
+    ta.addEventListener('input', () => { updateLineNumbers(taId); updateLineCounts(); });
+    ta.addEventListener('scroll', () => syncScroll(taId));
+    updateLineNumbers(taId);
+});
 
-function runAlignment() {
-    const trueText = document.getElementById('true-text').value.trim();
-    const asrText = document.getElementById('asr-text').value.trim();
-    
-    if (!trueText || !asrText) {
-        alert('Please enter both reference and ASR text');
+function updateLineCounts() {
+    const count = (id) => (document.getElementById(id).value.split('\n').filter(l => l.trim()).length);
+    document.getElementById('trueCount').textContent = `Lines: ${count('trueText')}`;
+    document.getElementById('asrCount').textContent = `Lines: ${count('asrText')}`;
+    document.getElementById('transCount').textContent = `Lines: ${count('transText')}`;
+}
+
+// ========== Drag & Drop on True Text textarea ==========
+const trueWrap = document.getElementById('trueWrap');
+
+trueWrap.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    trueWrap.classList.add('drag-over');
+});
+
+trueWrap.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    trueWrap.classList.remove('drag-over');
+});
+
+trueWrap.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    trueWrap.classList.remove('drag-over');
+    const files = Array.from(e.dataTransfer.files).filter(f => f.name.toLowerCase().endsWith('.txt'));
+    if (files.length === 0) {
+        showToast('Please drop .txt files only.', 'warning');
         return;
     }
+    // Sort alphabetically
+    files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
     
-    showLoading();
-    fetch('/asr/align', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({true_text: trueText, asr_text: asrText})
-    })
-    .then(r => r.json())
-    .then(data => {
-        hideLoading();
-        if (data.success) {
-            currentTaskId = data.task_id;
-            alignmentData = data.alignment_data;
-            displayResults(data);
-        } else {
-            alert('Error: ' + (data.error || 'Unknown error'));
+    let allContent = [];
+    for (const f of files) {
+        try {
+            const content = await readFileAsText(f);
+            const lines = content.split('\n').map(l => l.trim()).filter(l => l);
+            allContent.push(...lines);
+        } catch (err) {
+            showToast(`Error reading ${f.name}: ${err.message}`, 'error');
         }
-    })
-    .catch(e => { hideLoading(); alert('Error: ' + e); });
+    }
+    if (allContent.length > 0) {
+        document.getElementById('trueText').value = allContent.join('\n');
+        updateLineNumbers('trueText');
+        updateLineCounts();
+        showToast(`Loaded ${allContent.length} lines from ${files.length} file(s) into True Text`);
+    }
+});
+
+// ========== ASR SPLITTER - Drag & Drop File Processing ==========
+let splitterFiles = [];
+const dropZone = document.getElementById('dropZone');
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.add('drag-over');
+});
+
+dropZone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('drag-over');
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('drag-over');
+    const files = Array.from(e.dataTransfer.files).filter(f => f.name.toLowerCase().endsWith('.txt'));
+    if (files.length === 0) {
+        showToast('Please drop .txt files only.', 'warning');
+        return;
+    }
+    processSplitterFiles(files);
+});
+
+function handleFileSelect(event) {
+    const files = Array.from(event.target.files).filter(f => f.name.toLowerCase().endsWith('.txt'));
+    if (files.length === 0) {
+        showToast('Please select .txt files only.', 'warning');
+        return;
+    }
+    processSplitterFiles(files);
+    event.target.value = '';
 }
 
-function displayResults(data) {
-    document.getElementById('overall-wer').textContent = data.overall_wer;
-    document.getElementById('stat-refs').textContent = data.overall_stats.refs;
-    document.getElementById('stat-subs').textContent = data.overall_stats.subs;
-    document.getElementById('stat-dels').textContent = data.overall_stats.dels;
-    document.getElementById('stat-ins').textContent = data.overall_stats.ins;
+async function processSplitterFiles(files) {
+    files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+    splitterFiles = files;
     
-    let html = '';
-    data.alignment_data.forEach((row, idx) => {
-        let scoreClass = row.score === 3 ? 'text-green-600 font-bold' : (row.wer > 50 ? 'text-red-600' : 'text-orange-600');
-        html += '<tr class="border-b hover:bg-gray-50">';
-        html += '<td class="py-3 px-4">' + row.id + '</td>';
-        html += '<td class="py-3 px-4 max-w-xs">' + escapeHtml(row.true) + '</td>';
-        html += '<td class="py-3 px-4 max-w-xs">' + escapeHtml(row.asr_separated) + '</td>';
-        html += '<td class="py-3 px-4 ' + scoreClass + '">' + row.wer + '%</td>';
-        html += '<td class="py-3 px-4">' + (row.score === 3 ? '<i class="fas fa-check-circle text-green-500"></i>' : '<i class="fas fa-times-circle text-red-500"></i>') + '</td>';
-        html += '<td class="py-3 px-4 text-sm text-gray-600">' + escapeHtml(row.ai_reason) + '</td>';
-        html += '</tr>';
+    const fileListEl = document.getElementById('fileList');
+    const fileListItems = document.getElementById('fileListItems');
+    fileListEl.style.display = 'block';
+    document.getElementById('fileCountLabel').textContent = `${files.length} file${files.length > 1 ? 's' : ''} (sorted A→Z)`;
+    
+    fileListItems.innerHTML = '';
+    files.forEach((f, i) => {
+        const item = document.createElement('div');
+        item.className = 'file-item py-1';
+        item.innerHTML = `<span class="text-gray-500 mr-2">${i+1}.</span><span>📄 ${escapeHtml(f.name)}</span>`;
+        fileListItems.appendChild(item);
     });
-    
-    document.getElementById('alignment-body').innerHTML = html;
-    document.getElementById('results-section').classList.remove('hidden');
-    document.getElementById('translation-section').classList.remove('hidden');
+
+    setProgress(20, `⏳ Processing ${files.length} file(s)...`);
+
+    let allAsrLines = [];
+    let allTransLines = [];
+
+    for (let i = 0; i < files.length; i++) {
+        try {
+            const content = await readFileAsText(files[i]);
+            const lines = content.split('\n');
+            const midpoint = Math.floor(lines.length / 2);
+            
+            const firstHalf = lines.slice(0, midpoint).map(l => l.trim()).filter(l => l);
+            const secondHalf = lines.slice(midpoint).map(l => l.trim()).filter(l => l);
+            
+            allAsrLines.push(...firstHalf);
+            allTransLines.push(...secondHalf);
+        } catch (e) {
+            showToast(`Error reading ${files[i].name}: ${e.message}`, 'error');
+        }
+    }
+
+    if (allAsrLines.length > 0) {
+        document.getElementById('asrText').value = allAsrLines.join('\n');
+        updateLineNumbers('asrText');
+    }
+    if (allTransLines.length > 0) {
+        document.getElementById('transText').value = allTransLines.join('\n');
+        updateLineNumbers('transText');
+    }
+
+    updateLineCounts();
+    setProgress(100, `✅ Split ${files.length} file(s) — ${allAsrLines.length} ASR lines, ${allTransLines.length} Translation lines`);
+    showToast(`Split complete: ${allAsrLines.length} ASR + ${allTransLines.length} Translation lines from ${files.length} file(s)`);
 }
 
-function alignTranslation() {
-    const transText = document.getElementById('translation-text').value.trim();
-    if (!transText || !currentTaskId) {
-        alert('Please enter translation text and run alignment first');
+function readFileAsText(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = (e) => reject(e);
+        reader.readAsText(file, 'utf-8');
+    });
+}
+
+function clearSplitterFiles() {
+    splitterFiles = [];
+    document.getElementById('fileList').style.display = 'none';
+    document.getElementById('fileListItems').innerHTML = '';
+}
+
+// Toast
+function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast toast-${type} show`;
+    setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// Progress
+function setProgress(pct, text) {
+    document.getElementById('progressFill').style.width = pct + '%';
+    if (text) document.getElementById('statusText').textContent = text;
+}
+
+// Modals
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+// Clear
+function clearAll() {
+    document.getElementById('trueText').value = '';
+    document.getElementById('asrText').value = '';
+    document.getElementById('transText').value = '';
+    alignmentData = [];
+    overallWer = 0;
+    overallStats = {};
+    updateLineCounts();
+    updateLineNumbers('trueText');
+    updateLineNumbers('asrText');
+    updateLineNumbers('transText');
+    setProgress(0, 'Ready to align');
+    document.getElementById('btnResults').disabled = true;
+    document.getElementById('resultsSection').style.display = 'none';
+    clearSplitterFiles();
+}
+
+// Run alignment
+async function pollAlignResult() {
+    while (true) {
+        try {
+            const res = await fetch('/asr/align-result');
+            const data = await res.json();
+            if (data.done) {
+                if (data.error) {
+                    showToast(data.error, 'error');
+                    setProgress(0, '❌ Alignment failed');
+                } else {
+                    alignmentData = data.result.alignment_data;
+                    overallWer = data.result.overall_wer;
+                    overallStats = data.result.overall_stats;
+                    setProgress(100, `✅ Alignment completed — Overall WER: ${overallWer}%`);
+                    document.getElementById('btnResults').disabled = false;
+                    showToast(`Alignment complete! WER: ${overallWer}%`);
+                    renderResults();
+                }
+                return;
+            }
+        } catch (e) {
+            showToast('Polling error: ' + e.message, 'error');
+            setProgress(0, '❌ Alignment failed');
+            return;
+        }
+        await new Promise(r => setTimeout(r, 2000));
+    }
+}
+
+async function runAlignment() {
+    const trueText = document.getElementById('trueText').value.trim();
+    const asrText = document.getElementById('asrText').value.trim();
+
+    if (!trueText || !asrText) {
+        showToast('Please input both True Text and ASR Result.', 'error');
         return;
     }
-    
-    fetch('/asr/align/translation', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({task_id: currentTaskId, translation_text: transText})
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            alert('Translation aligned using: ' + data.method);
-        } else {
-            alert('Error: ' + (data.error || 'Unknown error'));
+
+    const btn = document.getElementById('btnAlign');
+    btn.disabled = true;
+    setProgress(10, '⏳ Aligning ASR sentences...');
+
+    try {
+        let res = await fetch('/asr/align', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ true_text: trueText, asr_text: asrText })
+        });
+        let data = await res.json();
+
+        if (data.warning) {
+            if (!confirm(data.message + '\n\nContinue anyway?')) {
+                btn.disabled = false;
+                setProgress(0, 'Ready to align');
+                return;
+            }
+            setProgress(10, '⏳ Aligning (forced)...');
+            res = await fetch('/asr/align', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ true_text: trueText, asr_text: asrText })
+            });
+            data = await res.json();
         }
-    })
-    .catch(e => { alert('Error: ' + e); });
+
+        if (data.error) {
+            showToast(data.error, 'error');
+            setProgress(0, '❌ Alignment failed');
+        } else if (data.status === 'started') {
+            setProgress(30, '⏳ Processing alignment...');
+            await pollAlignResult();
+        } else {
+            alignmentData = data.alignment_data;
+            overallWer = data.overall_wer;
+            overallStats = data.overall_stats;
+            setProgress(100, `✅ Alignment completed — Overall WER: ${overallWer}%`);
+            document.getElementById('btnResults').disabled = false;
+            showToast(`Alignment complete! WER: ${overallWer}%`);
+            renderResults();
+        }
+    } catch (e) {
+        showToast('Network error: ' + e.message, 'error');
+        setProgress(0, '❌ Alignment failed');
+    }
+    btn.disabled = false;
 }
 
-function exportResults(format) {
-    if (!currentTaskId) { alert('No results to export'); return; }
-    window.location.href = '/asr/export/' + format + '/' + currentTaskId;
+// Render results table
+function renderResults() {
+    const tbody = document.getElementById('resultsBody');
+    tbody.innerHTML = '';
+    alignmentData.forEach((d, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = idx % 2 === 0 ? 'bg-gray-50' : '';
+        const scoreClass = d.ai_score == 3 ? 'text-green-600 font-bold' : '';
+        tr.innerHTML = `
+            <td class="py-2 px-3 text-center">${d.id}</td>
+            <td class="py-2 px-3">${escapeHtml(d.true)}</td>
+            <td class="py-2 px-3">${escapeHtml(d.asr_separated || d.asr_nobreak || '')}</td>
+            <td class="py-2 px-3">${renderDiffs(d.diffs)}</td>
+            <td class="py-2 px-3 text-center">${d.wer}</td>
+            <td class="py-2 px-3 text-center ${scoreClass}">${d.ai_score || ''}</td>
+            <td class="py-2 px-3">${escapeHtml(d.translation || '')}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+    const s = overallStats;
+    document.getElementById('resultsTitle').textContent =
+        `📊 Alignment Results — Overall WER: ${overallWer}% (S:${s.subs} D:${s.dels} I:${s.ins} / ${s.refs} words)`;
 }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    return text.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
+function escapeHtml(s) {
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+}
+
+function renderDiffs(diffs) {
+    if (!diffs || !diffs.length) return '';
+    return diffs.map(([color, word]) => {
+        if (color === 'red') return `<span class="text-red-600 font-bold">${escapeHtml(word)}</span>`;
+        if (color === 'blue') return `<span class="text-blue-600 font-bold">${escapeHtml(word)}</span>`;
+        return escapeHtml(word);
+    }).join(' ');
+}
+
+function toggleResults() {
+    const sec = document.getElementById('resultsSection');
+    sec.style.display = sec.style.display === 'none' ? 'block' : 'none';
+}
+
+// Export Excel
+async function exportExcel() {
+    if (!alignmentData.length) { showToast('No data to export.', 'warning'); return; }
+    try {
+        const res = await fetch('/asr/export/excel/' + currentTaskId, { method: 'POST' });
+        if (!res.ok) { const d = await res.json(); showToast(d.error || 'Export failed', 'error'); return; }
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'ASR_Evaluation.xlsx'; a.click();
+        URL.revokeObjectURL(url);
+        showToast('Excel exported!');
+    } catch (e) { showToast('Export error: ' + e.message, 'error'); }
+}
+
+// Re-evaluate
+async function reevaluate() {
+    if (!alignmentData.length) { showToast('No data to re-evaluate.', 'warning'); return; }
+    setProgress(30, '⏳ Re-evaluating...');
+    try {
+        const res = await fetch('/asr/reevaluate', { method: 'POST' });
+        const data = await res.json();
+        if (data.error) { showToast(data.error, 'error'); return; }
+        if (data.status === 'started') {
+            while (true) {
+                const pollRes = await fetch('/asr/reevaluate-result');
+                const pollData = await pollRes.json();
+                if (pollData.done) {
+                    if (pollData.error) { showToast(pollData.error, 'error'); return; }
+                    alignmentData = pollData.result.alignment_data;
+                    overallWer = pollData.result.overall_wer;
+                    overallStats = pollData.result.overall_stats;
+                    renderResults();
+                    setProgress(100, `✅ Re-evaluated — Overall WER: ${overallWer}%`);
+                    showToast(`Re-evaluated! WER: ${overallWer}%`);
+                    return;
+                }
+                await new Promise(r => setTimeout(r, 2000));
+            }
+        }
+    } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+    }
+}
+
+// AI Translation Alignment
+async function alignTranslationAi() {
+    const transText = document.getElementById('transText').value.trim();
+    const apiKey = document.getElementById('transApiKey').value.trim();
+    const model = document.getElementById('transModel').value;
+
+    if (!transText) { showToast('Enter English translation first.', 'warning'); return; }
+    if (!alignmentData.length) { showToast('Run ASR alignment first.', 'warning'); return; }
+    if (!apiKey) { showToast('Enter API key.', 'warning'); return; }
+
+    closeModal('transAiModal');
+    showToast('AI alignment started...', 'warning');
+    
+    // For now, use local alignment
+    try {
+        const res = await fetch('/asr/align/translation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ translation_text: transText, alignment_data: alignmentData })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alignmentData = data.alignment_data;
+            renderResults();
+            showToast(`Translation aligned: ${data.count} sentences (${data.method})`);
+        }
+    } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+    }
 }
 </script>
-{% endblock %}
+</body>
+</html>
