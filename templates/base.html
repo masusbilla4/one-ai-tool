@@ -116,18 +116,12 @@
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-8">
-                    <a href="{{ url_for('index') }}" class="text-xl font-bold gradient-text hover:opacity-80 transition logo-font">
+                    <a href="{{ url_for('main_dashboard') }}" class="text-xl font-bold gradient-text hover:opacity-80 transition logo-font">
                         <i class="fas fa-robot mr-2"></i>One AI Tool
                     </a>
                     <div class="hidden md:flex space-x-4">
-                        <a href="{{ url_for('sentencedb.dashboard') }}" class="hover:bg-slate-600 hover:text-indigo-300 px-3 py-2 rounded-lg transition">
-                            <i class="fas fa-database mr-1"></i>Sentence DB
-                        </a>
-                        <a href="{{ url_for('extractor.extractor_home') }}" class="hover:bg-slate-600 hover:text-indigo-300 px-3 py-2 rounded-lg transition">
-                            <i class="fas fa-download mr-1"></i>Extractor
-                        </a>
-                        <a href="{{ url_for('asr.asr_home') }}" class="hover:bg-slate-600 hover:text-indigo-300 px-3 py-2 rounded-lg transition">
-                            <i class="fas fa-microphone mr-1"></i>ASR Aligner
+                        <a href="{{ url_for('main_dashboard') }}" class="hover:bg-slate-600 hover:text-indigo-300 px-3 py-2 rounded-lg transition">
+                            <i class="fas fa-home mr-1"></i>Dashboard
                         </a>
                     </div>
                 </div>
@@ -199,11 +193,9 @@
                     <p class="text-sm">&copy; 2026 One AI Tool. All rights reserved.</p>
                 </div>
                 <div class="flex space-x-4 text-sm">
-                    <a href="{{ url_for('sentencedb.dashboard') }}" class="hover:text-indigo-300 transition">Sentence Database</a>
+                    <a href="{{ url_for('main_dashboard') }}" class="hover:text-indigo-300 transition">Dashboard</a>
                     <span class="text-slate-400">|</span>
-                    <a href="{{ url_for('extractor.extractor_home') }}" class="hover:text-indigo-300 transition">Universal Data Extractor</a>
-                    <span class="text-slate-400">|</span>
-                    <a href="{{ url_for('asr.asr_home') }}" class="hover:text-indigo-300 transition">ASR Aligner</a>
+                    <a href="{{ url_for('settings.settings_home') }}" class="hover:text-indigo-300 transition">Settings</a>
                 </div>
             </div>
         </div>
@@ -244,6 +236,16 @@
                 icon.classList.add('text-yellow-400');
             }
         });
+
+        // Back button function - goes to dashboard
+        function goBack() {
+            window.history.back();
+        }
+
+        // Go to dashboard/home
+        function goHome() {
+            window.location.href = "{{ url_for('main_dashboard') }}";
+        }
     </script>
     
     {% block scripts %}{% endblock %}

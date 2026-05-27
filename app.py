@@ -32,15 +32,15 @@ def create_app(config_class=Config):
     def index():
         """Landing page - redirect to dashboard if logged in."""
         if session.get('user_id'):
-            return redirect(url_for('sentencedb.dashboard'))
+            return redirect(url_for('main_dashboard'))
         return render_template('index.html')
     
     @app.route('/dashboard')
-    def dashboard():
-        """Main dashboard with app selection."""
+    def main_dashboard():
+        """Unified dashboard with all tools in one page (tabs)."""
         if not session.get('user_id'):
             return redirect(url_for('auth.login'))
-        return render_template('dashboard.html')
+        return render_template('main_dashboard.html')
     
     # Error handlers
     @app.errorhandler(404)
