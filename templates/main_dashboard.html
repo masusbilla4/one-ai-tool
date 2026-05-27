@@ -38,8 +38,8 @@
     <nav class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white shadow-lg fixed w-full z-50 border-b border-slate-700">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center h-16">
-                <a href="/" class="text-xl font-bold hover:opacity-80 transition logo-font" style="color: #FFD700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);">
-                    <i class="fas fa-robot mr-2"></i>One AI Tool
+                <a href="/" class="text-3xl font-bold hover:opacity-80 transition logo-font" style="color: #FFD700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);">
+                    <i class="fas fa-robot mr-3"></i>One AI Tool
                 </a>
                 <div class="flex items-center space-x-4">
                     <a href="{{ url_for('settings.settings_home') }}" class="hover:bg-slate-600 p-2 rounded-full transition" title="API Settings">
@@ -915,34 +915,97 @@
         function toggleNightMode() {
             isNightMode = !isNightMode;
             const icon = document.getElementById('nightModeIcon');
-            const cards = document.querySelectorAll('.bg-white');
-            const texts = document.querySelectorAll('h1, h2, h3, p, label, th');
             
             if (isNightMode) {
-                // Enable night mode
+                // Enable night mode - make everything dark with visible text
                 icon.classList.remove('fa-sun', 'text-yellow-400');
                 icon.classList.add('fa-moon', 'text-yellow-400');
-                cards.forEach(card => {
-                    card.classList.remove('bg-white');
-                    card.classList.add('bg-slate-800');
+                
+                // White cards → dark slate
+                document.querySelectorAll('.bg-white').forEach(el => {
+                    el.classList.remove('bg-white');
+                    el.classList.add('bg-slate-800');
                 });
-                texts.forEach(text => {
-                    if (!text.classList.contains('text-white') && !text.classList.contains('text-slate-200')) {
-                        text.classList.add('text-slate-200');
+                
+                // Light stat cards → dark versions
+                document.querySelectorAll('.bg-blue-50').forEach(el => {
+                    el.classList.remove('bg-blue-50');
+                    el.classList.add('bg-slate-700');
+                });
+                document.querySelectorAll('.bg-green-50').forEach(el => {
+                    el.classList.remove('bg-green-50');
+                    el.classList.add('bg-slate-700');
+                });
+                document.querySelectorAll('.bg-purple-50').forEach(el => {
+                    el.classList.remove('bg-purple-50');
+                    el.classList.add('bg-slate-700');
+                });
+                document.querySelectorAll('.bg-orange-50').forEach(el => {
+                    el.classList.remove('bg-orange-50');
+                    el.classList.add('bg-slate-700');
+                });
+                
+                // All text → light color for visibility
+                document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+                    el.classList.add('text-slate-100');
+                    el.classList.remove('text-slate-800', 'text-indigo-800');
+                });
+                document.querySelectorAll('p, label, span, td, th').forEach(el => {
+                    if (!el.classList.contains('text-white') && 
+                        !el.classList.contains('text-slate-100') &&
+                        !el.classList.contains('text-slate-200') &&
+                        !el.classList.contains('text-slate-300') &&
+                        !el.classList.contains('text-slate-400')) {
+                        el.classList.add('text-slate-200');
                     }
                 });
+                document.querySelectorAll('.text-slate-600, .text-slate-700, .text-slate-800').forEach(el => {
+                    el.classList.remove('text-slate-600', 'text-slate-700', 'text-slate-800');
+                    el.classList.add('text-slate-200');
+                });
+                document.querySelectorAll('.text-blue-600, .text-green-600, .text-purple-600, .text-orange-600').forEach(el => {
+                    el.classList.remove('text-blue-600', 'text-green-600', 'text-purple-600', 'text-orange-600');
+                    el.classList.add('text-slate-100');
+                });
+                document.querySelectorAll('.text-slate-500').forEach(el => {
+                    el.classList.remove('text-slate-500');
+                    el.classList.add('text-slate-400');
+                });
+                
                 localStorage.setItem('nightMode', 'true');
             } else {
-                // Disable night mode
+                // Disable night mode - restore light theme
                 icon.classList.remove('fa-moon', 'text-yellow-400');
                 icon.classList.add('fa-sun', 'text-yellow-400');
-                cards.forEach(card => {
-                    card.classList.remove('bg-slate-800');
-                    card.classList.add('bg-white');
+                
+                // Dark cards → white
+                document.querySelectorAll('.bg-slate-800').forEach(el => {
+                    el.classList.remove('bg-slate-800');
+                    el.classList.add('bg-white');
                 });
-                texts.forEach(text => {
-                    text.classList.remove('text-slate-200');
+                
+                // Dark stat cards → light versions
+                document.querySelectorAll('.bg-slate-700').forEach(el => {
+                    el.classList.remove('bg-slate-700');
+                    if (el.querySelector('.text-green-600')) el.classList.add('bg-green-50');
+                    else if (el.querySelector('.text-blue-600')) el.classList.add('bg-blue-50');
+                    else if (el.querySelector('.text-purple-600')) el.classList.add('bg-purple-50');
+                    else if (el.querySelector('.text-orange-600')) el.classList.add('bg-orange-50');
+                    else el.classList.add('bg-slate-50');
                 });
+                
+                // Restore light text colors
+                document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+                    el.classList.remove('text-slate-100');
+                });
+                document.querySelectorAll('p, label, span, td, th').forEach(el => {
+                    el.classList.remove('text-slate-200');
+                });
+                document.querySelectorAll('.text-slate-400').forEach(el => {
+                    el.classList.remove('text-slate-400');
+                    el.classList.add('text-slate-500');
+                });
+                
                 localStorage.setItem('nightMode', 'false');
             }
         }
