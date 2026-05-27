@@ -19,6 +19,18 @@
             font-size: 0.9rem; transition: all 0.2s; background: #1f2937; color: #e5e7eb;
         }
         .input-field:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.2); background: #374151; }
+        
+        /* Dark theme content cards */
+        .content-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #e2e8f0;
+        }
+        .content-card h1, .content-card h2, .content-card h3 {
+            color: #f1f5f9;
+        }
+        .content-card p, .content-card label {
+            color: #cbd5e1;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen text-slate-200">
@@ -52,15 +64,21 @@
     <div class="pt-20 pb-8">
         <div class="max-w-7xl mx-auto px-4">
             <!-- Tab Navigation -->
-            <div class="flex space-x-2 mb-6 bg-white p-2 rounded-lg shadow">
-                <button onclick="switchTab('sentencedb')" class="tab-btn active flex-1 py-3 px-4 rounded-lg transition font-medium">
-                    <i class="fas fa-database mr-2"></i>Sentence Database
-                </button>
-                <button onclick="switchTab('extractor')" class="tab-btn flex-1 py-3 px-4 rounded-lg transition font-medium hover:bg-slate-100">
-                    <i class="fas fa-download mr-2"></i>Data Extractor
-                </button>
-                <button onclick="switchTab('asr')" class="tab-btn flex-1 py-3 px-4 rounded-lg transition font-medium hover:bg-slate-100">
-                    <i class="fas fa-microphone mr-2"></i>ASR Aligner
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex space-x-2 bg-slate-800 p-2 rounded-lg shadow">
+                    <button onclick="switchTab('sentencedb')" class="tab-btn active flex-1 py-3 px-4 rounded-lg transition font-medium">
+                        <i class="fas fa-database mr-2"></i>Sentence Database
+                    </button>
+                    <button onclick="switchTab('extractor')" class="tab-btn flex-1 py-3 px-4 rounded-lg transition font-medium hover:bg-slate-700">
+                        <i class="fas fa-download mr-2"></i>Data Extractor
+                    </button>
+                    <button onclick="switchTab('asr')" class="tab-btn flex-1 py-3 px-4 rounded-lg transition font-medium hover:bg-slate-700">
+                        <i class="fas fa-microphone mr-2"></i>ASR Aligner
+                    </button>
+                </div>
+                <!-- Night Mode Toggle -->
+                <button onclick="toggleNightMode()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg transition" title="Toggle Night Mode">
+                    <i class="fas fa-moon text-yellow-400" id="nightModeIcon"></i>
                 </button>
             </div>
 
@@ -876,7 +894,6 @@
             const icon = document.getElementById(iconId);
             
             if (section.classList.contains('hidden') || section.style.display === 'none') {
-                // Show section
                 section.classList.remove('hidden');
                 section.style.display = 'block';
                 if (icon) {
@@ -884,7 +901,6 @@
                     icon.classList.add('fa-chevron-down');
                 }
             } else {
-                // Hide section
                 section.classList.add('hidden');
                 section.style.display = 'none';
                 if (icon) {
@@ -893,6 +909,51 @@
                 }
             }
         }
+
+        // ========== NIGHT MODE TOGGLE ==========
+        let isNightMode = true;
+        function toggleNightMode() {
+            isNightMode = !isNightMode;
+            const icon = document.getElementById('nightModeIcon');
+            const cards = document.querySelectorAll('.bg-white');
+            const texts = document.querySelectorAll('h1, h2, h3, p, label, th');
+            
+            if (isNightMode) {
+                // Enable night mode
+                icon.classList.remove('fa-sun', 'text-yellow-400');
+                icon.classList.add('fa-moon', 'text-yellow-400');
+                cards.forEach(card => {
+                    card.classList.remove('bg-white');
+                    card.classList.add('bg-slate-800');
+                });
+                texts.forEach(text => {
+                    if (!text.classList.contains('text-white') && !text.classList.contains('text-slate-200')) {
+                        text.classList.add('text-slate-200');
+                    }
+                });
+                localStorage.setItem('nightMode', 'true');
+            } else {
+                // Disable night mode
+                icon.classList.remove('fa-moon', 'text-yellow-400');
+                icon.classList.add('fa-sun', 'text-yellow-400');
+                cards.forEach(card => {
+                    card.classList.remove('bg-slate-800');
+                    card.classList.add('bg-white');
+                });
+                texts.forEach(text => {
+                    text.classList.remove('text-slate-200');
+                });
+                localStorage.setItem('nightMode', 'false');
+            }
+        }
+
+        // Restore night mode preference
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedMode = localStorage.getItem('nightMode');
+            if (savedMode === 'false') {
+                toggleNightMode();
+            }
+        });
     </script>
 </body>
 </html>
