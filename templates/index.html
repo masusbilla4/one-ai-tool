@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Home - One AI Tool{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-lg p-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Welcome to One AI Tool</h1>
+    <p class="text-gray-600 mb-8">
+        A unified web platform combining Sentence Database, Universal Data Extractor, and ASR Aligner tools.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Sentence DB Card -->
+        <a href="{{ url_for('sentencedb.dashboard') }}" class="block bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-6 shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-database text-3xl mr-3"></i>
+                <h2 class="text-xl font-bold">Sentence Database</h2>
+            </div>
+            <p class="text-blue-100 mb-4">Manage Filipino and English sentences with Supabase backend. Add, edit, search, and export sentences.</p>
+            <ul class="text-sm text-blue-200 space-y-1">
+                <li><i class="fas fa-check mr-2"></i>Add/Edit sentences</li>
+                <li><i class="fas fa-check mr-2"></i>Search & filter</li>
+                <li><i class="fas fa-check mr-2"></i>Import/Export CSV</li>
+                <li><i class="fas fa-check mr-2"></i>Duplicate detection</li>
+            </ul>
+        </a>
+
+        <!-- Data Extractor Card -->
+        <a href="{{ url_for('extractor.extractor_home') }}" class="block bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg p-6 shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-download text-3xl mr-3"></i>
+                <h2 class="text-xl font-bold">Universal Extractor</h2>
+            </div>
+            <p class="text-green-100 mb-4">Extract text from multiple sources: Reddit, YouTube, and documents (PDF, DOCX, etc.).</p>
+            <ul class="text-sm text-green-200 space-y-1">
+                <li><i class="fas fa-check mr-2"></i>Reddit comments</li>
+                <li><i class="fas fa-check mr-2"></i>YouTube comments & subtitles</li>
+                <li><i class="fas fa-check mr-2"></i>PDF, DOCX, PPTX files</li>
+                <li><i class="fas fa-check mr-2"></i>Export to CSV/Excel</li>
+            </ul>
+        </a>
+
+        <!-- ASR Aligner Card -->
+        <a href="{{ url_for('asr.asr_home') }}" class="block bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg p-6 shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
+            <div class="flex items-center mb-4">
+                <i class="fas fa-microphone text-3xl mr-3"></i>
+                <h2 class="text-xl font-bold">ASR Aligner</h2>
+            </div>
+            <p class="text-purple-100 mb-4">Compare ASR transcriptions with reference text. Calculate WER and analyze errors.</p>
+            <ul class="text-sm text-purple-200 space-y-1">
+                <li><i class="fas fa-check mr-2"></i>Word alignment</li>
+                <li><i class="fas fa-check mr-2"></i>WER calculation</li>
+                <li><i class="fas fa-check mr-2"></i>Translation alignment</li>
+                <li><i class="fas fa-check mr-2"></i>Export results</li>
+            </ul>
+        </a>
+    </div>
+
+    {% if session.get('user_id') %}
+    <div class="mt-8 p-6 bg-gray-50 rounded-lg">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Quick Stats</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="text-center p-4 bg-white rounded shadow">
+                <p class="text-2xl font-bold text-blue-600" id="fil-total">-</p>
+                <p class="text-sm text-gray-500">Filipino Sentences</p>
+            </div>
+            <div class="text-center p-4 bg-white rounded shadow">
+                <p class="text-2xl font-bold text-green-600" id="eng-total">-</p>
+                <p class="text-sm text-gray-500">English Sentences</p>
+            </div>
+            <div class="text-center p-4 bg-white rounded shadow">
+                <p class="text-2xl font-bold text-purple-600" id="categories-count">-</p>
+                <p class="text-sm text-gray-500">Categories</p>
+            </div>
+            <div class="text-center p-4 bg-white rounded shadow">
+                <p class="text-2xl font-bold text-red-600" id="duplicates-count">-</p>
+                <p class="text-sm text-gray-500">Duplicates</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% if session.get('user_id') %}
+<script>
+    // Fetch database stats
+    fetch('{{ url_for("sentencedb.get_stats_api") }}')
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('fil-total').textContent = data.fil_total || 0;
+            document.getElementById('eng-total').textContent = data.eng_total || 0;
+            document.getElementById('categories-count').textContent = data.categories || 0;
+            document.getElementById('duplicates-count').textContent = data.duplicates || 0;
+        })
+        .catch(e => console.error('Error fetching stats:', e));
+</script>
+{% endif %}
+{% endblock %}

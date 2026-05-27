@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Sentence Database - One AI Tool{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-database mr-2 text-blue-600"></i>Sentence Database
+        </h1>
+        <div class="flex space-x-2">
+            <a href="{{ url_for('sentencedb.add') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                <i class="fas fa-plus mr-2"></i>Add Sentence
+            </a>
+            <a href="{{ url_for('sentencedb.edit') }}" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">
+                <i class="fas fa-edit mr-2"></i>Edit
+            </a>
+            <a href="{{ url_for('sentencedb.shop') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                <i class="fas fa-shopping-cart mr-2"></i>Shop
+            </a>
+            <a href="{{ url_for('sentencedb.import_page') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                <i class="fas fa-file-import mr-2"></i>Import/Export
+            </a>
+            <a href="{{ url_for('sentencedb.duplicates') }}" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">
+                <i class="fas fa-clone mr-2"></i>Duplicates
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">Filipino Total</p>
+                    <p class="text-2xl font-bold text-blue-600" id="fil-total">{{ fil }}</p>
+                </div>
+                <i class="fas fa-language text-3xl text-blue-300"></i>
+            </div>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">English Total</p>
+                    <p class="text-2xl font-bold text-green-600" id="eng-total">{{ eng }}</p>
+                </div>
+                <i class="fas fa-language text-3xl text-green-300"></i>
+            </div>
+        </div>
+        <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">Filipino Remaining</p>
+                    <p class="text-2xl font-bold text-purple-600" id="fil-remaining">{{ fil_remaining }}</p>
+                </div>
+                <i class="fas fa-check-circle text-3xl text-purple-300"></i>
+            </div>
+        </div>
+        <div class="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600">English Remaining</p>
+                    <p class="text-2xl font-bold text-orange-600" id="eng-remaining">{{ eng_remaining }}</p>
+                </div>
+                <i class="fas fa-check-circle text-3xl text-orange-300"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-gray-50 p-4 rounded-lg">
+        <h3 class="text-lg font-semibold mb-3">Quick Actions</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <a href="{{ url_for('sentencedb.add') }}" class="text-center p-3 bg-white rounded shadow hover:shadow-md transition">
+                <i class="fas fa-plus-circle text-2xl text-blue-600 mb-2"></i>
+                <p class="text-sm">Add New</p>
+            </a>
+            <a href="{{ url_for('sentencedb.shop') }}" class="text-center p-3 bg-white rounded shadow hover:shadow-md transition">
+                <i class="fas fa-shopping-basket text-2xl text-green-600 mb-2"></i>
+                <p class="text-sm">Get Sentences</p>
+            </a>
+            <a href="{{ url_for('sentencedb.duplicates') }}" class="text-center p-3 bg-white rounded shadow hover:shadow-md transition">
+                <i class="fas fa-clone text-2xl text-red-600 mb-2"></i>
+                <p class="text-sm">Find Duplicates</p>
+            </a>
+            <a href="{{ url_for('sentencedb.import_page') }}" class="text-center p-3 bg-white rounded shadow hover:shadow-md transition">
+                <i class="fas fa-download text-2xl text-purple-600 mb-2"></i>
+                <p class="text-sm">Export All</p>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

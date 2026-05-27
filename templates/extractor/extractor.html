@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Universal Data Extractor - One AI Tool{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-download mr-2 text-green-600"></i>Universal Data Extractor
+        </h1>
+        <a href="{{ url_for('index') }}" class="text-gray-600 hover:text-gray-800">
+            <i class="fas fa-home mr-1"></i>Home
+        </a>
+    </div>
+
+    <!-- Tabs -->
+    <div class="border-b border-gray-200 mb-6">
+        <nav class="-mb-px flex space-x-4">
+            <button onclick="showTab('reddit')" id="tab-reddit" class="tab-button py-2 px-4 border-b-2 font-medium text-sm border-green-500 text-green-600">
+                <i class="fab fa-reddit mr-2"></i>Reddit
+            </button>
+            <button onclick="showTab('yt-comments')" id="tab-yt-comments" class="tab-button py-2 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700">
+                <i class="fab fa-youtube mr-2"></i>YouTube Comments
+            </button>
+            <button onclick="showTab('yt-subs')" id="tab-yt-subs" class="tab-button py-2 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700">
+                <i class="fas fa-closed-captioning mr-2"></i>YouTube Subtitles
+            </button>
+            <button onclick="showTab('document')" id="tab-document" class="tab-button py-2 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700">
+                <i class="fas fa-file-alt mr-2"></i>Documents
+            </button>
+            <button onclick="showTab('results')" id="tab-results" class="tab-button py-2 px-4 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-gray-700">
+                <i class="fas fa-table mr-2"></i>Results <span id="result-count" class="bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs">0</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Reddit Tab -->
+    <div id="reddit" class="tab-content">
+        <div class="max-w-2xl">
+            <h2 class="text-lg font-semibold mb-4">Extract Reddit Comments</h2>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Reddit Post URL or ID</label>
+                <input type="text" id="reddit-url" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="https://www.reddit.com/r/.../comments/abc123/...">
+            </div>
+            <button onclick="extractReddit()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg">
+                <i class="fas fa-download mr-2"></i>Extract Comments
+            </button>
+        </div>
+    </div>
+
+    <!-- YouTube Comments Tab -->
+    <div id="yt-comments" class="tab-content hidden">
+        <div class="max-w-2xl">
+            <h2 class="text-lg font-semibold mb-4">Extract YouTube Comments</h2>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">YouTube Video URL</label>
+                <input type="text" id="yt-comments-url" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Max Comments</label>
+                <input type="number" id="yt-comments-max" value="100" min="1" max="500"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            <button onclick="extractYouTubeComments()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg">
+                <i class="fas fa-download mr-2"></i>Extract Comments
+            </button>
+        </div>
+    </div>
+
+    <!-- YouTube Subtitles Tab -->
+    <div id="yt-subs" class="tab-content hidden">
+        <div class="max-w-2xl">
+            <h2 class="text-lg font-semibold mb-4">Extract YouTube Subtitles</h2>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">YouTube Video URL</label>
+                <input type="text" id="yt-subs-url" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                    placeholder="https://www.youtube.com/watch?v=...">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Language</label>
+                <select id="yt-subs-lang" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="en">English</option>
+                    <option value="en-US">English (US)</option>
+                    <option value="en-GB">English (UK)</option>
+                    <option value="fil">Filipino</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="ja">Japanese</option>
+                    <option value="ko">Korean</option>
+                    <option value="zh-Hans">Chinese (Simplified)</option>
+                </select>
+            </div>
+            <button onclick="extractYouTubeSubtitles()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg">
+                <i class="fas fa-download mr-2"></i>Extract Subtitles
+            </button>
+        </div>
+    </div>
+
+    <!-- Document Tab -->
+    <div id="document" class="tab-content hidden">
+        <div class="max-w-2xl">
+            <h2 class="text-lg font-semibold mb-4">Extract from Documents</h2>
+            <p class="text-gray-600 mb-4">Supported formats: PDF, DOCX, PPTX, TXT, HTML, EPUB</p>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Upload Files</label>
+                <input type="file" id="doc-files" multiple accept=".pdf,.docx,.pptx,.ppt,.txt,.html,.htm,.epub"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            </div>
+            <button onclick="extractDocuments()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg">
+                <i class="fas fa-download mr-2"></i>Extract Text
+            </button>
+        </div>
+    </div>
+
+    <!-- Results Tab -->
+    <div id="results" class="tab-content hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Extraction Results</h2>
+            <div class="space-x-2">
+                <button onclick="exportResults('csv')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                    <i class="fas fa-file-csv mr-2"></i>Export CSV
+                </button>
+                <button onclick="exportResults('excel')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                    <i class="fas fa-file-excel mr-2"></i>Export Excel
+                </button>
+            </div>
+        </div>
+        <div id="results-container" class="overflow-x-auto">
+            <p class="text-gray-500 text-center py-8">No results yet. Extract data to see results here.</p>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg text-center">
+            <i class="fas fa-spinner fa-spin text-4xl text-green-600 mb-4"></i>
+            <p class="text-lg font-semibold">Extracting data...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentTaskId = null;
+let currentResults = [];
+
+function showTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.tab-button').forEach(el => {
+        el.classList.remove('border-green-500', 'text-green-600');
+        el.classList.add('border-transparent', 'text-gray-500');
+    });
+    document.getElementById(tabId).classList.remove('hidden');
+    document.getElementById('tab-' + tabId).classList.remove('border-transparent', 'text-gray-500');
+    document.getElementById('tab-' + tabId).classList.add('border-green-500', 'text-green-600');
+}
+
+function showLoading() { document.getElementById('loading').classList.remove('hidden'); }
+function hideLoading() { document.getElementById('loading').classList.add('hidden'); }
+
+function displayResults(data) {
+    currentResults = data;
+    document.getElementById('result-count').textContent = data.length;
+    
+    let html = '<table class="min-w-full bg-white border"><thead class="bg-gray-100"><tr>';
+    html += '<th class="py-2 px-4 text-left">#</th>';
+    html += '<th class="py-2 px-4 text-left">Sentence</th>';
+    html += '<th class="py-2 px-4 text-left">Words</th>';
+    html += '<th class="py-2 px-4 text-left">Source</th>';
+    html += '</tr></thead><tbody>';
+    
+    data.slice(0, 50).forEach((item, idx) => {
+        html += '<tr class="border-b">';
+        html += '<td class="py-2 px-4">' + (idx + 1) + '</td>';
+        html += '<td class="py-2 px-4 max-w-md truncate">' + (item.sentence || '').substring(0, 100) + '...</td>';
+        html += '<td class="py-2 px-4">' + (item.word_count || 0) + '</td>';
+        html += '<td class="py-2 px-4 text-sm text-gray-600">' + (item.source_type || '') + '</td>';
+        html += '</tr>';
+    });
+    
+    if (data.length > 50) {
+        html += '<tr><td colspan="4" class="py-2 px-4 text-center text-gray-500">... and ' + (data.length - 50) + ' more rows</td></tr>';
+    }
+    
+    html += '</tbody></table>';
+    document.getElementById('results-container').innerHTML = html;
+    showTab('results');
+}
+
+function extractReddit() {
+    const url = document.getElementById('reddit-url').value.trim();
+    if (!url) { alert('Please enter a Reddit URL'); return; }
+    showLoading();
+    fetch('/extractor/reddit', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({url_or_id: url})
+    })
+    .then(r => r.json())
+    .then(data => {
+        hideLoading();
+        if (data.success) {
+            currentTaskId = data.task_id;
+            displayResults(data.data);
+            alert('Extracted ' + data.count + ' comments!');
+        } else {
+            alert('Error: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(e => { hideLoading(); alert('Error: ' + e); });
+}
+
+function extractYouTubeComments() {
+    const url = document.getElementById('yt-comments-url').value.trim();
+    const max = document.getElementById('yt-comments-max').value;
+    if (!url) { alert('Please enter a YouTube URL'); return; }
+    showLoading();
+    fetch('/extractor/youtube/comments', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({url: url, max_results: parseInt(max)})
+    })
+    .then(r => r.json())
+    .then(data => {
+        hideLoading();
+        if (data.success) {
+            currentTaskId = data.task_id;
+            displayResults(data.data);
+            alert('Extracted ' + data.count + ' comments!');
+        } else {
+            alert('Error: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(e => { hideLoading(); alert('Error: ' + e); });
+}
+
+function extractYouTubeSubtitles() {
+    const url = document.getElementById('yt-subs-url').value.trim();
+    const lang = document.getElementById('yt-subs-lang').value;
+    if (!url) { alert('Please enter a YouTube URL'); return; }
+    showLoading();
+    fetch('/extractor/youtube/subtitles', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({url: url, language: lang})
+    })
+    .then(r => r.json())
+    .then(data => {
+        hideLoading();
+        if (data.success) {
+            currentTaskId = data.task_id;
+            displayResults(data.data);
+            alert('Extracted ' + data.count + ' sentences!');
+        } else {
+            alert('Error: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(e => { hideLoading(); alert('Error: ' + e); });
+}
+
+function extractDocuments() {
+    const files = document.getElementById('doc-files').files;
+    if (!files.length) { alert('Please select files'); return; }
+    showLoading();
+    const formData = new FormData();
+    for (let f of files) formData.append('files', f);
+    fetch('/extractor/document', {method: 'POST', body: formData})
+    .then(r => r.json())
+    .then(data => {
+        hideLoading();
+        if (data.success) {
+            currentTaskId = data.task_id;
+            displayResults(data.data);
+            alert('Extracted ' + data.count + ' sentences!');
+        } else {
+            alert('Error: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(e => { hideLoading(); alert('Error: ' + e); });
+}
+
+function exportResults(format) {
+    if (!currentTaskId) { alert('No results to export'); return; }
+    window.location.href = '/extractor/export/' + format + '/' + currentTaskId;
+}
+</script>
+{% endblock %}

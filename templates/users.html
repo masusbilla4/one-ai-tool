@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - One AI Tool{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-users-cog mr-2 text-yellow-600"></i>User Management
+        </h1>
+        <a href="{{ url_for('index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Home
+        </a>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-200">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="py-3 px-4 text-left">ID</th>
+                    <th class="py-3 px-4 text-left">Username</th>
+                    <th class="py-3 px-4 text-left">Email</th>
+                    <th class="py-3 px-4 text-left">Created</th>
+                    <th class="py-3 px-4 text-left">Admin</th>
+                    <th class="py-3 px-4 text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="border-b hover:bg-gray-50 {% if user.id == session.get('user_id') %}bg-blue-50{% endif %}">
+                    <td class="py-3 px-4">{{ user.id }}</td>
+                    <td class="py-3 px-4 font-medium">{{ user.username }} {% if user.id == session.get('user_id') %}<span class="text-xs text-gray-500">(You)</span>{% endif %}</td>
+                    <td class="py-3 px-4 text-gray-600">{{ user.email or '-' }}</td>
+                    <td class="py-3 px-4 text-gray-600">{{ user.created_at[:10] if user.created_at else '-' }}</td>
+                    <td class="py-3 px-4">
+                        {% if user.is_admin %}
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">Admin</span>
+                        {% else %}
+                            <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs">User</span>
+                        {% endif %}
+                    </td>
+                    <td class="py-3 px-4">
+                        <div class="flex justify-center space-x-2">
+                            {% if user.id != session.get('user_id') %}
+                            <!-- Toggle Admin -->
+                            <form method="POST" action="{{ url_for('auth.set_admin_route', user_id=user.id) }}" class="inline" onsubmit="return confirm('Toggle admin status for {{ user.username }}?')">
+                                <button type="submit" name="is_admin" value="{{ 'off' if user.is_admin else 'on' }}"
+                                    class="px-3 py-1 rounded text-xs {% if user.is_admin %}bg-gray-500 hover:bg-gray-600{% else %}bg-yellow-500 hover:bg-yellow-600{% endif %} text-white">
+                                    {% if user.is_admin %}Remove Admin{% else %}Make Admin{% endif %}
+                                </button>
+                            </form>
+                            
+                            <!-- Reset Password -->
+                            <button onclick="document.getElementById('pwd-modal-{{ user.id }}').classList.remove('hidden')"
+                                class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs">
+                                Reset Password
+                            </button>
+                            
+                            <!-- Delete User -->
+                            <form method="POST" action="{{ url_for('auth.delete_user_route', user_id=user.id) }}" class="inline" onsubmit="return confirm('Delete user {{ user.username }}? This cannot be undone!')">
+                                <button type="submit" class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            {% else %}
+                            <span class="text-gray-400 text-xs">Current User</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- Password Reset Modal -->
+                <div id="pwd-modal-{{ user.id }}" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+                        <h3 class="text-lg font-bold mb-4">Reset Password for {{ user.username }}</h3>
+                        <form method="POST" action="{{ url_for('auth.reset_password_route', user_id=user.id) }}">
+                            <div class="mb-4">
+                                <label class="block text-gray-700 font-semibold mb-2">New Password</label>
+                                <input type="password" name="new_password" required minlength="4"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Min 4 characters">
+                            </div>
+                            <div class="flex justify-end space-x-2">
+                                <button type="button" onclick="document.getElementById('pwd-modal-{{ user.id }}').classList.add('hidden')"
+                                    class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded">Cancel</button>
+                                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded">Reset Password</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if not users %}
+    <p class="text-center text-gray-500 py-8">No users found.</p>
+    {% endif %}
+</div>
+{% endblock %}
