@@ -128,16 +128,51 @@
                     <!-- Sentence Sections -->
                     <div id="sentence-section-add" class="sentence-section hidden">
                         <h2 class="text-xl font-semibold mb-4">Add New Sentence</h2>
+                        
+                        <!-- Add New Category Button -->
+                        <div class="mb-4">
+                            <button onclick="showAddCategory()" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                <i class="fas fa-plus-circle mr-1"></i>Add New Category
+                            </button>
+                        </div>
+                        
+                        <!-- Add Category Form (Hidden by default) -->
+                        <div id="add-category-form" class="hidden mb-4 p-4 bg-slate-100 rounded-lg">
+                            <h3 class="text-sm font-semibold text-slate-700 mb-2">Create New Category</h3>
+                            <div class="flex gap-2">
+                                <input type="text" id="new-category-name" 
+                                       placeholder="Enter category name..." 
+                                       class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm">
+                                <button onclick="addNewCategory()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button onclick="hideAddCategory()" class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
                         <form action="{{ url_for('sentencedb.add') }}" method="POST" class="space-y-4 max-w-lg">
                             <textarea name="sentence" rows="3" class="input-field" placeholder="Enter sentence..." required></textarea>
-                            <input type="text" name="category" class="input-field" 
-                                   placeholder="Enter category (e.g., Camera, Settings, Phone)..." 
-                                   list="category-list" required>
-                            <datalist id="category-list">
-                                {% for cat in categories %}
-                                <option value="{{ cat }}">
-                                {% endfor %}
-                            </datalist>
+                            
+                            <!-- Category Selection -->
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                                <select name="category" id="category-select" class="input-field" required onchange="handleCategoryChange()">
+                                    <option value="" disabled selected>Select or add category...</option>
+                                    {% for cat in categories %}
+                                    <option value="{{ cat }}">{{ cat }}</option>
+                                    {% endfor %}
+                                    <option value="__NEW__">+ Add New Category...</option>
+                                </select>
+                                
+                                <!-- New Category Input (shown when "+ Add New Category..." is selected) -->
+                                <input type="text" id="new-category-input" name="category" 
+                                       class="input-field mt-2 hidden" 
+                                       placeholder="Enter new category name..." 
+                                       onblur="resetCategorySelect()">
+                            </div>
+                            
                             <select name="language" class="input-field">
                                 <option value="fil">Filipino</option>
                                 <option value="en">English</option>
@@ -1035,6 +1070,72 @@
                 toggleNightMode();
             }
         });
+
+        // ========== CATEGORY MANAGEMENT ==========
+        
+        // Show "Add New Category" input when selected in dropdown
+        function handleCategoryChange() {
+            const select = document.getElementById('category-select');
+            const newCategoryInput = document.getElementById('new-category-input');
+            
+            if (select.value === '__NEW__') {
+                select.classList.add('hidden');
+                newCategoryInput.classList.remove('hidden');
+                newCategoryInput.focus();
+            }
+        }
+        
+        // Reset select when leaving new category input
+        function resetCategorySelect() {
+            const select = document.getElementById('category-select');
+            const newCategoryInput = document.getElementById('new-category-input');
+            
+            if (newCategoryInput.value.trim() === '') {
+                // User didn't type anything, reset to select
+                newCategoryInput.classList.add('hidden');
+                select.classList.remove('hidden');
+                select.value = '';
+            } else {
+                // User typed a category, update select to show it
+                newCategoryInput.classList.add('hidden');
+                select.classList.remove('hidden');
+                // The form will submit with the new category name from the input
+            }
+        }
+        
+        // Show add category form (alternative method)
+        function showAddCategory() {
+            document.getElementById('add-category-form').classList.remove('hidden');
+            document.getElementById('new-category-name').focus();
+        }
+        
+        // Hide add category form
+        function hideAddCategory() {
+            document.getElementById('add-category-form').classList.add('hidden');
+            document.getElementById('new-category-name').value = '';
+        }
+        
+        // Add new category (stores in localStorage for now)
+        function addNewCategory() {
+            const categoryName = document.getElementById('new-category-name').value.trim();
+            if (!categoryName) {
+                alert('Please enter a category name');
+                return;
+            }
+            
+            // Add to the select dropdown
+            const select = document.getElementById('category-select');
+            const option = document.createElement('option');
+            option.value = categoryName;
+            option.textContent = categoryName;
+            option.selected = true;
+            select.insertBefore(option, select.querySelector('option[value="__NEW__"]'));
+            
+            // Hide the form
+            hideAddCategory();
+            
+            alert('Category "' + categoryName + '" added! You can now use it for your sentence.');
+        }
     </script>
 </body>
 </html>
