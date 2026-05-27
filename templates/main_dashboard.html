@@ -166,45 +166,70 @@
                         <i class="fas fa-download mr-2 text-indigo-600"></i>Universal Data Extractor
                     </h1>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Reddit -->
-                        <div class="border rounded-lg p-4">
-                            <h3 class="font-semibold text-lg mb-3"><i class="fab fa-reddit text-orange-500 mr-2"></i>Reddit Comments</h3>
+                    <!-- Extractor Sub-Tabs -->
+                    <div class="flex space-x-2 mb-6 border-b">
+                        <button onclick="switchExtractorTab('reddit')" class="extractor-tab-btn active px-4 py-2 rounded-t-lg transition font-medium bg-orange-100 text-orange-700">
+                            <i class="fab fa-reddit mr-2"></i>Reddit
+                        </button>
+                        <button onclick="switchExtractorTab('yt-comments')" class="extractor-tab-btn px-4 py-2 rounded-t-lg transition font-medium hover:bg-slate-100">
+                            <i class="fas fa-comments mr-2"></i>YouTube Comments
+                        </button>
+                        <button onclick="switchExtractorTab('yt-subs')" class="extractor-tab-btn px-4 py-2 rounded-t-lg transition font-medium hover:bg-slate-100">
+                            <i class="fas fa-closed-captioning mr-2"></i>YouTube Subtitles
+                        </button>
+                        <button onclick="switchExtractorTab('document')" class="extractor-tab-btn px-4 py-2 rounded-t-lg transition font-medium hover:bg-slate-100">
+                            <i class="fas fa-file-alt mr-2"></i>Document
+                        </button>
+                    </div>
+
+                    <!-- Reddit Tab -->
+                    <div id="extractor-reddit" class="extractor-tab-content">
+                        <div class="max-w-2xl">
+                            <h3 class="font-semibold text-lg mb-3"><i class="fab fa-reddit text-orange-500 mr-2"></i>Extract Reddit Comments</h3>
                             <input type="text" id="reddit-url" class="input-field mb-3" placeholder="Reddit post URL or ID">
-                            <button onclick="extractReddit()" class="w-full bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition">
-                                <i class="fas fa-download mr-2"></i>Extract
+                            <button onclick="extractReddit()" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg transition">
+                                <i class="fas fa-download mr-2"></i>Extract Comments
                             </button>
                         </div>
+                    </div>
 
-                        <!-- YouTube Comments -->
-                        <div class="border rounded-lg p-4">
-                            <h3 class="font-semibold text-lg mb-3"><i class="fab fa-youtube text-red-500 mr-2"></i>YouTube Comments</h3>
+                    <!-- YouTube Comments Tab -->
+                    <div id="extractor-yt-comments" class="extractor-tab-content hidden">
+                        <div class="max-w-2xl">
+                            <h3 class="font-semibold text-lg mb-3"><i class="fab fa-youtube text-red-500 mr-2"></i>Extract YouTube Comments</h3>
                             <input type="text" id="yt-comments-url" class="input-field mb-3" placeholder="YouTube video URL">
                             <input type="number" id="yt-comments-count" class="input-field mb-3" value="100" placeholder="Max comments">
-                            <button onclick="extractYoutubeComments()" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">
-                                <i class="fas fa-download mr-2"></i>Extract
+                            <button onclick="extractYoutubeComments()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition">
+                                <i class="fas fa-download mr-2"></i>Extract Comments
                             </button>
                         </div>
+                    </div>
 
-                        <!-- YouTube Subtitles -->
-                        <div class="border rounded-lg p-4">
-                            <h3 class="font-semibold text-lg mb-3"><i class="fab fa-youtube text-red-500 mr-2"></i>YouTube Subtitles</h3>
+                    <!-- YouTube Subtitles Tab -->
+                    <div id="extractor-yt-subs" class="extractor-tab-content hidden">
+                        <div class="max-w-2xl">
+                            <h3 class="font-semibold text-lg mb-3"><i class="fab fa-youtube text-red-500 mr-2"></i>Extract YouTube Subtitles</h3>
                             <input type="text" id="yt-subs-url" class="input-field mb-3" placeholder="YouTube video URL">
                             <select id="yt-subs-lang" class="input-field mb-3">
                                 <option value="en">English</option>
                                 <option value="fil">Filipino</option>
                                 <option value="ko">Korean</option>
+                                <option value="ja">Japanese</option>
+                                <option value="zh-Hans">Chinese (Simplified)</option>
                             </select>
-                            <button onclick="extractYoutubeSubs()" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">
-                                <i class="fas fa-closed-captioning mr-2"></i>Extract
+                            <button onclick="extractYoutubeSubs()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition">
+                                <i class="fas fa-closed-captioning mr-2"></i>Extract Subtitles
                             </button>
                         </div>
+                    </div>
 
-                        <!-- Document -->
-                        <div class="border rounded-lg p-4">
-                            <h3 class="font-semibold text-lg mb-3"><i class="fas fa-file-alt text-blue-500 mr-2"></i>Document Text</h3>
-                            <input type="file" id="doc-files" class="input-field mb-3" multiple accept=".txt,.pdf,.docx,.xlsx,.csv">
-                            <button onclick="extractDocument()" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                    <!-- Document Tab -->
+                    <div id="extractor-document" class="extractor-tab-content hidden">
+                        <div class="max-w-2xl">
+                            <h3 class="font-semibold text-lg mb-3"><i class="fas fa-file-alt text-blue-500 mr-2"></i>Extract Text from Documents</h3>
+                            <p class="text-slate-600 mb-3 text-sm">Supported formats: TXT, PDF, DOCX, XLSX, CSV, SRT</p>
+                            <input type="file" id="doc-files" class="input-field mb-3" multiple accept=".txt,.pdf,.docx,.xlsx,.csv,.srt">
+                            <button onclick="extractDocument()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition">
                                 <i class="fas fa-upload mr-2"></i>Upload & Extract
                             </button>
                         </div>
@@ -232,73 +257,108 @@
             <div id="asr" class="tab-content">
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <h1 class="text-2xl font-bold text-slate-800 mb-6">
-                        <i class="fas fa-microphone mr-2 text-indigo-600"></i>ASR Aligner & Evaluator
+                        <i class="fas fa-microphone-alt mr-2 text-indigo-600"></i>ASR Aligner
                     </h1>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- True Text -->
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">True Text (Reference)</label>
-                            <textarea id="asr-true-text" rows="12" class="input-field" placeholder="Enter reference text (one sentence per line)..."></textarea>
+                    <!-- ASR Splitter Drop Zone -->
+                    <div class="bg-white rounded-lg shadow p-4 mb-6">
+                        <h2 class="text-lg font-semibold mb-3 text-indigo-800">
+                            <i class="fas fa-file-import mr-2"></i>ASR Splitter — Drop .txt Files
+                        </h2>
+                        <div id="asr-drop-zone" class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center cursor-pointer hover:bg-indigo-50 transition" onclick="document.getElementById('asr-file-input').click()">
+                            <div class="text-slate-600">
+                                <span class="text-4xl">📄</span>
+                                <div class="mt-2"><strong>Drop .txt files here</strong> — or click to browse</div>
+                                <div class="text-xs mt-1 text-slate-500">Files sorted A→Z. First half = ASR, Second half = Translation</div>
+                            </div>
                         </div>
-
-                        <!-- ASR Text -->
-                        <div>
-                            <label class="block text-sm font-medium text-slate-700 mb-2">ASR Result</label>
-                            <textarea id="asr-result-text" rows="12" class="input-field" placeholder="Enter ASR output (one sentence per line)..."></textarea>
+                        <input type="file" id="asr-file-input" multiple accept=".txt" style="display:none" onchange="handleASRFileSelect(event)">
+                        <div id="asr-file-list" class="bg-slate-100 border border-slate-300 rounded p-3 mt-3 hidden">
+                            <div class="flex justify-between items-center mb-2 font-semibold text-sm">
+                                <span id="asr-file-count">0 files</span>
+                                <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" onclick="clearASRFiles()">✕ Clear</button>
+                            </div>
+                            <div id="asr-file-items"></div>
                         </div>
                     </div>
 
-                    <!-- Model Selection -->
-                    <div class="mt-4">
-                        <label class="block text-sm font-medium text-slate-700 mb-2">AI Model (for AI scoring)</label>
-                        <select id="asr-model" class="input-field max-w-md">
-                            <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-                            <option value="gemini-2.5-flash-lite">Gemini 2.5 Flash Lite</option>
-                            <option value="gemini-2.5-pro">Gemini 2.5 Pro</option>
-                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
-                            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                            <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-                        </select>
+                    <!-- Input Section -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <!-- True Text -->
+                        <div>
+                            <div class="bg-green-500 text-white p-2 font-semibold rounded-t"><span class="mr-1">📝</span>True Text (Reference)</div>
+                            <textarea id="asr-true-text" rows="8" class="input-field w-full border-0 rounded-t-none" placeholder="Paste reference text or drop .txt file here..."></textarea>
+                            <div class="text-right text-sm text-white bg-green-500 p-1 rounded-b" id="true-count">Lines: 0</div>
+                        </div>
+                        <!-- ASR Text -->
+                        <div>
+                            <div class="bg-blue-500 text-white p-2 font-semibold rounded-t"><span class="mr-1">🎤</span>ASR Result</div>
+                            <textarea id="asr-asr-text" rows="8" class="input-field w-full border-0 rounded-t-none" placeholder="Paste ASR result here..."></textarea>
+                            <div class="text-right text-sm text-white bg-blue-500 p-1 rounded-b" id="asr-count">Lines: 0</div>
+                        </div>
+                        <!-- Translation -->
+                        <div>
+                            <div class="bg-green-600 text-white p-2 font-semibold rounded-t"><span class="mr-1">🌐</span>English Translation</div>
+                            <textarea id="asr-trans-text" rows="8" class="input-field w-full border-0 rounded-t-none" placeholder="Paste translation here..."></textarea>
+                            <div class="text-right text-sm text-white bg-green-600 p-1 rounded-b" id="trans-count">Lines: 0</div>
+                        </div>
                     </div>
 
                     <!-- Action Buttons -->
-                    <div class="flex gap-3 mt-6">
-                        <button onclick="runASRAlignment()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg transition font-medium">
-                            <i class="fas fa-play mr-2"></i>Run Alignment
-                        </button>
-                        <button onclick="runTranslationAlign()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition font-medium">
-                            <i class="fas fa-language mr-2"></i>Align Translation
-                        </button>
-                        <button onclick="reevaluate()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg transition font-medium">
-                            <i class="fas fa-redo mr-2"></i>Re-evaluate
-                        </button>
+                    <div class="bg-white rounded-lg shadow p-4 mb-6">
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="runASRAlignment()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded font-semibold">
+                                <i class="fas fa-play mr-2"></i>Align ASR
+                            </button>
+                            <button onclick="clearASRAll()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded font-semibold">
+                                <i class="fas fa-trash mr-2"></i>Clear All
+                            </button>
+                            <span class="flex-1"></span>
+                            <button onclick="toggleASRResults()" class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-2 rounded font-semibold" id="asr-btn-results" disabled>
+                                <i class="fas fa-chart-bar mr-2"></i>Show Results
+                            </button>
+                        </div>
+                        <div class="mt-4">
+                            <div class="w-full h-2 bg-slate-200 rounded overflow-hidden">
+                                <div class="h-full bg-indigo-600 transition-all" id="asr-progress" style="width: 0%"></div>
+                            </div>
+                            <div class="text-sm text-slate-600 mt-2" id="asr-status">Ready to align</div>
+                        </div>
                     </div>
 
-                    <!-- Results Table -->
-                    <div id="asr-results" class="mt-6 hidden">
-                        <h3 class="font-semibold text-lg mb-3">Alignment Results</h3>
-                        <div class="border rounded-lg overflow-hidden">
-                            <table class="w-full text-sm">
-                                <thead class="bg-slate-100">
-                                    <tr>
-                                        <th class="px-4 py-2 text-left">#</th>
-                                        <th class="px-4 py-2 text-left">True</th>
-                                        <th class="px-4 py-2 text-left">ASR</th>
-                                        <th class="px-4 py-2 text-left">WER</th>
-                                        <th class="px-4 py-2 text-left">Score</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="asr-results-body" class="divide-y"></tbody>
-                            </table>
-                        </div>
-                        <div class="flex gap-3 mt-4">
-                            <button onclick="exportASRCsv()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
-                                <i class="fas fa-file-csv mr-2"></i>Export CSV
-                            </button>
-                            <button onclick="exportASRExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
-                                <i class="fas fa-file-excel mr-2"></i>Export Excel
-                            </button>
+                    <!-- Results Section -->
+                    <div id="asr-results-section" class="hidden">
+                        <div class="bg-white rounded-lg shadow p-4 mb-4">
+                            <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                                <h2 class="text-xl font-bold" id="asr-results-title">📊 Alignment Results</h2>
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="exportASRExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                                        <i class="fas fa-file-excel mr-2"></i>Export Excel
+                                    </button>
+                                    <button onclick="openASRModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                                        <i class="fas fa-language mr-2"></i>Align Translation (AI)
+                                    </button>
+                                    <button onclick="reevaluateASR()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
+                                        <i class="fas fa-redo mr-2"></i>Re-evaluate
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-indigo-600 text-white">
+                                        <tr>
+                                            <th class="py-2 px-3 text-center">No</th>
+                                            <th class="py-2 px-3">Test Language</th>
+                                            <th class="py-2 px-3">ASR Separated</th>
+                                            <th class="py-2 px-3">Differences</th>
+                                            <th class="py-2 px-3 text-center">WER%</th>
+                                            <th class="py-2 px-3 text-center">AI Score</th>
+                                            <th class="py-2 px-3">Translation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="asr-results-body"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -307,7 +367,7 @@
     </div>
 
     <script>
-        // Tab Switching
+        // ========== MAIN TAB SWITCHING ==========
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -315,21 +375,30 @@
             event.target.closest('.tab-btn').classList.add('active');
         }
 
-        // Sentence Section Switching
+        // ========== EXTRACTOR SUB-TAB SWITCHING ==========
+        function switchExtractorTab(source) {
+            document.querySelectorAll('.extractor-tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.querySelectorAll('.extractor-tab-btn').forEach(btn => {
+                btn.classList.remove('bg-orange-100', 'text-orange-700');
+                btn.classList.add('hover:bg-slate-100');
+            });
+            document.getElementById('extractor-' + source).classList.remove('hidden');
+            const activeBtn = event.target.closest('.extractor-tab-btn');
+            activeBtn.classList.remove('hover:bg-slate-100');
+            activeBtn.classList.add('bg-orange-100', 'text-orange-700');
+        }
+
+        // ========== SENTENCE DB SECTION SWITCHING ==========
         function showSentenceSection(section) {
             document.querySelectorAll('.sentence-section').forEach(s => s.classList.add('hidden'));
             document.getElementById('sentence-section-' + section).classList.remove('hidden');
         }
-
         function hideSentenceSections() {
             document.querySelectorAll('.sentence-section').forEach(s => s.classList.add('hidden'));
         }
 
-        // Load stats on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchStats();
-        });
-
+        // ========== LOAD STATS ==========
+        document.addEventListener('DOMContentLoaded', function() { fetchStats(); });
         async function fetchStats() {
             try {
                 const res = await fetch('{{ url_for("sentencedb.get_stats_api") }}');
@@ -338,169 +407,328 @@
                 document.getElementById('eng-total').textContent = data.eng_total || 0;
                 document.getElementById('fil-remaining').textContent = data.fil_remaining || 0;
                 document.getElementById('eng-remaining').textContent = data.eng_remaining || 0;
-            } catch (e) {
-                console.error('Failed to load stats:', e);
-            }
+            } catch (e) { console.error('Failed to load stats:', e); }
         }
 
-        // Extractor Functions
+        // ========== EXTRACTOR FUNCTIONS ==========
         async function extractReddit() {
             const url = document.getElementById('reddit-url').value;
             if (!url) { alert('Please enter a Reddit URL'); return; }
-            
             try {
-                const res = await fetch('/extractor/reddit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url_or_id: url })
-                });
+                const res = await fetch('/extractor/reddit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url_or_id: url }) });
                 const data = await res.json();
                 showExtractorResults(data);
-            } catch (e) {
-                alert('Error: ' + e.message);
-            }
+            } catch (e) { alert('Error: ' + e.message); }
         }
-
         async function extractYoutubeComments() {
             const url = document.getElementById('yt-comments-url').value;
             const maxResults = document.getElementById('yt-comments-count').value;
             if (!url) { alert('Please enter a YouTube URL'); return; }
-            
             try {
-                const res = await fetch('/extractor/youtube/comments', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: url, max_results: parseInt(maxResults) })
-                });
+                const res = await fetch('/extractor/youtube/comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url, max_results: parseInt(maxResults) }) });
                 const data = await res.json();
                 showExtractorResults(data);
-            } catch (e) {
-                alert('Error: ' + e.message);
-            }
+            } catch (e) { alert('Error: ' + e.message); }
         }
-
         async function extractYoutubeSubs() {
             const url = document.getElementById('yt-subs-url').value;
             const lang = document.getElementById('yt-subs-lang').value;
             if (!url) { alert('Please enter a YouTube URL'); return; }
-            
             try {
-                const res = await fetch('/extractor/youtube/subtitles', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: url, language: lang })
-                });
+                const res = await fetch('/extractor/youtube/subtitles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url, language: lang }) });
                 const data = await res.json();
                 showExtractorResults(data);
-            } catch (e) {
-                alert('Error: ' + e.message);
-            }
+            } catch (e) { alert('Error: ' + e.message); }
         }
-
         async function extractDocument() {
             const files = document.getElementById('doc-files').files;
             if (!files.length) { alert('Please select files'); return; }
-            
             const formData = new FormData();
             for (let f of files) formData.append('files', f);
-            
             try {
                 const res = await fetch('/extractor/document', { method: 'POST', body: formData });
                 const data = await res.json();
                 showExtractorResults(data);
-            } catch (e) {
-                alert('Error: ' + e.message);
-            }
+            } catch (e) { alert('Error: ' + e.message); }
         }
-
         function showExtractorResults(data) {
             document.getElementById('extractor-results').classList.remove('hidden');
             document.getElementById('extractor-output').textContent = JSON.stringify(data.data, null, 2);
         }
-
         function exportExtractorCSV() { window.open('/extractor/export/csv/latest'); }
         function exportExtractorExcel() { window.open('/extractor/export/excel/latest'); }
 
-        // ASR Functions
-        async function runASRAlignment() {
-            const trueText = document.getElementById('asr-true-text').value;
-            const asrText = document.getElementById('asr-result-text').value;
-            if (!trueText || !asrText) { alert('Please enter both texts'); return; }
-            
-            try {
-                const res = await fetch('/asr/align', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ true_text: trueText, asr_text: asrText })
-                });
-                const data = await res.json();
-                if (data.status === 'started') {
-                    pollAlignmentResult();
-                }
-            } catch (e) {
-                alert('Error: ' + e.message);
-            }
-        }
+        // ========== ASR ALIGNER - FULL FEATURE SET ==========
+        let asrAlignmentData = [];
+        let asrOverallWer = 0;
+        let asrOverallStats = {};
+        let asrCurrentTaskId = null;
+        let asrSplitterFiles = [];
 
-        async function pollAlignmentResult() {
-            const poll = async () => {
-                const res = await fetch('/asr/align-result');
-                const data = await res.json();
-                if (data.done) {
-                    showASRResults(data.result);
-                } else {
-                    setTimeout(poll, 2000);
-                }
-            };
-            poll();
-        }
-
-        function showASRResults(result) {
-            document.getElementById('asr-results').classList.remove('hidden');
-            const tbody = document.getElementById('asr-results-body');
-            tbody.innerHTML = '';
-            (result.alignment_data || []).forEach((row, i) => {
-                tbody.innerHTML += `<tr>
-                    <td class="px-4 py-2">${i + 1}</td>
-                    <td class="px-4 py-2">${row.true || ''}</td>
-                    <td class="px-4 py-2">${row.asr || ''}</td>
-                    <td class="px-4 py-2">${row.wer || 0}%</td>
-                    <td class="px-4 py-2">${row.score || '-'}</td>
-                </tr>`;
+        // ASR Splitter - Drag & Drop
+        const asrDropZone = document.getElementById('asr-drop-zone');
+        if (asrDropZone) {
+            asrDropZone.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); asrDropZone.classList.add('drag-over'); });
+            asrDropZone.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); asrDropZone.classList.remove('drag-over'); });
+            asrDropZone.addEventListener('drop', (e) => {
+                e.preventDefault(); e.stopPropagation();
+                asrDropZone.classList.remove('drag-over');
+                const files = Array.from(e.dataTransfer.files).filter(f => f.name.toLowerCase().endsWith('.txt'));
+                if (files.length === 0) { showToast('Please drop .txt files only.', 'warning'); return; }
+                processASRSplitterFiles(files);
             });
         }
 
-        async function runTranslationAlign() {
-            alert('Translation alignment feature - add translation text input');
+        function handleASRFileSelect(event) {
+            const files = Array.from(event.target.files).filter(f => f.name.toLowerCase().endsWith('.txt'));
+            if (files.length === 0) { showToast('Please select .txt files only.', 'warning'); return; }
+            processASRSplitterFiles(files);
+            event.target.value = '';
         }
 
-        async function reevaluate() {
+        async function processASRSplitterFiles(files) {
+            files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+            asrSplitterFiles = files;
+            const fileListEl = document.getElementById('asr-file-list');
+            const fileListItems = document.getElementById('asr-file-items');
+            fileListEl.classList.remove('hidden');
+            document.getElementById('asr-file-count').textContent = `${files.length} file${files.length > 1 ? 's' : ''} (sorted A→Z)`;
+            fileListItems.innerHTML = '';
+            files.forEach((f, i) => {
+                const item = document.createElement('div');
+                item.className = 'py-1';
+                item.innerHTML = `<span class="text-slate-500 mr-2">${i+1}.</span><span>📄 ${escapeHtmlASR(f.name)}</span>`;
+                fileListItems.appendChild(item);
+            });
+            setASRProgress(20, `⏳ Processing ${files.length} file(s)...`);
+            let allAsrLines = [];
+            let allTransLines = [];
+            for (let i = 0; i < files.length; i++) {
+                try {
+                    const content = await readASRFileAsText(files[i]);
+                    const lines = content.split('\n');
+                    const midpoint = Math.floor(lines.length / 2);
+                    const firstHalf = lines.slice(0, midpoint).map(l => l.trim()).filter(l => l);
+                    const secondHalf = lines.slice(midpoint).map(l => l.trim()).filter(l => l);
+                    allAsrLines.push(...firstHalf);
+                    allTransLines.push(...secondHalf);
+                } catch (e) { showToast(`Error reading ${files[i].name}: ${e.message}`, 'error'); }
+            }
+            if (allAsrLines.length > 0) {
+                document.getElementById('asr-asr-text').value = allAsrLines.join('\n');
+                updateASRLineCounts();
+            }
+            if (allTransLines.length > 0) {
+                document.getElementById('asr-trans-text').value = allTransLines.join('\n');
+                updateASRLineCounts();
+            }
+            setASRProgress(100, `✅ Split ${files.length} file(s) — ${allAsrLines.length} ASR lines, ${allTransLines.length} Translation lines`);
+            showToast(`Split complete: ${allAsrLines.length} ASR + ${allTransLines.length} Translation lines from ${files.length} file(s)`);
+        }
+
+        function readASRFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = (e) => reject(e);
+                reader.readAsText(file, 'utf-8');
+            });
+        }
+
+        function clearASRFiles() {
+            asrSplitterFiles = [];
+            document.getElementById('asr-file-list').classList.add('hidden');
+            document.getElementById('asr-file-items').innerHTML = '';
+        }
+
+        // ASR Line counts
+        function updateASRLineCounts() {
+            const count = (id) => (document.getElementById(id).value.split('\n').filter(l => l.trim()).length);
+            document.getElementById('true-count').textContent = `Lines: ${count('asr-true-text')}`;
+            document.getElementById('asr-count').textContent = `Lines: ${count('asr-asr-text')}`;
+            document.getElementById('trans-count').textContent = `Lines: ${count('asr-trans-text')}`;
+        }
+        ['asr-true-text', 'asr-asr-text', 'asr-trans-text'].forEach(id => {
+            const ta = document.getElementById(id);
+            if (ta) ta.addEventListener('input', updateASRLineCounts);
+        });
+
+        // ASR Progress
+        function setASRProgress(pct, text) {
+            document.getElementById('asr-progress').style.width = pct + '%';
+            if (text) document.getElementById('asr-status').textContent = text;
+        }
+
+        // ASR Clear All
+        function clearASRAll() {
+            document.getElementById('asr-true-text').value = '';
+            document.getElementById('asr-asr-text').value = '';
+            document.getElementById('asr-trans-text').value = '';
+            asrAlignmentData = [];
+            asrOverallWer = 0;
+            asrOverallStats = {};
+            updateASRLineCounts();
+            setASRProgress(0, 'Ready to align');
+            document.getElementById('asr-btn-results').disabled = true;
+            document.getElementById('asr-results-section').classList.add('hidden');
+            clearASRFiles();
+        }
+
+        // ASR Run Alignment
+        async function runASRAlignment() {
+            const trueText = document.getElementById('asr-true-text').value.trim();
+            const asrText = document.getElementById('asr-asr-text').value.trim();
+            if (!trueText || !asrText) { showToast('Please input both True Text and ASR Result.', 'error'); return; }
+            setASRProgress(10, '⏳ Aligning ASR sentences...');
+            try {
+                let res = await fetch('/asr/align', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ true_text: trueText, asr_text: asrText }) });
+                let data = await res.json();
+                if (data.warning) {
+                    if (!confirm(data.message + '\n\nContinue anyway?')) { setASRProgress(0, 'Ready to align'); return; }
+                    res = await fetch('/asr/align', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ true_text: trueText, asr_text: asrText }) });
+                    data = await res.json();
+                }
+                if (data.error) { showToast(data.error, 'error'); setASRProgress(0, '❌ Alignment failed'); return; }
+                if (data.status === 'started') {
+                    setASRProgress(30, '⏳ Processing alignment...');
+                    while (true) {
+                        const pollRes = await fetch('/asr/align-result');
+                        const pollData = await pollRes.json();
+                        if (pollData.done) {
+                            if (pollData.error) { showToast(pollData.error, 'error'); setASRProgress(0, '❌ Alignment failed'); return; }
+                            asrAlignmentData = pollData.result.alignment_data || [];
+                            asrOverallWer = pollData.result.overall_wer || 0;
+                            asrOverallStats = pollData.result.overall_stats || {};
+                            setASRProgress(100, `✅ Alignment completed — Overall WER: ${asrOverallWer}%`);
+                            document.getElementById('asr-btn-results').disabled = false;
+                            showToast(`Alignment complete! WER: ${asrOverallWer}%`);
+                            renderASRResults();
+                            return;
+                        }
+                        await new Promise(r => setTimeout(r, 2000));
+                    }
+                }
+            } catch (e) { showToast('Network error: ' + e.message, 'error'); setASRProgress(0, '❌ Alignment failed'); }
+        }
+
+        // ASR Render Results
+        function renderASRResults() {
+            const tbody = document.getElementById('asr-results-body');
+            tbody.innerHTML = '';
+            asrAlignmentData.forEach((d, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = idx % 2 === 0 ? 'bg-slate-50' : '';
+                const scoreClass = d.ai_score == 3 ? 'text-green-600 font-bold' : '';
+                tr.innerHTML = `
+                    <td class="py-2 px-3 text-center">${d.id}</td>
+                    <td class="py-2 px-3">${escapeHtmlASR(d.true)}</td>
+                    <td class="py-2 px-3">${escapeHtmlASR(d.asr_separated || d.asr_nobreak || '')}</td>
+                    <td class="py-2 px-3">${renderASRDiffs(d.diffs)}</td>
+                    <td class="py-2 px-3 text-center">${d.wer}</td>
+                    <td class="py-2 px-3 text-center ${scoreClass}">${d.ai_score || ''}</td>
+                    <td class="py-2 px-3">${escapeHtmlASR(d.translation || '')}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            const s = asrOverallStats;
+            document.getElementById('asr-results-title').textContent = `📊 Alignment Results — Overall WER: ${asrOverallWer}% (S:${s.subs||0} D:${s.dels||0} I:${s.ins||0} / ${s.refs||0} words)`;
+        }
+
+        function escapeHtmlASR(s) {
+            const div = document.createElement('div');
+            div.textContent = s || '';
+            return div.innerHTML;
+        }
+
+        function renderASRDiffs(diffs) {
+            if (!diffs || !diffs.length) return '';
+            return diffs.map(([color, word]) => {
+                if (color === 'red') return `<span class="text-red-600 font-bold">${escapeHtmlASR(word)}</span>`;
+                if (color === 'blue') return `<span class="text-blue-600 font-bold">${escapeHtmlASR(word)}</span>`;
+                return escapeHtmlASR(word);
+            }).join(' ');
+        }
+
+        function toggleASRResults() {
+            const sec = document.getElementById('asr-results-section');
+            sec.classList.toggle('hidden');
+        }
+
+        // ASR Export Excel
+        async function exportASRExcel() {
+            if (!asrAlignmentData.length) { showToast('No data to export.', 'warning'); return; }
+            try {
+                const res = await fetch('/asr/export/excel/' + asrCurrentTaskId, { method: 'POST' });
+                if (!res.ok) { const d = await res.json(); showToast(d.error || 'Export failed', 'error'); return; }
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'ASR_Evaluation.xlsx'; a.click();
+                URL.revokeObjectURL(url);
+                showToast('Excel exported!');
+            } catch (e) { showToast('Export error: ' + e.message, 'error'); }
+        }
+
+        // ASR Re-evaluate
+        async function reevaluateASR() {
+            if (!asrAlignmentData.length) { showToast('No data to re-evaluate.', 'warning'); return; }
+            setASRProgress(30, '⏳ Re-evaluating...');
             try {
                 const res = await fetch('/asr/reevaluate', { method: 'POST' });
                 const data = await res.json();
+                if (data.error) { showToast(data.error, 'error'); return; }
                 if (data.status === 'started') {
-                    pollReevaluateResult();
+                    while (true) {
+                        const pollRes = await fetch('/asr/reevaluate-result');
+                        const pollData = await pollRes.json();
+                        if (pollData.done) {
+                            if (pollData.error) { showToast(pollData.error, 'error'); return; }
+                            asrAlignmentData = pollData.result.alignment_data;
+                            asrOverallWer = pollData.result.overall_wer;
+                            asrOverallStats = pollData.result.overall_stats;
+                            renderASRResults();
+                            setASRProgress(100, `✅ Re-evaluated — Overall WER: ${asrOverallWer}%`);
+                            showToast(`Re-evaluated! WER: ${asrOverallWer}%`);
+                            return;
+                        }
+                        await new Promise(r => setTimeout(r, 2000));
+                    }
                 }
-            } catch (e) {
-                alert('Error: ' + e.message);
-            }
+            } catch (e) { showToast('Error: ' + e.message, 'error'); }
         }
 
-        async function pollReevaluateResult() {
-            const poll = async () => {
-                const res = await fetch('/asr/reevaluate-result');
+        // ASR Modal for AI Translation
+        function openASRModal() {
+            const transText = document.getElementById('asr-trans-text').value.trim();
+            if (!transText) { showToast('Enter English translation first.', 'warning'); return; }
+            if (!asrAlignmentData.length) { showToast('Run ASR alignment first.', 'warning'); return; }
+            // Use local alignment
+            alignTranslationLocal();
+        }
+
+        async function alignTranslationLocal() {
+            const transText = document.getElementById('asr-trans-text').value.trim();
+            showToast('AI alignment started...', 'warning');
+            try {
+                const res = await fetch('/asr/align/translation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ translation_text: transText, alignment_data: asrAlignmentData })
+                });
                 const data = await res.json();
-                if (data.done) {
-                    showASRResults(data.result);
-                } else {
-                    setTimeout(poll, 2000);
+                if (data.alignment_data) {
+                    asrAlignmentData = data.alignment_data;
+                    renderASRResults();
+                    showToast(`Translation aligned: ${data.count} sentences (${data.method})`);
                 }
-            };
-            poll();
+            } catch (e) { showToast('Error: ' + e.message, 'error'); }
         }
 
-        function exportASRCsv() { window.open('/asr/export/csv/latest'); }
-        function exportASRExcel() { window.open('/asr/export/excel/latest'); }
+        // Toast notification
+        function showToast(msg, type = 'success') {
+            // Simple alert for now - can be enhanced with a proper toast UI
+            alert(msg);
+        }
     </script>
 </body>
 </html>

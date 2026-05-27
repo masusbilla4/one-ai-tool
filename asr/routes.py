@@ -86,6 +86,56 @@ def asr_home():
     return render_template('asr/aligner.html')
 
 
+@asr_bp.route('/upload-file', methods=['POST'])
+@login_required
+def upload_file():
+    """Upload and extract text from file for ASR alignment."""
+    if 'file' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "No file selected"}), 400
+    
+    lines = []
+    filename = file.filename.lower()
+    
+    try:
+        if filename.endswith('.txt'):
+            content = file.read().decode('utf-8')
+            lines = [l.strip() for l in content.split('\n') if l.strip()]
+        elif filename.endswith('.srt'):
+            content = file.read().decode('utf-8')
+            # Extract subtitle text from SRT
+            lines = []
+            for line in content.split('\n'):
+                line = line.strip()
+                if line and not line.isdigit() and '-->' not in line:
+                    lines.append(line)
+        elif filename.endswith('.csv'):
+            import csv
+            from io import TextIOWrapper
+            content = file.read().decode('utf-8')
+            reader = csv.reader(content.splitlines())
+            for row in reader:
+                if row:
+                    lines.append(row[0].strip())
+        elif filename.endswith('.xlsx'):
+            from openpyxl import load_workbook
+            from io import BytesIO
+            wb = load_workbook(filename=BytesIO(file.read()))
+            ws = wb.active
+            for row in ws.iter_rows(values_only=True):
+                if row[0]:
+                    lines.append(str(row[0]).strip())
+        else:
+            return jsonify({"error": "Unsupported file format"}), 400
+        
+        return jsonify({"lines": lines, "count": len(lines)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @asr_bp.route('/align', methods=['POST'])
 @login_required
 def api_align():
