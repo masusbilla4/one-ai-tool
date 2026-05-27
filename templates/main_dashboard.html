@@ -260,88 +260,112 @@
                         <i class="fas fa-microphone-alt mr-2 text-indigo-600"></i>ASR Aligner
                     </h1>
 
-                    <!-- ASR Splitter Drop Zone -->
-                    <div class="bg-white rounded-lg shadow p-4 mb-6">
-                        <h2 class="text-lg font-semibold mb-3 text-indigo-800">
-                            <i class="fas fa-file-import mr-2"></i>ASR Splitter — Drop .txt Files
-                        </h2>
-                        <div id="asr-drop-zone" class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center cursor-pointer hover:bg-indigo-50 transition" onclick="document.getElementById('asr-file-input').click()">
-                            <div class="text-slate-600">
-                                <span class="text-4xl">📄</span>
-                                <div class="mt-2"><strong>Drop .txt files here</strong> — or click to browse</div>
-                                <div class="text-xs mt-1 text-slate-500">Files sorted A→Z. First half = ASR, Second half = Translation</div>
-                            </div>
-                        </div>
-                        <input type="file" id="asr-file-input" multiple accept=".txt" style="display:none" onchange="handleASRFileSelect(event)">
-                        <div id="asr-file-list" class="bg-slate-100 border border-slate-300 rounded p-3 mt-3 hidden">
-                            <div class="flex justify-between items-center mb-2 font-semibold text-sm">
-                                <span id="asr-file-count">0 files</span>
-                                <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" onclick="clearASRFiles()">✕ Clear</button>
-                            </div>
-                            <div id="asr-file-items"></div>
-                        </div>
-                    </div>
-
-                    <!-- Input Section -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <!-- True Text -->
-                        <div>
-                            <div class="bg-green-500 text-white p-2 font-semibold rounded-t"><span class="mr-1">📝</span>True Text (Reference)</div>
-                            <textarea id="asr-true-text" rows="8" class="input-field w-full border-0 rounded-t-none" placeholder="Paste reference text or drop .txt file here..."></textarea>
-                            <div class="text-right text-sm text-white bg-green-500 p-1 rounded-b" id="true-count">Lines: 0</div>
-                        </div>
-                        <!-- ASR Text -->
-                        <div>
-                            <div class="bg-blue-500 text-white p-2 font-semibold rounded-t"><span class="mr-1">🎤</span>ASR Result</div>
-                            <textarea id="asr-asr-text" rows="8" class="input-field w-full border-0 rounded-t-none" placeholder="Paste ASR result here..."></textarea>
-                            <div class="text-right text-sm text-white bg-blue-500 p-1 rounded-b" id="asr-count">Lines: 0</div>
-                        </div>
-                        <!-- Translation -->
-                        <div>
-                            <div class="bg-green-600 text-white p-2 font-semibold rounded-t"><span class="mr-1">🌐</span>English Translation</div>
-                            <textarea id="asr-trans-text" rows="8" class="input-field w-full border-0 rounded-t-none" placeholder="Paste translation here..."></textarea>
-                            <div class="text-right text-sm text-white bg-green-600 p-1 rounded-b" id="trans-count">Lines: 0</div>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="bg-white rounded-lg shadow p-4 mb-6">
-                        <div class="flex flex-wrap gap-3">
-                            <button onclick="runASRAlignment()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded font-semibold">
-                                <i class="fas fa-play mr-2"></i>Align ASR
-                            </button>
-                            <button onclick="clearASRAll()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded font-semibold">
-                                <i class="fas fa-trash mr-2"></i>Clear All
-                            </button>
-                            <span class="flex-1"></span>
-                            <button onclick="toggleASRResults()" class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-2 rounded font-semibold" id="asr-btn-results" disabled>
-                                <i class="fas fa-chart-bar mr-2"></i>Show Results
-                            </button>
-                        </div>
-                        <div class="mt-4">
-                            <div class="w-full h-2 bg-slate-200 rounded overflow-hidden">
-                                <div class="h-full bg-indigo-600 transition-all" id="asr-progress" style="width: 0%"></div>
-                            </div>
-                            <div class="text-sm text-slate-600 mt-2" id="asr-status">Ready to align</div>
-                        </div>
-                    </div>
-
-                    <!-- Results Section -->
-                    <div id="asr-results-section" class="hidden">
-                        <div class="bg-white rounded-lg shadow p-4 mb-4">
-                            <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
-                                <h2 class="text-xl font-bold" id="asr-results-title">📊 Alignment Results</h2>
-                                <div class="flex flex-wrap gap-2">
-                                    <button onclick="exportASRExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-                                        <i class="fas fa-file-excel mr-2"></i>Export Excel
-                                    </button>
-                                    <button onclick="openASRModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
-                                        <i class="fas fa-language mr-2"></i>Align Translation (AI)
-                                    </button>
-                                    <button onclick="reevaluateASR()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
-                                        <i class="fas fa-redo mr-2"></i>Re-evaluate
-                                    </button>
+                    <!-- ASR Splitter Drop Zone (Collapsible) -->
+                    <div class="bg-white rounded-lg shadow mb-4">
+                        <button onclick="toggleASRSection('asr-splitter-section')" class="w-full flex justify-between items-center p-4 hover:bg-slate-50 transition rounded-t-lg">
+                            <h2 class="text-lg font-semibold text-indigo-800">
+                                <i class="fas fa-file-import mr-2"></i>ASR Splitter — Drop .txt Files
+                            </h2>
+                            <i class="fas fa-chevron-down text-slate-400" id="asr-splitter-icon"></i>
+                        </button>
+                        <div id="asr-splitter-section" class="p-4 pt-0">
+                            <div id="asr-drop-zone" class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center cursor-pointer hover:bg-indigo-50 transition" onclick="document.getElementById('asr-file-input').click()">
+                                <div class="text-slate-600">
+                                    <span class="text-4xl">📄</span>
+                                    <div class="mt-2"><strong>Drop .txt files here</strong> — or click to browse</div>
+                                    <div class="text-xs mt-1 text-slate-500">Files sorted A→Z. First half = ASR, Second half = Translation</div>
                                 </div>
+                            </div>
+                            <input type="file" id="asr-file-input" multiple accept=".txt" style="display:none" onchange="handleASRFileSelect(event)">
+                            <div id="asr-file-list" class="bg-slate-100 border border-slate-300 rounded p-3 mt-3 hidden">
+                                <div class="flex justify-between items-center mb-2 font-semibold text-sm">
+                                    <span id="asr-file-count">0 files</span>
+                                    <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" onclick="clearASRFiles()">✕ Clear</button>
+                                </div>
+                                <div id="asr-file-items"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Section (Collapsible) -->
+                    <div class="bg-white rounded-lg shadow mb-4">
+                        <button onclick="toggleASRSection('asr-input-section')" class="w-full flex justify-between items-center p-4 hover:bg-slate-50 transition rounded-t-lg">
+                            <h2 class="text-lg font-semibold text-indigo-800">
+                                <i class="fas fa-edit mr-2"></i>Input — True Text / ASR / Translation
+                            </h2>
+                            <i class="fas fa-chevron-down text-slate-400" id="asr-input-icon"></i>
+                        </button>
+                        <div id="asr-input-section" class="p-4 pt-0">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <!-- True Text -->
+                                <div>
+                                    <div class="bg-green-500 text-white p-2 font-semibold rounded-t"><span class="mr-1">📝</span>True Text (Reference)</div>
+                                    <textarea id="asr-true-text" rows="8" class="input-field w-full border-0 rounded-t-none" placeholder="Paste reference text or drop .txt file here..."></textarea>
+                                    <div class="text-right text-sm text-white bg-green-500 p-1 rounded-b" id="true-count">Lines: 0</div>
+                                </div>
+                                <!-- ASR Text -->
+                                <div>
+                                    <div class="bg-blue-500 text-white p-2 font-semibold rounded-t"><span class="mr-1">🎤</span>ASR Result</div>
+                                    <textarea id="asr-asr-text" rows="8" class="input-field w-full border-0 rounded-t-none" placeholder="Paste ASR result here..."></textarea>
+                                    <div class="text-right text-sm text-white bg-blue-500 p-1 rounded-b" id="asr-count">Lines: 0</div>
+                                </div>
+                                <!-- Translation -->
+                                <div>
+                                    <div class="bg-green-600 text-white p-2 font-semibold rounded-t"><span class="mr-1">🌐</span>English Translation</div>
+                                    <textarea id="asr-trans-text" rows="8" class="input-field w-full border-0 rounded-t-none" placeholder="Paste translation here..."></textarea>
+                                    <div class="text-right text-sm text-white bg-green-600 p-1 rounded-b" id="trans-count">Lines: 0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons (Collapsible) -->
+                    <div class="bg-white rounded-lg shadow mb-4">
+                        <button onclick="toggleASRSection('asr-action-section')" class="w-full flex justify-between items-center p-4 hover:bg-slate-50 transition rounded-t-lg">
+                            <h2 class="text-lg font-semibold text-indigo-800">
+                                <i class="fas fa-play-circle mr-2"></i>Actions
+                            </h2>
+                            <i class="fas fa-chevron-down text-slate-400" id="asr-action-icon"></i>
+                        </button>
+                        <div id="asr-action-section" class="p-4 pt-0">
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="runASRAlignment()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded font-semibold">
+                                    <i class="fas fa-play mr-2"></i>Align ASR
+                                </button>
+                                <button onclick="clearASRAll()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded font-semibold">
+                                    <i class="fas fa-trash mr-2"></i>Clear All
+                                </button>
+                                <span class="flex-1"></span>
+                                <button onclick="toggleASRResults()" class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-2 rounded font-semibold" id="asr-btn-results" disabled>
+                                    <i class="fas fa-chart-bar mr-2"></i>Show Results
+                                </button>
+                            </div>
+                            <div class="mt-4">
+                                <div class="w-full h-2 bg-slate-200 rounded overflow-hidden">
+                                    <div class="h-full bg-indigo-600 transition-all" id="asr-progress" style="width: 0%"></div>
+                                </div>
+                                <div class="text-sm text-slate-600 mt-2" id="asr-status">Ready to align</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Section (Collapsible) -->
+                    <div id="asr-results-section" class="hidden bg-white rounded-lg shadow mb-4">
+                        <button onclick="toggleASRSection('asr-results-content')" class="w-full flex justify-between items-center p-4 hover:bg-slate-50 transition rounded-t-lg">
+                            <h2 class="text-xl font-bold" id="asr-results-title">📊 Alignment Results</h2>
+                            <i class="fas fa-chevron-down text-slate-400" id="asr-results-icon"></i>
+                        </button>
+                        <div id="asr-results-content" class="p-4 pt-0">
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <button onclick="exportASRExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                                    <i class="fas fa-file-excel mr-2"></i>Export Excel
+                                </button>
+                                <button onclick="openASRModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                                    <i class="fas fa-language mr-2"></i>Align Translation (AI)
+                                </button>
+                                <button onclick="reevaluateASR()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
+                                    <i class="fas fa-redo mr-2"></i>Re-evaluate
+                                </button>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full text-sm">
@@ -728,6 +752,31 @@
         function showToast(msg, type = 'success') {
             // Simple alert for now - can be enhanced with a proper toast UI
             alert(msg);
+        }
+
+        // ========== ASR SECTION TOGGLE (COLLAPSIBLE) ==========
+        function toggleASRSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const iconId = sectionId.replace('-section', '-icon');
+            const icon = document.getElementById(iconId);
+            
+            if (section.classList.contains('hidden') || section.style.display === 'none') {
+                // Show section
+                section.classList.remove('hidden');
+                section.style.display = 'block';
+                if (icon) {
+                    icon.classList.remove('fa-chevron-right');
+                    icon.classList.add('fa-chevron-down');
+                }
+            } else {
+                // Hide section
+                section.classList.add('hidden');
+                section.style.display = 'none';
+                if (icon) {
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-right');
+                }
+            }
         }
     </script>
 </body>
