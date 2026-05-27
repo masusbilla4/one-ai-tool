@@ -137,6 +137,18 @@ def shop():
                 session['cart'] = cart
                 flash(f'Added {len(selected)} sentences to cart!', 'success')
         
+        elif action == 'remove_selected':
+            # Remove selected items from cart
+            indices_to_remove = request.form.getlist('cart_indices')
+            if indices_to_remove:
+                indices_to_remove = [int(i) for i in indices_to_remove]
+                # Sort in reverse order to remove from end first (preserves indices)
+                for i in sorted(indices_to_remove, reverse=True):
+                    if 0 <= i < len(cart):
+                        cart.pop(i)
+                session['cart'] = cart
+                flash(f'Removed {len(indices_to_remove)} items from cart.', 'success')
+        
         elif action == 'clear_cart':
             session['cart'] = []
             flash('Cart cleared.', 'info')

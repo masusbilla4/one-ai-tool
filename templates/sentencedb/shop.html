@@ -87,32 +87,51 @@
                 </h2>
                 
                 {% if cart %}
-                <div class="space-y-2 mb-4 max-h-64 overflow-y-auto">
-                    {% for item in cart[:20] %}
-                    <div class="flex justify-between items-center text-sm p-2 bg-slate-50 rounded">
-                        <span class="truncate flex-1">{{ item[0] }}</span>
-                        <span class="text-slate-500 text-xs ml-2">{{ item[2] }}</span>
+                <form method="POST" id="cartForm">
+                    <div class="space-y-2 mb-4 max-h-64 overflow-y-auto">
+                        {% for item in cart %}
+                        <div class="flex items-center gap-2 p-2 bg-slate-50 rounded">
+                            <input type="checkbox" name="cart_indices" value="{{ loop.index0 }}" 
+                                   class="cart-checkbox rounded" id="cart-{{ loop.index0 }}">
+                            <label for="cart-{{ loop.index0 }}" class="flex-1 text-sm cursor-pointer">
+                                <span class="truncate block">{{ item[0] }}</span>
+                                <span class="text-slate-500 text-xs">{{ item[2] }}</span>
+                            </label>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
-                    {% if cart|length > 20 %}
-                    <p class="text-xs text-slate-500 text-center">... and {{ cart|length - 20 }} more</p>
-                    {% endif %}
-                </div>
-                
-                <div class="border-t pt-4">
-                    <p class="text-sm text-slate-600 mb-3">
-                        <strong>{{ cart|length }}</strong> sentences in cart
-                    </p>
-                    <form method="POST">
-                        <input type="hidden" name="action" value="checkout">
-                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition font-medium">
+                    
+                    <div class="border-t pt-4 space-y-3">
+                        <p class="text-sm text-slate-600">
+                            <strong>{{ cart|length }}</strong> sentences in cart
+                        </p>
+                        
+                        <!-- Remove Selected Button -->
+                        <button type="submit" name="action" value="remove_selected" 
+                                class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition font-medium text-sm"
+                                onclick="return confirm('Remove selected items from cart?')">
+                            <i class="fas fa-trash mr-2"></i>Remove Selected
+                        </button>
+                        
+                        <!-- Clear Cart Button -->
+                        <button type="submit" name="action" value="clear_cart" 
+                                class="w-full bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg transition font-medium text-sm">
+                            <i class="fas fa-eraser mr-2"></i>Clear All
+                        </button>
+                        
+                        <hr class="my-3">
+                        
+                        <!-- Checkout Button -->
+                        <button type="submit" name="action" value="checkout" 
+                                class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition font-medium">
                             <i class="fas fa-check-circle mr-2"></i>Checkout
                         </button>
-                    </form>
-                    <a href="{{ url_for('sentencedb.shop_export') }}" class="block text-center mt-2 text-indigo-600 hover:text-indigo-800 text-sm">
-                        <i class="fas fa-download mr-1"></i>Export Cart as CSV
-                    </a>
-                </div>
+                    </div>
+                </form>
+                
+                <a href="{{ url_for('sentencedb.shop_export') }}" class="block text-center mt-4 text-indigo-600 hover:text-indigo-800 text-sm">
+                    <i class="fas fa-download mr-1"></i>Export Cart as CSV
+                </a>
                 {% else %}
                 <p class="text-slate-500 text-center py-8">
                     <i class="fas fa-shopping-cart text-4xl mb-2 text-slate-300"></i>

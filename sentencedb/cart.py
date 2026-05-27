@@ -8,27 +8,38 @@ from config import Config
 from .db import get_supabase_client, get_table_name, TABLE_FIL, TABLE_ENG
 
 
-def get_all_sentences(language: str = None) -> list:
+def get_all_sentences(language: str = None, include_used: bool = True) -> list:
     """
-    Get all unused sentences.
-    Returns: list of (sen_id, sentence, category) tuples
+    Get all sentences (for editing).
+    Returns: list of dicts with sen_id, sentence, category, language, used
     """
     client = get_supabase_client()
     sentences = []
     
     if language:
         table_name = get_table_name(language)
-        result = client.table(table_name).select("sen_id,sentence,category").eq("used", 0).execute()
+        query = client.table(table_name).select("sen_id,sentence,category,language,used")
+        if not include_used:
+            query = query.eq("used", 0)
+        result = query.execute()
         for row in result.data:
-            sentences.append((row['sen_id'], row['sentence'], row['category']))
+            sentences.append(row)
     else:
-        result_fil = client.table(TABLE_FIL).select("sen_id,sentence,category").eq("used", 0).execute()
+        # Filipino
+        query_fil = client.table(TABLE_FIL).select("sen_id,sentence,category,language,used")
+        if not include_used:
+            query_fil = query_fil.eq("used", 0)
+        result_fil = query_fil.execute()
         for row in result_fil.data:
-            sentences.append((row['sen_id'], row['sentence'], row['category']))
+            sentences.append(row)
         
-        result_eng = client.table(TABLE_ENG).select("sen_id,sentence,category").eq("used", 0).execute()
+        # English
+        query_eng = client.table(TABLE_ENG).select("sen_id,sentence,category,language,used")
+        if not include_used:
+            query_eng = query_eng.eq("used", 0)
+        result_eng = query_eng.execute()
         for row in result_eng.data:
-            sentences.append((row['sen_id'], row['sentence'], row['category']))
+            sentences.append(row)
     
     return sentences
 
