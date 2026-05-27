@@ -40,7 +40,21 @@ def create_app(config_class=Config):
         """Unified dashboard with all tools in one page (tabs)."""
         if not session.get('user_id'):
             return redirect(url_for('auth.login'))
-        return render_template('main_dashboard.html')
+        
+        # Import here to avoid circular imports
+        from sentencedb.stats import get_remaining_stats, get_categories
+        from sentencedb.cart import get_all_sentences
+        
+        # Get shop data
+        fil_remaining, eng_remaining = get_remaining_stats()
+        categories = get_categories()
+        cart = session.get('cart', [])
+        
+        return render_template('main_dashboard.html',
+                             fil_remaining=fil_remaining,
+                             eng_remaining=eng_remaining,
+                             categories=categories,
+                             cart=cart)
     
     # Error handlers
     @app.errorhandler(404)

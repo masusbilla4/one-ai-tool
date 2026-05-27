@@ -161,9 +161,11 @@ def shop():
                 # Generate CSV for download
                 session['export_csv'] = True
     
-    return render_template('sentencedb/shop.html', 
-                         fil_remaining=fil_remaining, eng_remaining=eng_remaining,
-                         categories=categories, cart=cart)
+    # Redirect back to dashboard with flash message
+    if request.method == 'POST':
+        return redirect(url_for('main_dashboard'))
+    
+    return redirect(url_for('main_dashboard'))
 
 
 @sentencedb_bp.route('/shop/export')
