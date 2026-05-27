@@ -911,23 +911,24 @@
         }
 
         // ========== NIGHT MODE TOGGLE ==========
-        let isNightMode = true;
+        let isNightMode = true; // Default to night mode (dark theme)
+        
         function toggleNightMode() {
             isNightMode = !isNightMode;
             const icon = document.getElementById('nightModeIcon');
             
             if (isNightMode) {
-                // Enable night mode - make everything dark with visible text
-                icon.classList.remove('fa-sun', 'text-yellow-400');
-                icon.classList.add('fa-moon', 'text-yellow-400');
+                // Enable NIGHT MODE (dark)
+                icon.classList.remove('fa-sun', 'text-orange-500');
+                icon.classList.add('fa-moon', 'text-yellow-300');
                 
-                // White cards → dark slate
+                // Main container → dark
                 document.querySelectorAll('.bg-white').forEach(el => {
                     el.classList.remove('bg-white');
                     el.classList.add('bg-slate-800');
                 });
                 
-                // Light stat cards → dark versions
+                // Stat cards → dark
                 document.querySelectorAll('.bg-blue-50').forEach(el => {
                     el.classList.remove('bg-blue-50');
                     el.classList.add('bg-slate-700');
@@ -945,22 +946,9 @@
                     el.classList.add('bg-slate-700');
                 });
                 
-                // All text → light color for visibility
-                document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
-                    el.classList.add('text-slate-100');
-                    el.classList.remove('text-slate-800', 'text-indigo-800');
-                });
-                document.querySelectorAll('p, label, span, td, th').forEach(el => {
-                    if (!el.classList.contains('text-white') && 
-                        !el.classList.contains('text-slate-100') &&
-                        !el.classList.contains('text-slate-200') &&
-                        !el.classList.contains('text-slate-300') &&
-                        !el.classList.contains('text-slate-400')) {
-                        el.classList.add('text-slate-200');
-                    }
-                });
-                document.querySelectorAll('.text-slate-600, .text-slate-700, .text-slate-800').forEach(el => {
-                    el.classList.remove('text-slate-600', 'text-slate-700', 'text-slate-800');
+                // Text → light colors for dark background
+                document.querySelectorAll('.text-slate-800, .text-slate-700, .text-slate-600').forEach(el => {
+                    el.classList.remove('text-slate-800', 'text-slate-700', 'text-slate-600');
                     el.classList.add('text-slate-200');
                 });
                 document.querySelectorAll('.text-blue-600, .text-green-600, .text-purple-600, .text-orange-600').forEach(el => {
@@ -971,39 +959,67 @@
                     el.classList.remove('text-slate-500');
                     el.classList.add('text-slate-400');
                 });
+                document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+                    el.classList.remove('text-slate-800', 'text-indigo-800');
+                    el.classList.add('text-slate-100');
+                });
                 
                 localStorage.setItem('nightMode', 'true');
             } else {
-                // Disable night mode - restore light theme
-                icon.classList.remove('fa-moon', 'text-yellow-400');
-                icon.classList.add('fa-sun', 'text-yellow-400');
+                // Enable LIGHT MODE (restore original)
+                icon.classList.remove('fa-moon', 'text-yellow-300');
+                icon.classList.add('fa-sun', 'text-orange-500');
                 
-                // Dark cards → white
+                // Main container → white
                 document.querySelectorAll('.bg-slate-800').forEach(el => {
                     el.classList.remove('bg-slate-800');
                     el.classList.add('bg-white');
                 });
                 
-                // Dark stat cards → light versions
+                // Stat cards → light colors (restore by checking border)
                 document.querySelectorAll('.bg-slate-700').forEach(el => {
                     el.classList.remove('bg-slate-700');
-                    if (el.querySelector('.text-green-600')) el.classList.add('bg-green-50');
-                    else if (el.querySelector('.text-blue-600')) el.classList.add('bg-blue-50');
-                    else if (el.querySelector('.text-purple-600')) el.classList.add('bg-purple-50');
-                    else if (el.querySelector('.text-orange-600')) el.classList.add('bg-orange-50');
-                    else el.classList.add('bg-slate-50');
+                    // Check border color to determine original color
+                    if (el.classList.contains('border-blue-500') || el.querySelector('.border-blue-500')) {
+                        el.classList.add('bg-blue-50');
+                    } else if (el.classList.contains('border-green-500') || el.querySelector('.border-green-500')) {
+                        el.classList.add('bg-green-50');
+                    } else if (el.classList.contains('border-purple-500') || el.querySelector('.border-purple-500')) {
+                        el.classList.add('bg-purple-50');
+                    } else if (el.classList.contains('border-orange-500') || el.querySelector('.border-orange-500')) {
+                        el.classList.add('bg-orange-50');
+                    } else {
+                        el.classList.add('bg-slate-50');
+                    }
                 });
                 
-                // Restore light text colors
-                document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
-                    el.classList.remove('text-slate-100');
-                });
-                document.querySelectorAll('p, label, span, td, th').forEach(el => {
+                // Text → dark colors for light background
+                document.querySelectorAll('.text-slate-200').forEach(el => {
                     el.classList.remove('text-slate-200');
+                    el.classList.add('text-slate-700');
+                });
+                document.querySelectorAll('.text-slate-100').forEach(el => {
+                    el.classList.remove('text-slate-100');
+                    // Restore based on context
+                    if (el.parentElement.classList.contains('border-blue-500') || el.closest('.bg-blue-50')) {
+                        el.classList.add('text-blue-600');
+                    } else if (el.parentElement.classList.contains('border-green-500') || el.closest('.bg-green-50')) {
+                        el.classList.add('text-green-600');
+                    } else if (el.parentElement.classList.contains('border-purple-500') || el.closest('.bg-purple-50')) {
+                        el.classList.add('text-purple-600');
+                    } else if (el.parentElement.classList.contains('border-orange-500') || el.closest('.bg-orange-50')) {
+                        el.classList.add('text-orange-600');
+                    } else {
+                        el.classList.add('text-slate-800');
+                    }
                 });
                 document.querySelectorAll('.text-slate-400').forEach(el => {
                     el.classList.remove('text-slate-400');
-                    el.classList.add('text-slate-500');
+                    el.classList.add('text-slate-600');
+                });
+                document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+                    el.classList.remove('text-slate-100');
+                    el.classList.add('text-slate-800');
                 });
                 
                 localStorage.setItem('nightMode', 'false');
