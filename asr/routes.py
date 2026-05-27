@@ -18,8 +18,14 @@ from openpyxl.cell.rich_text import CellRichText, TextBlock
 
 from .alignment_engine import run_alignment, align_translation_local
 from auth.routes import login_required
+from settings.routes import get_gemini_api_key
 
 asr_bp = Blueprint('asr', __name__, template_folder='templates')
+
+# Get Gemini API key from session or config
+def get_api_key():
+    """Get Gemini API key from session or fallback to config."""
+    return get_gemini_api_key()
 
 # Configuration (from actual ASR web app)
 DEFAULT_MODEL = "gemini-2.5-flash"

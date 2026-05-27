@@ -14,6 +14,7 @@ from .output_manager import OutputManager
 
 from auth.routes import login_required
 from config import Config
+from settings.routes import get_reddit_credentials, get_youtube_api_key
 
 extractor_bp = Blueprint('extractor', __name__, template_folder='templates')
 
@@ -42,15 +43,16 @@ def extract_reddit():
     
     scraper = RedditScraper()
     
-    # Authenticate with credentials from config
-    if Config.REDDIT_CLIENT_ID and Config.REDDIT_CLIENT_SECRET:
+    # Get credentials from session (user-specific) or fallback to config
+    creds = get_reddit_credentials()
+    if creds:
         scraper.authenticate(
-            Config.REDDIT_CLIENT_ID,
-            Config.REDDIT_CLIENT_SECRET,
-            Config.REDDIT_USER_AGENT
+            creds['client_id'],
+            creds['client_secret'],
+            creds.get('user_agent', 'OneAITool/1.0')
         )
     else:
-        return jsonify({'error': 'Reddit API credentials not configured'}), 400
+        return jsonify({'error': 'Reddit API credentials not configured. Go to Settings to add them.'}), 400
     
     try:
         post_id = scraper.extract_post_id(url_or_id)
@@ -86,10 +88,12 @@ def extract_youtube_comments():
     if not url:
         return jsonify({'error': 'YouTube URL is required'}), 400
     
-    if not Config.YOUTUBE_API_KEY:
-        return jsonify({'error': 'YouTube API key not configured'}), 400
+    # Get API key from session (user-specific) or fallback to config
+    api_key = get_youtube_api_key()
+    if not api_key:
+        return jsonify({'error': 'YouTube API key not configured. Go to Settings to add it.'}), 400
     
-    scraper = YouTubeCommentScraper(Config.YOUTUBE_API_KEY)
+    scraper = YouTubeCommentScraper(api_key)
     
     try:
         video_id = scraper.extract_video_id(url)

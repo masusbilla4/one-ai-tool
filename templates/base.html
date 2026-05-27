@@ -131,7 +131,12 @@
                         </a>
                     </div>
                 </div>
-                <div class="flex items-center space-x-4">
+<div class="flex items-center space-x-4">
+                    <!-- Settings Link -->
+                    <a href="{{ url_for('settings.settings_home') }}" class="hover:bg-slate-600 p-2 rounded-full transition" title="API Settings">
+                        <i class="fas fa-cog text-slate-300"></i>
+                    </a>
+                    
                     <!-- Dark Mode Toggle -->
                     <button onclick="toggleDarkMode()" class="hover:bg-slate-600 p-2 rounded-full transition" title="Toggle Dark Mode">
                         <i class="fas fa-moon text-slate-300" id="themeIcon"></i>

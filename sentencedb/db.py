@@ -4,6 +4,7 @@ Handles: insert, update, delete, check_exists, generate_id
 """
 from supabase import create_client, Client
 from config import Config
+from settings.routes import get_supabase_config
 
 
 # Table names
@@ -12,8 +13,11 @@ TABLE_ENG = "eng_sentences"
 
 
 def get_supabase_client() -> Client:
-    """Create and return Supabase client."""
-    return create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
+    """Create and return Supabase client using session or config credentials."""
+    creds = get_supabase_config()
+    if not creds:
+        raise ValueError("Supabase credentials not configured. Go to Settings to add them.")
+    return create_client(creds['url'], creds['key'])
 
 
 def get_table_name(language: str) -> str:

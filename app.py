@@ -12,6 +12,7 @@ from auth.routes import auth_bp
 from sentencedb.routes import sentencedb_bp
 from extractor.routes import extractor_bp
 from asr.routes import asr_bp
+from settings.routes import settings_bp
 
 
 def create_app(config_class=Config):
@@ -24,6 +25,7 @@ def create_app(config_class=Config):
     app.register_blueprint(sentencedb_bp, url_prefix='/sentencedb')
     app.register_blueprint(extractor_bp, url_prefix='/extractor')
     app.register_blueprint(asr_bp, url_prefix='/asr')
+    app.register_blueprint(settings_bp)
     
     # Main routes
     @app.route('/')

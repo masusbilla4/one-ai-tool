@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - One AI Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Lexend Deca', sans-serif; }
+        .input-field {
+            width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px;
+            font-size: 0.9rem; transition: all 0.2s; background: #f8fafc;
+        }
+        .input-field:focus {
+            outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+            background: #fff;
+        }
+        .input-field::placeholder { color: #94a3b8; }
+        .card {
+            background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            padding: 24px; margin-bottom: 24px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white;
+            padding: 10px 24px; border-radius: 8px; font-weight: 500;
+            transition: all 0.2s; border: none; cursor: pointer;
+        }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
+        .btn-secondary {
+            background: #f1f5f9; color: #475569; padding: 10px 24px;
+            border-radius: 8px; font-weight: 500; transition: all 0.2s;
+            border: 1px solid #e2e8f0; cursor: pointer;
+        }
+        .btn-secondary:hover { background: #e2e8f0; }
+        .api-status {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;
+        }
+        .status-configured { background: #dcfce7; color: #166534; }
+        .status-not-configured { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 min-h-screen">
+    <!-- Top Navigation -->
+    <nav class="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 text-white shadow-lg fixed w-full z-50">
+        <div class="max-w-5xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <a href="/" class="text-xl font-bold hover:opacity-80 transition" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    <i class="fas fa-cog mr-2"></i>Settings
+                </a>
+                <a href="/" class="text-slate-300 hover:text-white transition">
+                    <i class="fas fa-home mr-1"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-5xl mx-auto px-4 pt-24 pb-12">
+        <h1 class="text-3xl font-bold mb-2" style="color: #1e293b;">API Settings</h1>
+        <p class="text-slate-600 mb-8">Configure your API credentials for data extraction services.</p>
+
+        <!-- Reddit API -->
+        <div class="card">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold" style="color: #1e293b;">
+                    <i class="fab fa-reddit mr-2" style="color: #ff4500;"></i>Reddit API
+                </h2>
+                <span id="reddit-status" class="api-status status-not-configured">
+                    <i class="fas fa-circle text-xs"></i>Not Configured
+                </span>
+            </div>
+            <p class="text-sm text-slate-600 mb-4">
+                Required for extracting comments from Reddit posts. 
+                <a href="https://www.reddit.com/prefs/apps" target="_blank" class="text-indigo-600 hover:underline">Get your credentials here</a>.
+            </p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Client ID</label>
+                    <input type="text" id="reddit-client-id" class="input-field" placeholder="e.g., abc123XYZ">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Client Secret</label>
+                    <input type="password" id="reddit-client-secret" class="input-field" placeholder="e.g., abc123XYZ456">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">User Agent</label>
+                    <input type="text" id="reddit-user-agent" class="input-field" value="OneAITool/1.0" placeholder="App name">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="saveRedditConfig()" class="btn-primary">
+                    <i class="fas fa-save mr-2"></i>Save Reddit Credentials
+                </button>
+                <button onclick="testRedditConfig()" class="btn-secondary">
+                    <i class="fas fa-flask mr-2"></i>Test Connection
+                </button>
+            </div>
+        </div>
+
+        <!-- YouTube API -->
+        <div class="card">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold" style="color: #1e293b;">
+                    <i class="fab fa-youtube mr-2" style="color: #ff0000;"></i>YouTube Data API
+                </h2>
+                <span id="youtube-status" class="api-status status-not-configured">
+                    <i class="fas fa-circle text-xs"></i>Not Configured
+                </span>
+            </div>
+            <p class="text-sm text-slate-600 mb-4">
+                Required for extracting comments from YouTube videos.
+                <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-indigo-600 hover:underline">Get your API key here</a>.
+            </p>
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">API Key</label>
+                <input type="password" id="youtube-api-key" class="input-field" placeholder="e.g., AIzaSy...">
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="saveYouTubeConfig()" class="btn-primary">
+                    <i class="fas fa-save mr-2"></i>Save YouTube API Key
+                </button>
+                <button onclick="testYouTubeConfig()" class="btn-secondary">
+                    <i class="fas fa-flask mr-2"></i>Test Connection
+                </button>
+            </div>
+        </div>
+
+        <!-- Gemini API -->
+        <div class="card">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold" style="color: #1e293b;">
+                    <i class="fas fa-robot mr-2" style="color: #6366f1;"></i>Google Gemini API
+                </h2>
+                <span id="gemini-status" class="api-status status-not-configured">
+                    <i class="fas fa-circle text-xs"></i>Not Configured
+                </span>
+            </div>
+            <p class="text-sm text-slate-600 mb-4">
+                Used for AI-powered ASR evaluation and translation alignment.
+                <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-indigo-600 hover:underline">Get your API key here</a>.
+            </p>
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">API Key</label>
+                <input type="password" id="gemini-api-key" class="input-field" placeholder="e.g., AIzaSy...">
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="saveGeminiConfig()" class="btn-primary">
+                    <i class="fas fa-save mr-2"></i>Save Gemini API Key
+                </button>
+            </div>
+        </div>
+
+        <!-- Supabase -->
+        <div class="card">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold" style="color: #1e293b;">
+                    <i class="fas fa-database mr-2" style="color: #3ecf8e;"></i>Supabase
+                </h2>
+                <span id="supabase-status" class="api-status status-not-configured">
+                    <i class="fas fa-circle text-xs"></i>Not Configured
+                </span>
+            </div>
+            <p class="text-sm text-slate-600 mb-4">
+                Required for Sentence Database functionality.
+                <a href="https://supabase.com/dashboard/project/_/settings/api" target="_blank" class="text-indigo-600 hover:underline">Get your credentials here</a>.
+            </p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Project URL</label>
+                    <input type="text" id="supabase-url" class="input-field" placeholder="https://xxxxx.supabase.co">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">API Key (anon/public)</label>
+                    <input type="password" id="supabase-key" class="input-field" placeholder="eyJhbG...">
+                </div>
+            </div>
+            <div class="flex gap-3 mt-6">
+                <button onclick="saveSupabaseConfig()" class="btn-primary">
+                    <i class="fas fa-save mr-2"></i>Save Supabase Credentials
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+        <span id="toast-message"></span>
+    </div>
+
+    <script>
+        // Load saved configs on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfig('reddit');
+            loadConfig('youtube');
+            loadConfig('gemini');
+            loadConfig('supabase');
+        });
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            toastMessage.textContent = message;
+            
+            if (type === 'success') {
+                toast.className = 'fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 z-50 bg-green-600 text-white';
+            } else {
+                toast.className = 'fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 z-50 bg-red-600 text-white';
+            }
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function updateStatus(service, configured) {
+            const statusEl = document.getElementById(`${service}-status`);
+            if (configured) {
+                statusEl.className = 'api-status status-configured';
+                statusEl.innerHTML = '<i class="fas fa-check-circle text-xs"></i>Configured';
+            } else {
+                statusEl.className = 'api-status status-not-configured';
+                statusEl.innerHTML = '<i class="fas fa-circle text-xs"></i>Not Configured';
+            }
+        }
+
+        async function loadConfig(service) {
+            try {
+                const res = await fetch(`/api/config/${service}`);
+                const data = await res.json();
+                
+                if (service === 'reddit') {
+                    if (data.configured) {
+                        document.getElementById('reddit-client-id').value = data.client_id || '';
+                        document.getElementById('reddit-user-agent').value = data.user_agent || 'OneAITool/1.0';
+                        // Don't show secret for security
+                    }
+                    updateStatus('reddit', data.configured);
+                } else if (service === 'youtube') {
+                    if (data.configured) {
+                        // Don't show key for security
+                    }
+                    updateStatus('youtube', data.configured);
+                } else if (service === 'gemini') {
+                    if (data.configured) {
+                        // Don't show key for security
+                    }
+                    updateStatus('gemini', data.configured);
+                } else if (service === 'supabase') {
+                    if (data.configured) {
+                        document.getElementById('supabase-url').value = data.url || '';
+                        // Don't show key for security
+                    }
+                    updateStatus('supabase', data.configured);
+                }
+            } catch (e) {
+                console.error(`Failed to load ${service} config:`, e);
+            }
+        }
+
+        async function saveRedditConfig() {
+            const clientId = document.getElementById('reddit-client-id').value.trim();
+            const clientSecret = document.getElementById('reddit-client-secret').value.trim();
+            const userAgent = document.getElementById('reddit-user-agent').value.trim() || 'OneAITool/1.0';
+
+            if (!clientId || !clientSecret) {
+                showToast('Client ID and Secret are required', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/config/reddit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, user_agent: userAgent })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('Reddit credentials saved!');
+                    updateStatus('reddit', true);
+                    document.getElementById('reddit-client-secret').value = '';
+                } else {
+                    showToast(data.error || 'Failed to save', 'error');
+                }
+            } catch (e) {
+                showToast('Error saving credentials', 'error');
+            }
+        }
+
+        async function saveYouTubeConfig() {
+            const apiKey = document.getElementById('youtube-api-key').value.trim();
+
+            if (!apiKey) {
+                showToast('API key is required', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/config/youtube', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ api_key: apiKey })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('YouTube API key saved!');
+                    updateStatus('youtube', true);
+                    document.getElementById('youtube-api-key').value = '';
+                } else {
+                    showToast(data.error || 'Failed to save', 'error');
+                }
+            } catch (e) {
+                showToast('Error saving API key', 'error');
+            }
+        }
+
+        async function saveGeminiConfig() {
+            const apiKey = document.getElementById('gemini-api-key').value.trim();
+
+            if (!apiKey) {
+                showToast('API key is required', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/config/gemini', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ api_key: apiKey })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('Gemini API key saved!');
+                    updateStatus('gemini', true);
+                    document.getElementById('gemini-api-key').value = '';
+                } else {
+                    showToast(data.error || 'Failed to save', 'error');
+                }
+            } catch (e) {
+                showToast('Error saving API key', 'error');
+            }
+        }
+
+        async function saveSupabaseConfig() {
+            const url = document.getElementById('supabase-url').value.trim();
+            const key = document.getElementById('supabase-key').value.trim();
+
+            if (!url || !key) {
+                showToast('URL and API key are required', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/config/supabase', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url, key: key })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('Supabase credentials saved!');
+                    updateStatus('supabase', true);
+                    document.getElementById('supabase-key').value = '';
+                } else {
+                    showToast(data.error || 'Failed to save', 'error');
+                }
+            } catch (e) {
+                showToast('Error saving credentials', 'error');
+            }
+        }
+
+        async function testRedditConfig() {
+            try {
+                const res = await fetch('/api/config/reddit/test');
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('Reddit connection successful!');
+                } else {
+                    showToast(data.error || 'Connection failed', 'error');
+                }
+            } catch (e) {
+                showToast('Error testing connection', 'error');
+            }
+        }
+
+        async function testYouTubeConfig() {
+            try {
+                const res = await fetch('/api/config/youtube/test');
+                const data = await res.json();
+                
+                if (data.success) {
+                    showToast('YouTube connection successful!');
+                } else {
+                    showToast(data.error || 'Connection failed', 'error');
+                }
+            } catch (e) {
+                showToast('Error testing connection', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
