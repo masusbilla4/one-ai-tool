@@ -248,6 +248,38 @@ def import_page():
     return render_template('sentencedb/import.html', total=total, eng=eng, fil=fil)
 
 
+@sentencedb_bp.route('/import/template')
+@login_required
+def download_template():
+    """Download CSV import template."""
+    from io import BytesIO
+    import csv
+    
+    # Create CSV in memory
+    output = BytesIO()
+    writer = csv.writer(output)
+    
+    # Write header
+    writer.writerow(['sentence', 'category', 'language'])
+    
+    # Write sample rows
+    writer.writerow(['Magandang umaga', 'Greetings', 'fil'])
+    writer.writerow(['Good morning', 'Greetings', 'en'])
+    writer.writerow(['Salamat', 'Greetings', 'fil'])
+    writer.writerow(['Thank you', 'Greetings', 'en'])
+    writer.writerow(['Kumusta ka?', 'Greetings', 'fil'])
+    writer.writerow(['How are you?', 'Greetings', 'en'])
+    
+    output.seek(0)
+    
+    return send_file(
+        output,
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name='sentence_import_template.csv'
+    )
+
+
 # ========== DUPLICATE MANAGEMENT ==========
 
 @sentencedb_bp.route('/duplicates')
