@@ -105,7 +105,7 @@
                         </div>
                     </div>
 
-                    <!-- Stats -->
+                    <!-- Stats Cards -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                         <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
                             <p class="text-sm text-slate-600">Filipino Total</p>
@@ -122,6 +122,53 @@
                         <div class="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
                             <p class="text-sm text-slate-600">English Remaining</p>
                             <p class="text-2xl font-bold text-orange-600" id="eng-remaining">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Category Dashboard -->
+                    <div class="bg-slate-100 rounded-lg border border-slate-200 mb-6">
+                        <button onclick="toggleDashExpanded()" class="w-full flex justify-between items-center p-4 hover:bg-slate-200 transition rounded-lg cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-chart-bar text-indigo-600 text-xl"></i>
+                                <span class="font-semibold text-slate-800">📊 Usage Distribution by Category</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-slate-400" id="dash-icon"></i>
+                        </button>
+                        <div id="dash-content" class="hidden px-4 pb-4">
+                            <!-- Summary Cards -->
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                                <div class="bg-purple-100 p-3 rounded-lg border-2 border-purple-300">
+                                    <p class="text-xs text-purple-700 font-medium">🟣 FIL Used</p>
+                                    <p class="text-xl font-bold text-purple-700" id="dash-fil-used">-</p>
+                                </div>
+                                <div class="bg-purple-50 p-3 rounded-lg border-2 border-purple-200">
+                                    <p class="text-xs text-purple-600 font-medium">🟣 FIL Available</p>
+                                    <p class="text-xl font-bold text-purple-600" id="dash-fil-avail">-</p>
+                                </div>
+                                <div class="bg-green-100 p-3 rounded-lg border-2 border-green-300">
+                                    <p class="text-xs text-green-700 font-medium">🟢 ENG Used</p>
+                                    <p class="text-xl font-bold text-green-700" id="dash-eng-used">-</p>
+                                </div>
+                                <div class="bg-green-50 p-3 rounded-lg border-2 border-green-200">
+                                    <p class="text-xs text-green-600 font-medium">🟢 ENG Available</p>
+                                    <p class="text-xl font-bold text-green-600" id="dash-eng-avail">-</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Overall Progress -->
+                            <div class="mb-4">
+                                <p class="text-sm font-semibold text-slate-700 mb-1">
+                                    Overall: <span id="dash-overall-text">-</span>
+                                </p>
+                                <div class="w-full h-3 bg-slate-300 rounded-full overflow-hidden">
+                                    <div id="dash-overall-bar" class="h-full bg-indigo-600 transition-all" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Category Breakdown -->
+                            <div id="dash-category-list" class="space-y-2">
+                                <!-- Populated by JavaScript -->
+                            </div>
                         </div>
                     </div>
 
@@ -1071,6 +1118,87 @@
             }
         });
 
+        // ========== CATEGORY DASHBOARD ==========
+        
+        let dashExpanded = false;
+        
+        function toggleDashExpanded() {
+            dashExpanded = !dashExpanded;
+            const content = document.getElementById('dash-content');
+            const icon = document.getElementById('dash-icon');
+            
+            if (dashExpanded) {
+                content.classList.remove('hidden');
+                icon.classList.remove('fa-chevron-right');
+                icon.classList.add('fa-chevron-down');
+                loadCategoryStats();
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-right');
+            }
+        }
+        
+        async function loadCategoryStats() {
+            try {
+                const res = await fetch('{{ url_for("sentencedb.get_category_stats_api") }}');
+                const stats = await res.json();
+                
+                if (!stats || stats.length === 0) {
+                    document.getElementById('dash-category-list').innerHTML = '<p class="text-slate-500 text-center py-4">No category data available</p>';
+                    return;
+                }
+                
+                // Calculate totals
+                let totalFilUsed = 0, totalFilAvail = 0, totalEngUsed = 0, totalEngAvail = 0;
+                stats.forEach(s => {
+                    totalFilUsed += s.fil_used || 0;
+                    totalFilAvail += s.fil_remaining || 0;
+                    totalEngUsed += s.eng_used || 0;
+                    totalEngAvail += s.eng_remaining || 0;
+                });
+                
+                // Update summary cards
+                document.getElementById('dash-fil-used').textContent = totalFilUsed;
+                document.getElementById('dash-fil-avail').textContent = totalFilAvail;
+                document.getElementById('dash-eng-used').textContent = totalEngUsed;
+                document.getElementById('dash-eng-avail').textContent = totalEngAvail;
+                
+                // Overall progress
+                const totalUsed = totalFilUsed + totalEngUsed;
+                const totalAll = totalFilUsed + totalFilAvail + totalEngUsed + totalEngAvail;
+                const pct = totalAll > 0 ? Math.round((totalUsed / totalAll) * 100) : 0;
+                
+                document.getElementById('dash-overall-text').textContent = `${totalUsed} of ${totalAll} used (${pct}%)`;
+                document.getElementById('dash-overall-bar').style.width = pct + '%';
+                
+                // Category breakdown
+                const listEl = document.getElementById('dash-category-list');
+                listEl.innerHTML = '';
+                
+                stats.forEach(s => {
+                    const catUsed = (s.fil_used || 0) + (s.eng_used || 0);
+                    const catTotal = (s.fil_total || 0) + (s.eng_total || 0);
+                    const catPct = catTotal > 0 ? Math.round((catUsed / catTotal) * 100) : 0;
+                    
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center gap-3 py-2 border-b border-slate-200';
+                    row.innerHTML = `
+                        <span class="text-sm font-medium text-slate-700 w-32 truncate" title="${s.category}">${s.category}</span>
+                        <div class="flex-1 h-2 bg-slate-300 rounded-full overflow-hidden">
+                            <div class="h-full bg-indigo-600" style="width: ${catPct}%"></div>
+                        </div>
+                        <span class="text-xs text-slate-600 w-20 text-right">${catUsed}/${catTotal} (${catPct}%)</span>
+                    `;
+                    listEl.appendChild(row);
+                });
+                
+            } catch (e) {
+                console.error('Failed to load category stats:', e);
+                document.getElementById('dash-category-list').innerHTML = '<p class="text-red-500 text-center py-4">Failed to load category data</p>';
+            }
+        }
+        
         // ========== CATEGORY MANAGEMENT ==========
         
         // Show "Add New Category" input when selected in dropdown
