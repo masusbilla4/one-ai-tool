@@ -41,23 +41,28 @@
         
         /* Textarea with line numbers */
         .textarea-wrap {
-            display: flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+            display: flex; border: 2px solid #64748b; border-radius: 6px; overflow: hidden;
+            background: #475569;
         }
         .line-numbers {
-            width: 42px; min-height: 120px; padding: 10px 6px;
-            background: #E8EAF0; color: #888; font-family: 'Consolas', monospace;
+            width: 42px; min-height: 150px; padding: 10px 6px;
+            background: #334155; color: #94a3b8; font-family: 'Consolas', monospace;
             font-size: 0.85rem; text-align: right; user-select: none;
             overflow: hidden; line-height: 1.45; white-space: pre-line;
+            border-right: 1px solid #64748b;
         }
         textarea {
-            width: 100%; min-height: 120px; padding: 10px 12px;
+            width: 100%; min-height: 150px; padding: 10px 12px;
             border: none; border-radius: 0;
             font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9rem;
-            resize: vertical; outline: none; background: #FAFAFA;
-            line-height: 1.45;
+            resize: vertical; outline: none; background: #64748b;
+            color: #f1f5f9; line-height: 1.45;
         }
-        textarea:focus { box-shadow: inset 0 0 0 1px var(--primary); }
-        .textarea-wrap.drag-over { border-color: var(--primary); background: #E3F2FD; }
+        textarea:focus { box-shadow: inset 0 0 0 2px #818cf8; }
+        .textarea-wrap.drag-over { border-color: #818cf8; background: #334155; }
+        
+        /* Textarea group wrapper */
+        .textarea-group { display: flex; flex-direction: column; }
         
         /* Progress */
         .progress-bar { width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
