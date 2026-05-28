@@ -574,11 +574,19 @@
             event.target.closest('.extractor-tab-btn').classList.add('active');
         }
         function showSentenceSection(section) {
+            // Hide ALL sections first (sentence sections + statistics)
             document.querySelectorAll('.sentence-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('stats-section').classList.add('hidden');
+            // Show only the requested section
             document.getElementById('sentence-section-' + section).classList.remove('hidden');
         }
         function hideSentenceSections() {
             document.querySelectorAll('.sentence-section').forEach(s => s.classList.add('hidden'));
+        }
+        function showStatsSection() {
+            // Hide ALL sentence sections, show only statistics
+            document.querySelectorAll('.sentence-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('stats-section').classList.remove('hidden');
         }
 
         // Stats
@@ -812,7 +820,8 @@
             const content = document.getElementById('stats-section');
             const icon = document.getElementById('dash-icon') || document.querySelector('button[onclick="toggleDashExpanded()"] i');
             if (dashExpanded) {
-                content.classList.remove('hidden');
+                // Show only statistics, hide all sentence sections
+                showStatsSection();
                 if (icon) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-down'); }
                 loadCategoryStats();
             } else {
