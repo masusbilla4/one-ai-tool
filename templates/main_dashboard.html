@@ -14,27 +14,55 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .tab-btn.active { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
-        .input-field {
-            width: 100%; padding: 10px 14px; border: 1px solid #374151; border-radius: 8px;
-            font-size: 0.9rem; transition: all 0.2s; background: #1f2937; color: #e5e7eb;
-        }
-        .input-field:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.2); background: #374151; }
         
-        /* Dark theme content cards */
-        .content-card {
-            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-            color: #e2e8f0;
+        /* Input fields - High contrast borders */
+        .input-field {
+            width: 100%; padding: 10px 14px; border: 2px solid #475569; border-radius: 8px;
+            font-size: 0.9rem; transition: all 0.2s; background: #1e293b; color: #f1f5f9;
         }
-        .content-card h1, .content-card h2, .content-card h3 {
-            color: #f1f5f9;
+        .input-field:focus { 
+            outline: none; 
+            border-color: #818cf8; 
+            box-shadow: 0 0 0 3px rgba(129,140,248,0.3); 
+            background: #334155; 
         }
-        .content-card p, .content-card label {
-            color: #cbd5e1;
+        .input-field::placeholder { color: #94a3b8; }
+        
+        /* Select dropdowns */
+        select.input-field {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 10px center; background-size: 20px; padding-right: 40px;
         }
+        
+        /* Cards and containers - Clear borders */
+        .content-card { background: #1e293b; border: 2px solid #334155; border-radius: 12px; color: #f1f5f9; }
+        .content-card h1, .content-card h2, .content-card h3 { color: #ffffff; }
+        .content-card p, .content-card label { color: #cbd5e1; }
+        
+        /* Stat cards - High contrast */
+        .stat-card { background: #1e293b; border: 2px solid #334155; border-left-width: 4px; }
+        
+        /* Dashboard section */
+        .dash-container { background: #1e293b; border: 2px solid #475569; }
+        .dash-card { background: #334155; border: 2px solid #475569; }
+        
+        /* Extractor tabs */
+        .extractor-tab-btn.active { background: #334155; color: #f97316; border: 1px solid #f97316; }
+        .extractor-tab-btn { background: #1e293b; color: #94a3b8; border: 1px solid #475569; }
+        .extractor-tab-btn:hover { background: #334155; }
+        
+        /* Table borders */
+        table { border-collapse: collapse; }
+        th, td { border: 1px solid #475569; }
+        th { background: #334155; border-color: #64748b; color: #f1f5f9; }
+        tr:nth-child(even) { background: #1e293b; }
+        tr:nth-child(odd) { background: #0f172a; }
+        tr:hover { background: #334155; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen text-slate-200">
-    <!-- Navigation - Dark Gradient -->
+    <!-- Navigation -->
     <nav class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white shadow-lg fixed w-full z-50 border-b border-slate-700">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex justify-between items-center h-16">
@@ -76,110 +104,93 @@
                         <i class="fas fa-microphone mr-2"></i>ASR Aligner
                     </button>
                 </div>
-                <!-- Night Mode Toggle -->
-                <button onclick="toggleNightMode()" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg transition" title="Toggle Night Mode">
-                    <i class="fas fa-moon text-yellow-400" id="nightModeIcon"></i>
-                </button>
             </div>
 
             <!-- Sentence Database Tab -->
             <div id="sentencedb" class="tab-content active">
-                <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="content-card rounded-lg shadow-lg p-6">
+                    <!-- Header with Action Buttons -->
                     <div class="flex justify-between items-center mb-6">
-                        <h1 class="text-2xl font-bold text-slate-800">
-                            <i class="fas fa-database mr-2 text-indigo-600"></i>Sentence Database
+                        <h1 class="text-2xl font-bold text-white">
+                            <i class="fas fa-database mr-2 text-indigo-400"></i>Sentence Database
                         </h1>
                         <div class="flex space-x-2">
-                            <button onclick="showSentenceSection('add')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">
+                            <button onclick="showSentenceSection('add')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition font-medium">
                                 <i class="fas fa-plus mr-2"></i>Add
                             </button>
-                            <button onclick="showSentenceSection('shop')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+                            <button onclick="showSentenceSection('shop')" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg transition font-medium">
                                 <i class="fas fa-shopping-cart mr-2"></i>Shop
                             </button>
-                            <button onclick="showSentenceSection('edit')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition">
+                            <button onclick="showSentenceSection('edit')" class="bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded-lg transition font-medium">
                                 <i class="fas fa-edit mr-2"></i>Edit
                             </button>
-                            <button onclick="showSentenceSection('import')" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">
+                            <button onclick="showSentenceSection('import')" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg transition font-medium">
                                 <i class="fas fa-file-import mr-2"></i>Import/Export
+                            </button>
+                            <button onclick="toggleDashExpanded()" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg transition font-medium">
+                                <i class="fas fa-chart-bar mr-2"></i>Statistics
                             </button>
                         </div>
                     </div>
 
-                    <!-- Stats Cards -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                            <p class="text-sm text-slate-600">Filipino Total</p>
-                            <p class="text-2xl font-bold text-blue-600" id="fil-total">-</p>
-                        </div>
-                        <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
-                            <p class="text-sm text-slate-600">English Total</p>
-                            <p class="text-2xl font-bold text-green-600" id="eng-total">-</p>
-                        </div>
-                        <div class="bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
-                            <p class="text-sm text-slate-600">Filipino Remaining</p>
-                            <p class="text-2xl font-bold text-purple-600" id="fil-remaining">-</p>
-                        </div>
-                        <div class="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
-                            <p class="text-sm text-slate-600">English Remaining</p>
-                            <p class="text-2xl font-bold text-orange-600" id="eng-remaining">-</p>
-                        </div>
-                    </div>
-
-                    <!-- Collapsible Category Dashboard -->
-                    <div class="bg-slate-100 rounded-lg border border-slate-200 mb-6 dash-container">
-                        <button onclick="toggleDashExpanded()" class="w-full flex justify-between items-center p-4 hover:bg-slate-200 transition rounded-lg cursor-pointer">
-                            <div class="flex items-center gap-3">
-                                <i class="fas fa-chart-bar text-indigo-600 text-xl"></i>
-                                <span class="font-semibold text-slate-800 dash-title">📊 Usage Distribution by Category</span>
+                    <!-- Statistics Section (Collapsible) -->
+                    <div id="stats-section" class="hidden mb-6">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                            <div class="stat-card rounded-lg p-4" style="border-left-color: #3b82f6;">
+                                <p class="text-sm text-slate-400">Filipino Total</p>
+                                <p class="text-2xl font-bold text-blue-400" id="fil-total">-</p>
                             </div>
-                            <i class="fas fa-chevron-right text-slate-400" id="dash-icon"></i>
-                        </button>
-                        <div id="dash-content" class="hidden px-4 pb-4">
-                            <!-- Summary Cards -->
+                            <div class="stat-card rounded-lg p-4" style="border-left-color: #10b981;">
+                                <p class="text-sm text-slate-400">English Total</p>
+                                <p class="text-2xl font-bold text-green-400" id="eng-total">-</p>
+                            </div>
+                            <div class="stat-card rounded-lg p-4" style="border-left-color: #8b5cf6;">
+                                <p class="text-sm text-slate-400">Filipino Remaining</p>
+                                <p class="text-2xl font-bold text-purple-400" id="fil-remaining">-</p>
+                            </div>
+                            <div class="stat-card rounded-lg p-4" style="border-left-color: #f97316;">
+                                <p class="text-sm text-slate-400">English Remaining</p>
+                                <p class="text-2xl font-bold text-orange-400" id="eng-remaining">-</p>
+                            </div>
+                        </div>
+
+                        <!-- Category Dashboard -->
+                        <div class="dash-container rounded-lg p-4">
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                                <div class="bg-purple-100 p-3 rounded-lg border-2 border-purple-300 dash-card">
-                                    <p class="text-xs text-purple-700 font-medium dash-card-label">🟣 FIL Used</p>
-                                    <p class="text-xl font-bold text-purple-700" id="dash-fil-used">-</p>
+                                <div class="dash-card p-3 rounded-lg">
+                                    <p class="text-xs text-slate-300 font-medium">🟣 FIL Used</p>
+                                    <p class="text-xl font-bold text-purple-400" id="dash-fil-used">-</p>
                                 </div>
-                                <div class="bg-purple-50 p-3 rounded-lg border-2 border-purple-200 dash-card">
-                                    <p class="text-xs text-purple-600 font-medium dash-card-label">🟣 FIL Available</p>
-                                    <p class="text-xl font-bold text-purple-600" id="dash-fil-avail">-</p>
+                                <div class="dash-card p-3 rounded-lg">
+                                    <p class="text-xs text-slate-300 font-medium">🟣 FIL Available</p>
+                                    <p class="text-xl font-bold text-purple-300" id="dash-fil-avail">-</p>
                                 </div>
-                                <div class="bg-green-100 p-3 rounded-lg border-2 border-green-300 dash-card">
-                                    <p class="text-xs text-green-700 font-medium dash-card-label">🟢 ENG Used</p>
-                                    <p class="text-xl font-bold text-green-700" id="dash-eng-used">-</p>
+                                <div class="dash-card p-3 rounded-lg">
+                                    <p class="text-xs text-slate-300 font-medium">🟢 ENG Used</p>
+                                    <p class="text-xl font-bold text-green-400" id="dash-eng-used">-</p>
                                 </div>
-                                <div class="bg-green-50 p-3 rounded-lg border-2 border-green-200 dash-card">
-                                    <p class="text-xs text-green-600 font-medium dash-card-label">🟢 ENG Available</p>
-                                    <p class="text-xl font-bold text-green-600" id="dash-eng-avail">-</p>
+                                <div class="dash-card p-3 rounded-lg">
+                                    <p class="text-xs text-slate-300 font-medium">🟢 ENG Available</p>
+                                    <p class="text-xl font-bold text-green-300" id="dash-eng-avail">-</p>
                                 </div>
                             </div>
-                            
-                            <!-- Overall Progress -->
                             <div class="mb-4">
-                                <p class="text-sm font-semibold text-slate-700 mb-1 dash-label">
-                                    Overall: <span id="dash-overall-text" class="dash-value">-</span>
+                                <p class="text-sm font-semibold text-slate-300 mb-1">
+                                    Overall: <span id="dash-overall-text">-</span>
                                 </p>
-                                <div class="w-full h-3 bg-slate-300 rounded-full overflow-hidden">
-                                    <div id="dash-overall-bar" class="h-full bg-indigo-600 transition-all" style="width: 0%"></div>
+                                <div class="w-full h-3 bg-slate-600 rounded-full overflow-hidden">
+                                    <div id="dash-overall-bar" class="h-full bg-indigo-500 transition-all" style="width: 0%"></div>
                                 </div>
                             </div>
-                            
-                            <!-- Category Breakdown -->
-                            <div id="dash-category-list" class="space-y-2">
-                                <!-- Populated by JavaScript -->
-                            </div>
+                            <div id="dash-category-list" class="space-y-2"></div>
                         </div>
                     </div>
 
-                    <!-- Sentence Sections -->
+                    <!-- Add Section -->
                     <div id="sentence-section-add" class="sentence-section hidden">
                         <h2 class="text-xl font-semibold mb-4">Add New Sentence</h2>
-                        
                         <form action="{{ url_for('sentencedb.add') }}" method="POST" class="space-y-4 max-w-lg">
                             <textarea name="sentence" rows="3" class="input-field" placeholder="Enter sentence..." required></textarea>
-                            
-                            <!-- Category Selection -->
                             <div>
                                 <label class="block text-sm font-medium mb-1">Category</label>
                                 <select name="category" id="category-select" class="input-field" required onchange="handleCategoryChange()">
@@ -189,14 +200,8 @@
                                     {% endfor %}
                                     <option value="__NEW__">+ Add New Category...</option>
                                 </select>
-                                
-                                <!-- New Category Input (shown when "+ Add New Category..." is selected) -->
-                                <input type="text" id="new-category-input" name="category" 
-                                       class="input-field mt-2 hidden" 
-                                       placeholder="Type new category name..." 
-                                       onblur="resetCategorySelect()">
+                                <input type="text" id="new-category-input" name="category" class="input-field mt-2 hidden" placeholder="Type new category name..." onblur="resetCategorySelect()">
                             </div>
-                            
                             <select name="language" class="input-field">
                                 <option value="fil">Filipino</option>
                                 <option value="en">English</option>
@@ -205,52 +210,40 @@
                                 <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition">
                                     <i class="fas fa-save mr-2"></i>Add Sentence
                                 </button>
-                                <button type="button" onclick="hideSentenceSections()" class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-2 rounded-lg transition">
-                                    Cancel
-                                </button>
+                                <button type="button" onclick="hideSentenceSections()" class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-2 rounded-lg transition">Cancel</button>
                             </div>
                         </form>
                     </div>
 
+                    <!-- Shop Section -->
                     <div id="sentence-section-shop" class="sentence-section hidden">
                         <h2 class="text-xl font-semibold mb-4">Shop Sentences</h2>
-                        <p class="text-slate-600 mb-4">Select and collect sentences for your project.</p>
-                        
-                        <!-- Shop Form -->
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <!-- Shopping Form -->
                             <div class="lg:col-span-2">
-                                <div class="bg-white p-6 rounded-lg shadow">
-                                    <h3 class="text-lg font-semibold text-slate-800 mb-4">
-                                        <i class="fas fa-shopping-cart mr-2 text-indigo-600"></i>Add to Cart
-                                    </h3>
+                                <div class="content-card p-6 rounded-lg">
+                                    <h3 class="text-lg font-semibold mb-4"><i class="fas fa-shopping-cart mr-2 text-indigo-400"></i>Add to Cart</h3>
                                     <form method="POST" action="{{ url_for('sentencedb.shop') }}" class="space-y-4">
                                         <input type="hidden" name="action" value="add_to_cart">
-                                        
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
-                                            <select name="category" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <label class="block text-sm font-medium mb-1">Category</label>
+                                            <select name="category" class="input-field">
                                                 <option value="All">All Categories</option>
                                                 {% for cat in categories %}
                                                 <option value="{{ cat }}">{{ cat }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
-                                        
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">Language</label>
-                                            <select name="language" class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <label class="block text-sm font-medium mb-1">Language</label>
+                                            <select name="language" class="input-field">
                                                 <option value="fil">Filipino</option>
                                                 <option value="en">English</option>
                                             </select>
                                         </div>
-                                        
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-1">Quantity</label>
-                                            <input type="number" name="quantity" value="10" min="1" max="100" 
-                                                   class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                            <label class="block text-sm font-medium mb-1">Quantity</label>
+                                            <input type="number" name="quantity" value="10" min="1" max="100" class="input-field">
                                         </div>
-                                        
                                         <div class="flex gap-3">
                                             <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition font-medium">
                                                 <i class="fas fa-cart-plus mr-2"></i>Add to Cart
@@ -260,74 +253,54 @@
                                             </button>
                                         </div>
                                     </form>
-
                                     <div class="mt-6 grid grid-cols-2 gap-4">
-                                        <div class="bg-green-50 p-4 rounded-lg">
-                                            <p class="text-sm text-green-600 font-medium">Filipino Remaining</p>
-                                            <p class="text-2xl font-bold text-green-700">{{ fil_remaining }}</p>
+                                        <div class="bg-green-900/30 p-4 rounded-lg border border-green-700">
+                                            <p class="text-sm text-green-400 font-medium">Filipino Remaining</p>
+                                            <p class="text-2xl font-bold text-green-400">{{ fil_remaining }}</p>
                                         </div>
-                                        <div class="bg-blue-50 p-4 rounded-lg">
-                                            <p class="text-sm text-blue-600 font-medium">English Remaining</p>
-                                            <p class="text-2xl font-bold text-blue-700">{{ eng_remaining }}</p>
+                                        <div class="bg-blue-900/30 p-4 rounded-lg border border-blue-700">
+                                            <p class="text-sm text-blue-400 font-medium">English Remaining</p>
+                                            <p class="text-2xl font-bold text-blue-400">{{ eng_remaining }}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Cart -->
                             <div class="lg:col-span-1">
-                                <div class="bg-white p-6 rounded-lg shadow sticky top-20">
-                                    <h3 class="text-lg font-semibold text-slate-800 mb-4">
-                                        <i class="fas fa-shopping-basket mr-2 text-indigo-600"></i>Your Cart
-                                    </h3>
-                                    
+                                <div class="content-card p-6 rounded-lg sticky top-20">
+                                    <h3 class="text-lg font-semibold mb-4"><i class="fas fa-shopping-basket mr-2 text-indigo-400"></i>Your Cart</h3>
                                     {% if cart %}
                                     <form method="POST" action="{{ url_for('sentencedb.shop') }}" id="cartForm">
                                         <div class="space-y-2 mb-4 max-h-64 overflow-y-auto">
                                             {% for item in cart %}
-                                            <div class="flex items-center gap-2 p-2 bg-slate-50 rounded">
-                                                <input type="checkbox" name="cart_indices" value="{{ loop.index0 }}" 
-                                                       class="cart-checkbox rounded" id="cart-{{ loop.index0 }}">
+                                            <div class="flex items-center gap-2 p-2 bg-slate-800 rounded">
+                                                <input type="checkbox" name="cart_indices" value="{{ loop.index0 }}" class="cart-checkbox rounded" id="cart-{{ loop.index0 }}">
                                                 <label for="cart-{{ loop.index0 }}" class="flex-1 text-sm cursor-pointer">
                                                     <span class="truncate block">{{ item[0] }}</span>
-                                                    <span class="text-slate-500 text-xs">{{ item[2] }}</span>
+                                                    <span class="text-slate-400 text-xs">{{ item[2] }}</span>
                                                 </label>
                                             </div>
                                             {% endfor %}
                                         </div>
-                                        
-                                        <div class="border-t pt-4 space-y-3">
-                                            <p class="text-sm text-slate-600">
-                                                <strong>{{ cart|length }}</strong> sentences in cart
-                                            </p>
-                                            
-                                            <button type="submit" name="action" value="remove_selected" 
-                                                    class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition font-medium text-sm"
-                                                    onclick="return confirm('Remove selected items from cart?')">
+                                        <div class="border-t border-slate-600 pt-4 space-y-3">
+                                            <p class="text-sm text-slate-400"><strong>{{ cart|length }}</strong> sentences in cart</p>
+                                            <button type="submit" name="action" value="remove_selected" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition font-medium text-sm">
                                                 <i class="fas fa-trash mr-2"></i>Remove Selected
                                             </button>
-                                            
-                                            <button type="submit" name="action" value="clear_cart" 
-                                                    class="w-full bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg transition font-medium text-sm">
+                                            <button type="submit" name="action" value="clear_cart" class="w-full bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg transition font-medium text-sm">
                                                 <i class="fas fa-eraser mr-2"></i>Clear All
                                             </button>
-                                            
-                                            <hr class="my-3">
-                                            
-                                            <button type="submit" name="action" value="checkout" 
-                                                    class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition font-medium">
+                                            <hr class="border-slate-600 my-3">
+                                            <button type="submit" name="action" value="checkout" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition font-medium">
                                                 <i class="fas fa-check-circle mr-2"></i>Checkout
                                             </button>
                                         </div>
                                     </form>
-                                    
-                                    <a href="{{ url_for('sentencedb.shop_export') }}" class="block text-center mt-4 text-indigo-600 hover:text-indigo-800 text-sm">
+                                    <a href="{{ url_for('sentencedb.shop_export') }}" class="block text-center mt-4 text-indigo-400 hover:text-indigo-300 text-sm">
                                         <i class="fas fa-download mr-1"></i>Export Cart as CSV
                                     </a>
                                     {% else %}
-                                    <p class="text-slate-500 text-center py-8">
-                                        <i class="fas fa-shopping-cart text-4xl mb-2 text-slate-300"></i>
-                                        <br>Cart is empty
+                                    <p class="text-slate-400 text-center py-8">
+                                        <i class="fas fa-shopping-cart text-4xl mb-2 text-slate-600"></i><br>Cart is empty
                                     </p>
                                     {% endif %}
                                 </div>
@@ -335,74 +308,72 @@
                         </div>
                     </div>
 
+                    <!-- Edit Section -->
                     <div id="sentence-section-edit" class="sentence-section hidden">
                         <h2 class="text-xl font-semibold mb-4">Edit Sentences</h2>
-                        <p class="text-slate-600 mb-4">Search and edit existing sentences.</p>
-                        <a href="{{ url_for('sentencedb.edit') }}" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg transition">
+                        <p class="text-slate-400 mb-4">Search and edit existing sentences.</p>
+                        <a href="{{ url_for('sentencedb.edit') }}" class="inline-block bg-yellow-500 hover:bg-yellow-400 text-white px-6 py-3 rounded-lg transition">
                             <i class="fas fa-external-link-alt mr-2"></i>Open Edit Page
                         </a>
                     </div>
 
+                    <!-- Import/Export Section -->
                     <div id="sentence-section-import" class="sentence-section hidden">
                         <h2 class="text-xl font-semibold mb-4">Import / Export</h2>
-                        <p class="text-slate-600 mb-4">Manage your sentence database data.</p>
-                        <a href="{{ url_for('sentencedb.import_page') }}" class="inline-block bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition">
+                        <p class="text-slate-400 mb-4">Manage your sentence database data.</p>
+                        <a href="{{ url_for('sentencedb.import_page') }}" class="inline-block bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg transition">
                             <i class="fas fa-external-link-alt mr-2"></i>Open Import/Export Page
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Data Extractor Tab -->
+            <!-- Data Extractor Tab - Dark Theme -->
             <div id="extractor" class="tab-content">
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h1 class="text-2xl font-bold text-slate-800 mb-6">
-                        <i class="fas fa-download mr-2 text-indigo-600"></i>Universal Data Extractor
+                <div class="content-card rounded-lg shadow-lg p-6">
+                    <h1 class="text-2xl font-bold text-white mb-6">
+                        <i class="fas fa-download mr-2 text-indigo-400"></i>Universal Data Extractor
                     </h1>
-                    
                     <!-- Extractor Sub-Tabs -->
-                    <div class="flex space-x-2 mb-6 border-b">
-                        <button onclick="switchExtractorTab('reddit')" class="extractor-tab-btn active px-4 py-2 rounded-t-lg transition font-medium bg-orange-100 text-orange-700">
+                    <div class="flex space-x-2 mb-6">
+                        <button onclick="switchExtractorTab('reddit')" class="extractor-tab-btn active px-4 py-2 rounded-t-lg transition font-medium">
                             <i class="fab fa-reddit mr-2"></i>Reddit
                         </button>
-                        <button onclick="switchExtractorTab('yt-comments')" class="extractor-tab-btn px-4 py-2 rounded-t-lg transition font-medium hover:bg-slate-100">
+                        <button onclick="switchExtractorTab('yt-comments')" class="extractor-tab-btn px-4 py-2 rounded-t-lg transition font-medium">
                             <i class="fas fa-comments mr-2"></i>YouTube Comments
                         </button>
-                        <button onclick="switchExtractorTab('yt-subs')" class="extractor-tab-btn px-4 py-2 rounded-t-lg transition font-medium hover:bg-slate-100">
+                        <button onclick="switchExtractorTab('yt-subs')" class="extractor-tab-btn px-4 py-2 rounded-t-lg transition font-medium">
                             <i class="fas fa-closed-captioning mr-2"></i>YouTube Subtitles
                         </button>
-                        <button onclick="switchExtractorTab('document')" class="extractor-tab-btn px-4 py-2 rounded-t-lg transition font-medium hover:bg-slate-100">
+                        <button onclick="switchExtractorTab('document')" class="extractor-tab-btn px-4 py-2 rounded-t-lg transition font-medium">
                             <i class="fas fa-file-alt mr-2"></i>Document
                         </button>
                     </div>
-
                     <!-- Reddit Tab -->
                     <div id="extractor-reddit" class="extractor-tab-content">
                         <div class="max-w-2xl">
-                            <h3 class="font-semibold text-lg mb-3"><i class="fab fa-reddit text-orange-500 mr-2"></i>Extract Reddit Comments</h3>
+                            <h3 class="font-semibold text-lg mb-3"><i class="fab fa-reddit text-orange-400 mr-2"></i>Extract Reddit Comments</h3>
                             <input type="text" id="reddit-url" class="input-field mb-3" placeholder="Reddit post URL or ID">
-                            <button onclick="extractReddit()" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg transition">
+                            <button onclick="extractReddit()" class="bg-orange-600 hover:bg-orange-500 text-white px-6 py-2 rounded-lg transition">
                                 <i class="fas fa-download mr-2"></i>Extract Comments
                             </button>
                         </div>
                     </div>
-
                     <!-- YouTube Comments Tab -->
                     <div id="extractor-yt-comments" class="extractor-tab-content hidden">
                         <div class="max-w-2xl">
-                            <h3 class="font-semibold text-lg mb-3"><i class="fab fa-youtube text-red-500 mr-2"></i>Extract YouTube Comments</h3>
+                            <h3 class="font-semibold text-lg mb-3"><i class="fab fa-youtube text-red-400 mr-2"></i>Extract YouTube Comments</h3>
                             <input type="text" id="yt-comments-url" class="input-field mb-3" placeholder="YouTube video URL">
                             <input type="number" id="yt-comments-count" class="input-field mb-3" value="100" placeholder="Max comments">
-                            <button onclick="extractYoutubeComments()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition">
+                            <button onclick="extractYoutubeComments()" class="bg-red-600 hover:bg-red-500 text-white px-6 py-2 rounded-lg transition">
                                 <i class="fas fa-download mr-2"></i>Extract Comments
                             </button>
                         </div>
                     </div>
-
                     <!-- YouTube Subtitles Tab -->
                     <div id="extractor-yt-subs" class="extractor-tab-content hidden">
                         <div class="max-w-2xl">
-                            <h3 class="font-semibold text-lg mb-3"><i class="fab fa-youtube text-red-500 mr-2"></i>Extract YouTube Subtitles</h3>
+                            <h3 class="font-semibold text-lg mb-3"><i class="fab fa-youtube text-red-400 mr-2"></i>Extract YouTube Subtitles</h3>
                             <input type="text" id="yt-subs-url" class="input-field mb-3" placeholder="YouTube video URL">
                             <select id="yt-subs-lang" class="input-field mb-3">
                                 <option value="en">English</option>
@@ -411,35 +382,33 @@
                                 <option value="ja">Japanese</option>
                                 <option value="zh-Hans">Chinese (Simplified)</option>
                             </select>
-                            <button onclick="extractYoutubeSubs()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition">
+                            <button onclick="extractYoutubeSubs()" class="bg-red-600 hover:bg-red-500 text-white px-6 py-2 rounded-lg transition">
                                 <i class="fas fa-closed-captioning mr-2"></i>Extract Subtitles
                             </button>
                         </div>
                     </div>
-
                     <!-- Document Tab -->
                     <div id="extractor-document" class="extractor-tab-content hidden">
                         <div class="max-w-2xl">
-                            <h3 class="font-semibold text-lg mb-3"><i class="fas fa-file-alt text-blue-500 mr-2"></i>Extract Text from Documents</h3>
-                            <p class="text-slate-600 mb-3 text-sm">Supported formats: TXT, PDF, DOCX, XLSX, CSV, SRT</p>
+                            <h3 class="font-semibold text-lg mb-3"><i class="fas fa-file-alt text-blue-400 mr-2"></i>Extract Text from Documents</h3>
+                            <p class="text-slate-400 mb-3 text-sm">Supported formats: TXT, PDF, DOCX, XLSX, CSV, SRT</p>
                             <input type="file" id="doc-files" class="input-field mb-3" multiple accept=".txt,.pdf,.docx,.xlsx,.csv,.srt">
-                            <button onclick="extractDocument()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition">
+                            <button onclick="extractDocument()" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg transition">
                                 <i class="fas fa-upload mr-2"></i>Upload & Extract
                             </button>
                         </div>
                     </div>
-
                     <!-- Results Area -->
                     <div id="extractor-results" class="mt-6 hidden">
                         <h3 class="font-semibold text-lg mb-3">Extraction Results</h3>
-                        <div class="border rounded-lg p-4 bg-slate-50 max-h-96 overflow-y-auto">
-                            <pre id="extractor-output" class="text-sm whitespace-pre-wrap"></pre>
+                        <div class="border border-slate-600 rounded-lg p-4 bg-slate-800 max-h-96 overflow-y-auto">
+                            <pre id="extractor-output" class="text-sm whitespace-pre-wrap text-slate-300"></pre>
                         </div>
                         <div class="flex gap-3 mt-4">
-                            <button onclick="exportExtractorCSV()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+                            <button onclick="exportExtractorCSV()" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg transition">
                                 <i class="fas fa-file-csv mr-2"></i>Export CSV
                             </button>
-                            <button onclick="exportExtractorExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+                            <button onclick="exportExtractorExcel()" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg transition">
                                 <i class="fas fa-file-excel mr-2"></i>Export Excel
                             </button>
                         </div>
@@ -447,31 +416,28 @@
                 </div>
             </div>
 
-            <!-- ASR Aligner Tab -->
+            <!-- ASR Aligner Tab - Dark Theme -->
             <div id="asr" class="tab-content">
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h1 class="text-2xl font-bold text-slate-800 mb-6">
-                        <i class="fas fa-microphone-alt mr-2 text-indigo-600"></i>ASR Aligner
+                <div class="content-card rounded-lg shadow-lg p-6">
+                    <h1 class="text-2xl font-bold text-white mb-6">
+                        <i class="fas fa-microphone-alt mr-2 text-indigo-400"></i>ASR Aligner
                     </h1>
-
-                    <!-- ASR Splitter Drop Zone (Collapsible) -->
-                    <div class="bg-white rounded-lg shadow mb-4">
-                        <button onclick="toggleASRSection('asr-splitter-section')" class="w-full flex justify-between items-center p-4 hover:bg-slate-50 transition rounded-t-lg">
-                            <h2 class="text-lg font-semibold text-indigo-800">
-                                <i class="fas fa-file-import mr-2"></i>ASR Splitter — Drop .txt Files
-                            </h2>
+                    <!-- ASR Splitter -->
+                    <div class="content-card rounded-lg mb-4">
+                        <button onclick="toggleASRSection('asr-splitter-section')" class="w-full flex justify-between items-center p-4 hover:bg-slate-700 transition rounded-t-lg">
+                            <h2 class="text-lg font-semibold text-indigo-400"><i class="fas fa-file-import mr-2"></i>ASR Splitter — Drop .txt Files</h2>
                             <i class="fas fa-chevron-down text-slate-400" id="asr-splitter-icon"></i>
                         </button>
                         <div id="asr-splitter-section" class="p-4 pt-0">
-                            <div id="asr-drop-zone" class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center cursor-pointer hover:bg-indigo-50 transition" onclick="document.getElementById('asr-file-input').click()">
-                                <div class="text-slate-600">
+                            <div id="asr-drop-zone" class="border-2 border-dashed border-slate-600 rounded-lg p-6 text-center cursor-pointer hover:bg-slate-700 transition" onclick="document.getElementById('asr-file-input').click()">
+                                <div class="text-slate-400">
                                     <span class="text-4xl">📄</span>
                                     <div class="mt-2"><strong>Drop .txt files here</strong> — or click to browse</div>
                                     <div class="text-xs mt-1 text-slate-500">Files sorted A→Z. First half = ASR, Second half = Translation</div>
                                 </div>
                             </div>
                             <input type="file" id="asr-file-input" multiple accept=".txt" style="display:none" onchange="handleASRFileSelect(event)">
-                            <div id="asr-file-list" class="bg-slate-100 border border-slate-300 rounded p-3 mt-3 hidden">
+                            <div id="asr-file-list" class="bg-slate-800 border border-slate-600 rounded p-3 mt-3 hidden">
                                 <div class="flex justify-between items-center mb-2 font-semibold text-sm">
                                     <span id="asr-file-count">0 files</span>
                                     <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" onclick="clearASRFiles()">✕ Clear</button>
@@ -480,81 +446,71 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Input Section (Collapsible) -->
-                    <div class="bg-white rounded-lg shadow mb-4">
-                        <button onclick="toggleASRSection('asr-input-section')" class="w-full flex justify-between items-center p-4 hover:bg-slate-50 transition rounded-t-lg">
-                            <h2 class="text-lg font-semibold text-indigo-800">
-                                <i class="fas fa-edit mr-2"></i>Input — True Text / ASR / Translation
-                            </h2>
+                    <!-- Input Section -->
+                    <div class="content-card rounded-lg mb-4">
+                        <button onclick="toggleASRSection('asr-input-section')" class="w-full flex justify-between items-center p-4 hover:bg-slate-700 transition rounded-t-lg">
+                            <h2 class="text-lg font-semibold text-indigo-400"><i class="fas fa-edit mr-2"></i>Input — True Text / ASR / Translation</h2>
                             <i class="fas fa-chevron-down text-slate-400" id="asr-input-icon"></i>
                         </button>
                         <div id="asr-input-section" class="p-4 pt-0">
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <!-- True Text -->
                                 <div>
-                                    <div class="bg-green-500 text-white p-2 font-semibold rounded-t"><span class="mr-1">📝</span>True Text (Reference)</div>
-                                    <textarea id="asr-true-text" rows="8" class="input-field w-full border-0 rounded-t-none" placeholder="Paste reference text or drop .txt file here..."></textarea>
-                                    <div class="text-right text-sm text-white bg-green-500 p-1 rounded-b" id="true-count">Lines: 0</div>
+                                    <div class="bg-green-600 text-white p-2 font-semibold rounded-t"><span class="mr-1">📝</span>True Text (Reference)</div>
+                                    <textarea id="asr-true-text" rows="8" class="input-field w-full border-0 rounded-t-none bg-slate-800" placeholder="Paste reference text..."></textarea>
+                                    <div class="text-right text-sm text-white bg-green-600 p-1 rounded-b" id="true-count">Lines: 0</div>
                                 </div>
-                                <!-- ASR Text -->
                                 <div>
-                                    <div class="bg-blue-500 text-white p-2 font-semibold rounded-t"><span class="mr-1">🎤</span>ASR Result</div>
-                                    <textarea id="asr-asr-text" rows="8" class="input-field w-full border-0 rounded-t-none" placeholder="Paste ASR result here..."></textarea>
-                                    <div class="text-right text-sm text-white bg-blue-500 p-1 rounded-b" id="asr-count">Lines: 0</div>
+                                    <div class="bg-blue-600 text-white p-2 font-semibold rounded-t"><span class="mr-1">🎤</span>ASR Result</div>
+                                    <textarea id="asr-asr-text" rows="8" class="input-field w-full border-0 rounded-t-none bg-slate-800" placeholder="Paste ASR result..."></textarea>
+                                    <div class="text-right text-sm text-white bg-blue-600 p-1 rounded-b" id="asr-count">Lines: 0</div>
                                 </div>
-                                <!-- Translation -->
                                 <div>
-                                    <div class="bg-green-600 text-white p-2 font-semibold rounded-t"><span class="mr-1">🌐</span>English Translation</div>
-                                    <textarea id="asr-trans-text" rows="8" class="input-field w-full border-0 rounded-t-none" placeholder="Paste translation here..."></textarea>
-                                    <div class="text-right text-sm text-white bg-green-600 p-1 rounded-b" id="trans-count">Lines: 0</div>
+                                    <div class="bg-green-700 text-white p-2 font-semibold rounded-t"><span class="mr-1">🌐</span>English Translation</div>
+                                    <textarea id="asr-trans-text" rows="8" class="input-field w-full border-0 rounded-t-none bg-slate-800" placeholder="Paste translation..."></textarea>
+                                    <div class="text-right text-sm text-white bg-green-700 p-1 rounded-b" id="trans-count">Lines: 0</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Action Buttons (Collapsible) -->
-                    <div class="bg-white rounded-lg shadow mb-4">
-                        <button onclick="toggleASRSection('asr-action-section')" class="w-full flex justify-between items-center p-4 hover:bg-slate-50 transition rounded-t-lg">
-                            <h2 class="text-lg font-semibold text-indigo-800">
-                                <i class="fas fa-play-circle mr-2"></i>Actions
-                            </h2>
+                    <!-- Action Buttons -->
+                    <div class="content-card rounded-lg mb-4">
+                        <button onclick="toggleASRSection('asr-action-section')" class="w-full flex justify-between items-center p-4 hover:bg-slate-700 transition rounded-t-lg">
+                            <h2 class="text-lg font-semibold text-indigo-400"><i class="fas fa-play-circle mr-2"></i>Actions</h2>
                             <i class="fas fa-chevron-down text-slate-400" id="asr-action-icon"></i>
                         </button>
                         <div id="asr-action-section" class="p-4 pt-0">
                             <div class="flex flex-wrap gap-3">
-                                <button onclick="runASRAlignment()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded font-semibold">
+                                <button onclick="runASRAlignment()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded font-semibold">
                                     <i class="fas fa-play mr-2"></i>Align ASR
                                 </button>
                                 <button onclick="clearASRAll()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded font-semibold">
                                     <i class="fas fa-trash mr-2"></i>Clear All
                                 </button>
                                 <span class="flex-1"></span>
-                                <button onclick="toggleASRResults()" class="bg-slate-600 hover:bg-slate-700 text-white px-6 py-2 rounded font-semibold" id="asr-btn-results" disabled>
+                                <button onclick="toggleASRResults()" class="bg-slate-600 hover:bg-slate-500 text-white px-6 py-2 rounded font-semibold" id="asr-btn-results" disabled>
                                     <i class="fas fa-chart-bar mr-2"></i>Show Results
                                 </button>
                             </div>
                             <div class="mt-4">
-                                <div class="w-full h-2 bg-slate-200 rounded overflow-hidden">
-                                    <div class="h-full bg-indigo-600 transition-all" id="asr-progress" style="width: 0%"></div>
+                                <div class="w-full h-2 bg-slate-700 rounded overflow-hidden">
+                                    <div class="h-full bg-indigo-500 transition-all" id="asr-progress" style="width: 0%"></div>
                                 </div>
-                                <div class="text-sm text-slate-600 mt-2" id="asr-status">Ready to align</div>
+                                <div class="text-sm text-slate-400 mt-2" id="asr-status">Ready to align</div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Results Section (Collapsible) -->
-                    <div id="asr-results-section" class="hidden bg-white rounded-lg shadow mb-4">
-                        <button onclick="toggleASRSection('asr-results-content')" class="w-full flex justify-between items-center p-4 hover:bg-slate-50 transition rounded-t-lg">
+                    <!-- Results Section -->
+                    <div id="asr-results-section" class="hidden content-card rounded-lg mb-4">
+                        <button onclick="toggleASRSection('asr-results-content')" class="w-full flex justify-between items-center p-4 hover:bg-slate-700 transition rounded-t-lg">
                             <h2 class="text-xl font-bold" id="asr-results-title">📊 Alignment Results</h2>
                             <i class="fas fa-chevron-down text-slate-400" id="asr-results-icon"></i>
                         </button>
                         <div id="asr-results-content" class="p-4 pt-0">
                             <div class="flex flex-wrap gap-2 mb-4">
-                                <button onclick="exportASRExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+                                <button onclick="exportASRExcel()" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded">
                                     <i class="fas fa-file-excel mr-2"></i>Export Excel
                                 </button>
-                                <button onclick="openASRModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                                <button onclick="openASRModal()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded">
                                     <i class="fas fa-language mr-2"></i>Align Translation (AI)
                                 </button>
                                 <button onclick="reevaluateASR()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">
@@ -585,28 +541,19 @@
     </div>
 
     <script>
-        // ========== MAIN TAB SWITCHING ==========
+        // Tab Switching
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             event.target.closest('.tab-btn').classList.add('active');
         }
-
-        // ========== EXTRACTOR SUB-TAB SWITCHING ==========
         function switchExtractorTab(source) {
             document.querySelectorAll('.extractor-tab-content').forEach(tab => tab.classList.add('hidden'));
-            document.querySelectorAll('.extractor-tab-btn').forEach(btn => {
-                btn.classList.remove('bg-orange-100', 'text-orange-700');
-                btn.classList.add('hover:bg-slate-100');
-            });
+            document.querySelectorAll('.extractor-tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('extractor-' + source).classList.remove('hidden');
-            const activeBtn = event.target.closest('.extractor-tab-btn');
-            activeBtn.classList.remove('hover:bg-slate-100');
-            activeBtn.classList.add('bg-orange-100', 'text-orange-700');
+            event.target.closest('.extractor-tab-btn').classList.add('active');
         }
-
-        // ========== SENTENCE DB SECTION SWITCHING ==========
         function showSentenceSection(section) {
             document.querySelectorAll('.sentence-section').forEach(s => s.classList.add('hidden'));
             document.getElementById('sentence-section-' + section).classList.remove('hidden');
@@ -615,7 +562,7 @@
             document.querySelectorAll('.sentence-section').forEach(s => s.classList.add('hidden'));
         }
 
-        // ========== LOAD STATS ==========
+        // Stats
         document.addEventListener('DOMContentLoaded', function() { fetchStats(); });
         async function fetchStats() {
             try {
@@ -628,7 +575,7 @@
             } catch (e) { console.error('Failed to load stats:', e); }
         }
 
-        // ========== EXTRACTOR FUNCTIONS ==========
+        // Extractor Functions
         async function extractReddit() {
             const url = document.getElementById('reddit-url').value;
             if (!url) { alert('Please enter a Reddit URL'); return; }
@@ -676,34 +623,25 @@
         function exportExtractorCSV() { window.open('/extractor/export/csv/latest'); }
         function exportExtractorExcel() { window.open('/extractor/export/excel/latest'); }
 
-        // ========== ASR ALIGNER - FULL FEATURE SET ==========
-        let asrAlignmentData = [];
-        let asrOverallWer = 0;
-        let asrOverallStats = {};
-        let asrCurrentTaskId = null;
-        let asrSplitterFiles = [];
-
-        // ASR Splitter - Drag & Drop
+        // ASR Functions
+        let asrAlignmentData = [], asrOverallWer = 0, asrOverallStats = {}, asrCurrentTaskId = null, asrSplitterFiles = [];
         const asrDropZone = document.getElementById('asr-drop-zone');
         if (asrDropZone) {
             asrDropZone.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); asrDropZone.classList.add('drag-over'); });
             asrDropZone.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); asrDropZone.classList.remove('drag-over'); });
             asrDropZone.addEventListener('drop', (e) => {
-                e.preventDefault(); e.stopPropagation();
-                asrDropZone.classList.remove('drag-over');
+                e.preventDefault(); e.stopPropagation(); asrDropZone.classList.remove('drag-over');
                 const files = Array.from(e.dataTransfer.files).filter(f => f.name.toLowerCase().endsWith('.txt'));
-                if (files.length === 0) { showToast('Please drop .txt files only.', 'warning'); return; }
+                if (files.length === 0) { alert('Please drop .txt files only.'); return; }
                 processASRSplitterFiles(files);
             });
         }
-
         function handleASRFileSelect(event) {
             const files = Array.from(event.target.files).filter(f => f.name.toLowerCase().endsWith('.txt'));
-            if (files.length === 0) { showToast('Please select .txt files only.', 'warning'); return; }
+            if (files.length === 0) { alert('Please select .txt files only.'); return; }
             processASRSplitterFiles(files);
             event.target.value = '';
         }
-
         async function processASRSplitterFiles(files) {
             files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
             asrSplitterFiles = files;
@@ -719,8 +657,7 @@
                 fileListItems.appendChild(item);
             });
             setASRProgress(20, `⏳ Processing ${files.length} file(s)...`);
-            let allAsrLines = [];
-            let allTransLines = [];
+            let allAsrLines = [], allTransLines = [];
             for (let i = 0; i < files.length; i++) {
                 try {
                     const content = await readASRFileAsText(files[i]);
@@ -730,576 +667,215 @@
                     const secondHalf = lines.slice(midpoint).map(l => l.trim()).filter(l => l);
                     allAsrLines.push(...firstHalf);
                     allTransLines.push(...secondHalf);
-                } catch (e) { showToast(`Error reading ${files[i].name}: ${e.message}`, 'error'); }
+                } catch (e) { alert(`Error reading ${files[i].name}: ${e.message}`); }
             }
-            if (allAsrLines.length > 0) {
-                document.getElementById('asr-asr-text').value = allAsrLines.join('\n');
-                updateASRLineCounts();
-            }
-            if (allTransLines.length > 0) {
-                document.getElementById('asr-trans-text').value = allTransLines.join('\n');
-                updateASRLineCounts();
-            }
+            if (allAsrLines.length > 0) { document.getElementById('asr-asr-text').value = allAsrLines.join('\n'); updateASRLineCounts(); }
+            if (allTransLines.length > 0) { document.getElementById('asr-trans-text').value = allTransLines.join('\n'); updateASRLineCounts(); }
             setASRProgress(100, `✅ Split ${files.length} file(s) — ${allAsrLines.length} ASR lines, ${allTransLines.length} Translation lines`);
-            showToast(`Split complete: ${allAsrLines.length} ASR + ${allTransLines.length} Translation lines from ${files.length} file(s)`);
         }
-
-        function readASRFileAsText(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target.result);
-                reader.onerror = (e) => reject(e);
-                reader.readAsText(file, 'utf-8');
-            });
-        }
-
-        function clearASRFiles() {
-            asrSplitterFiles = [];
-            document.getElementById('asr-file-list').classList.add('hidden');
-            document.getElementById('asr-file-items').innerHTML = '';
-        }
-
-        // ASR Line counts
+        function readASRFileAsText(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = (e) => resolve(e.target.result); reader.onerror = (e) => reject(e); reader.readAsText(file, 'utf-8'); }); }
+        function clearASRFiles() { asrSplitterFiles = []; document.getElementById('asr-file-list').classList.add('hidden'); document.getElementById('asr-file-items').innerHTML = ''; }
         function updateASRLineCounts() {
             const count = (id) => (document.getElementById(id).value.split('\n').filter(l => l.trim()).length);
             document.getElementById('true-count').textContent = `Lines: ${count('asr-true-text')}`;
             document.getElementById('asr-count').textContent = `Lines: ${count('asr-asr-text')}`;
             document.getElementById('trans-count').textContent = `Lines: ${count('asr-trans-text')}`;
         }
-        ['asr-true-text', 'asr-asr-text', 'asr-trans-text'].forEach(id => {
-            const ta = document.getElementById(id);
-            if (ta) ta.addEventListener('input', updateASRLineCounts);
-        });
-
-        // ASR Progress
-        function setASRProgress(pct, text) {
-            document.getElementById('asr-progress').style.width = pct + '%';
-            if (text) document.getElementById('asr-status').textContent = text;
-        }
-
-        // ASR Clear All
+        ['asr-true-text', 'asr-asr-text', 'asr-trans-text'].forEach(id => { const ta = document.getElementById(id); if (ta) ta.addEventListener('input', updateASRLineCounts); });
+        function setASRProgress(pct, text) { document.getElementById('asr-progress').style.width = pct + '%'; if (text) document.getElementById('asr-status').textContent = text; }
         function clearASRAll() {
-            document.getElementById('asr-true-text').value = '';
-            document.getElementById('asr-asr-text').value = '';
-            document.getElementById('asr-trans-text').value = '';
-            asrAlignmentData = [];
-            asrOverallWer = 0;
-            asrOverallStats = {};
-            updateASRLineCounts();
-            setASRProgress(0, 'Ready to align');
-            document.getElementById('asr-btn-results').disabled = true;
-            document.getElementById('asr-results-section').classList.add('hidden');
-            clearASRFiles();
+            document.getElementById('asr-true-text').value = ''; document.getElementById('asr-asr-text').value = ''; document.getElementById('asr-trans-text').value = '';
+            asrAlignmentData = []; asrOverallWer = 0; asrOverallStats = {}; updateASRLineCounts(); setASRProgress(0, 'Ready to align');
+            document.getElementById('asr-btn-results').disabled = true; document.getElementById('asr-results-section').classList.add('hidden'); clearASRFiles();
         }
-
-        // ASR Run Alignment
         async function runASRAlignment() {
             const trueText = document.getElementById('asr-true-text').value.trim();
             const asrText = document.getElementById('asr-asr-text').value.trim();
-            if (!trueText || !asrText) { showToast('Please input both True Text and ASR Result.', 'error'); return; }
+            if (!trueText || !asrText) { alert('Please input both True Text and ASR Result.'); return; }
             setASRProgress(10, '⏳ Aligning ASR sentences...');
             try {
                 let res = await fetch('/asr/align', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ true_text: trueText, asr_text: asrText }) });
                 let data = await res.json();
-                if (data.warning) {
-                    if (!confirm(data.message + '\n\nContinue anyway?')) { setASRProgress(0, 'Ready to align'); return; }
-                    res = await fetch('/asr/align', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ true_text: trueText, asr_text: asrText }) });
-                    data = await res.json();
-                }
-                if (data.error) { showToast(data.error, 'error'); setASRProgress(0, '❌ Alignment failed'); return; }
+                if (data.warning && !confirm(data.message + '\n\nContinue anyway?')) { setASRProgress(0, 'Ready to align'); return; }
+                if (data.error) { alert(data.error); setASRProgress(0, '❌ Alignment failed'); return; }
                 if (data.status === 'started') {
                     setASRProgress(30, '⏳ Processing alignment...');
                     while (true) {
                         const pollRes = await fetch('/asr/align-result');
                         const pollData = await pollRes.json();
                         if (pollData.done) {
-                            if (pollData.error) { showToast(pollData.error, 'error'); setASRProgress(0, '❌ Alignment failed'); return; }
-                            asrAlignmentData = pollData.result.alignment_data || [];
-                            asrOverallWer = pollData.result.overall_wer || 0;
-                            asrOverallStats = pollData.result.overall_stats || {};
+                            if (pollData.error) { alert(pollData.error); setASRProgress(0, '❌ Alignment failed'); return; }
+                            asrAlignmentData = pollData.result.alignment_data || []; asrOverallWer = pollData.result.overall_wer || 0; asrOverallStats = pollData.result.overall_stats || {};
                             setASRProgress(100, `✅ Alignment completed — Overall WER: ${asrOverallWer}%`);
                             document.getElementById('asr-btn-results').disabled = false;
-                            showToast(`Alignment complete! WER: ${asrOverallWer}%`);
+                            alert(`Alignment complete! WER: ${asrOverallWer}%`);
                             renderASRResults();
                             return;
                         }
                         await new Promise(r => setTimeout(r, 2000));
                     }
                 }
-            } catch (e) { showToast('Network error: ' + e.message, 'error'); setASRProgress(0, '❌ Alignment failed'); }
+            } catch (e) { alert('Network error: ' + e.message); setASRProgress(0, '❌ Alignment failed'); }
         }
-
-        // ASR Render Results
         function renderASRResults() {
-            const tbody = document.getElementById('asr-results-body');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('asr-results-body'); tbody.innerHTML = '';
             asrAlignmentData.forEach((d, idx) => {
-                const tr = document.createElement('tr');
-                tr.className = idx % 2 === 0 ? 'bg-slate-50' : '';
-                const scoreClass = d.ai_score == 3 ? 'text-green-600 font-bold' : '';
-                tr.innerHTML = `
-                    <td class="py-2 px-3 text-center">${d.id}</td>
-                    <td class="py-2 px-3">${escapeHtmlASR(d.true)}</td>
-                    <td class="py-2 px-3">${escapeHtmlASR(d.asr_separated || d.asr_nobreak || '')}</td>
-                    <td class="py-2 px-3">${renderASRDiffs(d.diffs)}</td>
-                    <td class="py-2 px-3 text-center">${d.wer}</td>
-                    <td class="py-2 px-3 text-center ${scoreClass}">${d.ai_score || ''}</td>
-                    <td class="py-2 px-3">${escapeHtmlASR(d.translation || '')}</td>
-                `;
+                const tr = document.createElement('tr'); tr.className = idx % 2 === 0 ? 'bg-slate-800' : '';
+                const scoreClass = d.ai_score == 3 ? 'text-green-400 font-bold' : '';
+                tr.innerHTML = `<td class="py-2 px-3 text-center">${d.id}</td><td class="py-2 px-3">${escapeHtmlASR(d.true)}</td><td class="py-2 px-3">${escapeHtmlASR(d.asr_separated || d.asr_nobreak || '')}</td><td class="py-2 px-3">${renderASRDiffs(d.diffs)}</td><td class="py-2 px-3 text-center">${d.wer}</td><td class="py-2 px-3 text-center ${scoreClass}">${d.ai_score || ''}</td><td class="py-2 px-3">${escapeHtmlASR(d.translation || '')}</td>`;
                 tbody.appendChild(tr);
             });
             const s = asrOverallStats;
             document.getElementById('asr-results-title').textContent = `📊 Alignment Results — Overall WER: ${asrOverallWer}% (S:${s.subs||0} D:${s.dels||0} I:${s.ins||0} / ${s.refs||0} words)`;
         }
-
-        function escapeHtmlASR(s) {
-            const div = document.createElement('div');
-            div.textContent = s || '';
-            return div.innerHTML;
-        }
-
-        function renderASRDiffs(diffs) {
-            if (!diffs || !diffs.length) return '';
-            return diffs.map(([color, word]) => {
-                if (color === 'red') return `<span class="text-red-600 font-bold">${escapeHtmlASR(word)}</span>`;
-                if (color === 'blue') return `<span class="text-blue-600 font-bold">${escapeHtmlASR(word)}</span>`;
-                return escapeHtmlASR(word);
-            }).join(' ');
-        }
-
-        function toggleASRResults() {
-            const sec = document.getElementById('asr-results-section');
-            sec.classList.toggle('hidden');
-        }
-
-        // ASR Export Excel
+        function escapeHtmlASR(s) { const div = document.createElement('div'); div.textContent = s || ''; return div.innerHTML; }
+        function renderASRDiffs(diffs) { if (!diffs || !diffs.length) return ''; return diffs.map(([color, word]) => { if (color === 'red') return `<span class="text-red-400 font-bold">${escapeHtmlASR(word)}</span>`; if (color === 'blue') return `<span class="text-blue-400 font-bold">${escapeHtmlASR(word)}</span>`; return escapeHtmlASR(word); }).join(' '); }
+        function toggleASRResults() { document.getElementById('asr-results-section').classList.toggle('hidden'); }
         async function exportASRExcel() {
-            if (!asrAlignmentData.length) { showToast('No data to export.', 'warning'); return; }
+            if (!asrAlignmentData.length) { alert('No data to export.'); return; }
             try {
                 const res = await fetch('/asr/export/excel/' + asrCurrentTaskId, { method: 'POST' });
-                if (!res.ok) { const d = await res.json(); showToast(d.error || 'Export failed', 'error'); return; }
-                const blob = await res.blob();
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = 'ASR_Evaluation.xlsx'; a.click();
-                URL.revokeObjectURL(url);
-                showToast('Excel exported!');
-            } catch (e) { showToast('Export error: ' + e.message, 'error'); }
+                if (!res.ok) { const d = await res.json(); alert(d.error || 'Export failed'); return; }
+                const blob = await res.blob(); const url = URL.createObjectURL(blob); const a = document.createElement('a');
+                a.href = url; a.download = 'ASR_Evaluation.xlsx'; a.click(); URL.revokeObjectURL(url); alert('Excel exported!');
+            } catch (e) { alert('Export error: ' + e.message); }
         }
-
-        // ASR Re-evaluate
         async function reevaluateASR() {
-            if (!asrAlignmentData.length) { showToast('No data to re-evaluate.', 'warning'); return; }
+            if (!asrAlignmentData.length) { alert('No data to re-evaluate.'); return; }
             setASRProgress(30, '⏳ Re-evaluating...');
             try {
-                const res = await fetch('/asr/reevaluate', { method: 'POST' });
-                const data = await res.json();
-                if (data.error) { showToast(data.error, 'error'); return; }
+                const res = await fetch('/asr/reevaluate', { method: 'POST' }); const data = await res.json();
+                if (data.error) { alert(data.error); return; }
                 if (data.status === 'started') {
                     while (true) {
-                        const pollRes = await fetch('/asr/reevaluate-result');
-                        const pollData = await pollRes.json();
+                        const pollRes = await fetch('/asr/reevaluate-result'); const pollData = await pollRes.json();
                         if (pollData.done) {
-                            if (pollData.error) { showToast(pollData.error, 'error'); return; }
-                            asrAlignmentData = pollData.result.alignment_data;
-                            asrOverallWer = pollData.result.overall_wer;
-                            asrOverallStats = pollData.result.overall_stats;
-                            renderASRResults();
-                            setASRProgress(100, `✅ Re-evaluated — Overall WER: ${asrOverallWer}%`);
-                            showToast(`Re-evaluated! WER: ${asrOverallWer}%`);
-                            return;
+                            if (pollData.error) { alert(pollData.error); return; }
+                            asrAlignmentData = pollData.result.alignment_data; asrOverallWer = pollData.result.overall_wer; asrOverallStats = pollData.result.overall_stats;
+                            renderASRResults(); setASRProgress(100, `✅ Re-evaluated — Overall WER: ${asrOverallWer}%`);
+                            alert(`Re-evaluated! WER: ${asrOverallWer}%`); return;
                         }
                         await new Promise(r => setTimeout(r, 2000));
                     }
                 }
-            } catch (e) { showToast('Error: ' + e.message, 'error'); }
+            } catch (e) { alert('Error: ' + e.message); }
         }
-
-        // ASR Modal for AI Translation
         function openASRModal() {
             const transText = document.getElementById('asr-trans-text').value.trim();
-            if (!transText) { showToast('Enter English translation first.', 'warning'); return; }
-            if (!asrAlignmentData.length) { showToast('Run ASR alignment first.', 'warning'); return; }
-            // Use local alignment
+            if (!transText) { alert('Enter English translation first.'); return; }
+            if (!asrAlignmentData.length) { alert('Run ASR alignment first.'); return; }
             alignTranslationLocal();
         }
-
         async function alignTranslationLocal() {
             const transText = document.getElementById('asr-trans-text').value.trim();
-            showToast('AI alignment started...', 'warning');
+            alert('AI alignment started...');
             try {
-                const res = await fetch('/asr/align/translation', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ translation_text: transText, alignment_data: asrAlignmentData })
-                });
+                const res = await fetch('/asr/align/translation', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ translation_text: transText, alignment_data: asrAlignmentData }) });
                 const data = await res.json();
-                if (data.alignment_data) {
-                    asrAlignmentData = data.alignment_data;
-                    renderASRResults();
-                    showToast(`Translation aligned: ${data.count} sentences (${data.method})`);
-                }
-            } catch (e) { showToast('Error: ' + e.message, 'error'); }
+                if (data.alignment_data) { asrAlignmentData = data.alignment_data; renderASRResults(); alert(`Translation aligned: ${data.count} sentences (${data.method})`); }
+            } catch (e) { alert('Error: ' + e.message); }
         }
-
-        // Toast notification
-        function showToast(msg, type = 'success') {
-            // Simple alert for now - can be enhanced with a proper toast UI
-            alert(msg);
-        }
-
-        // ========== ASR SECTION TOGGLE (COLLAPSIBLE) ==========
         function toggleASRSection(sectionId) {
-            const section = document.getElementById(sectionId);
-            const iconId = sectionId.replace('-section', '-icon');
-            const icon = document.getElementById(iconId);
-            
+            const section = document.getElementById(sectionId); const iconId = sectionId.replace('-section', '-icon'); const icon = document.getElementById(iconId);
             if (section.classList.contains('hidden') || section.style.display === 'none') {
-                section.classList.remove('hidden');
-                section.style.display = 'block';
-                if (icon) {
-                    icon.classList.remove('fa-chevron-right');
-                    icon.classList.add('fa-chevron-down');
-                }
+                section.classList.remove('hidden'); section.style.display = 'block';
+                if (icon) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-down'); }
             } else {
-                section.classList.add('hidden');
-                section.style.display = 'none';
-                if (icon) {
-                    icon.classList.remove('fa-chevron-down');
-                    icon.classList.add('fa-chevron-right');
-                }
+                section.classList.add('hidden'); section.style.display = 'none';
+                if (icon) { icon.classList.remove('fa-chevron-down'); icon.classList.add('fa-chevron-right'); }
             }
         }
 
-        // ========== NIGHT MODE TOGGLE ==========
-        let isNightMode = true; // Default to night mode (dark theme)
-        
-        function toggleNightMode() {
-            isNightMode = !isNightMode;
-            const icon = document.getElementById('nightModeIcon');
-            
-            if (isNightMode) {
-                // Enable NIGHT MODE (dark)
-                icon.classList.remove('fa-sun', 'text-orange-500');
-                icon.classList.add('fa-moon', 'text-yellow-300');
-                
-                // Main container → dark
-                document.querySelectorAll('.bg-white').forEach(el => {
-                    el.classList.remove('bg-white');
-                    el.classList.add('bg-slate-800');
-                });
-                
-                // Dashboard container → dark
-                document.querySelectorAll('.dash-container').forEach(el => {
-                    el.classList.remove('bg-slate-100', 'border-slate-200');
-                    el.classList.add('bg-slate-800', 'border-slate-700');
-                });
-                
-                // Dashboard title → light
-                document.querySelectorAll('.dash-title').forEach(el => {
-                    el.classList.remove('text-slate-800');
-                    el.classList.add('text-slate-200');
-                });
-                
-                // Dashboard cards → dark
-                document.querySelectorAll('.dash-card').forEach(el => {
-                    el.classList.remove('bg-purple-100', 'bg-purple-50', 'bg-green-100', 'bg-green-50', 'border-purple-300', 'border-purple-200', 'border-green-300', 'border-green-200');
-                    el.classList.add('bg-slate-700', 'border-slate-600');
-                });
-                
-                // Dashboard card labels → light
-                document.querySelectorAll('.dash-card-label, .dash-label, .dash-value').forEach(el => {
-                    el.classList.remove('text-purple-700', 'text-purple-600', 'text-green-700', 'text-green-600', 'text-slate-700');
-                    el.classList.add('text-slate-200');
-                });
-                
-                // Stat cards → dark
-                document.querySelectorAll('.bg-blue-50').forEach(el => {
-                    el.classList.remove('bg-blue-50');
-                    el.classList.add('bg-slate-700');
-                });
-                document.querySelectorAll('.bg-green-50').forEach(el => {
-                    el.classList.remove('bg-green-50');
-                    el.classList.add('bg-slate-700');
-                });
-                document.querySelectorAll('.bg-purple-50').forEach(el => {
-                    el.classList.remove('bg-purple-50');
-                    el.classList.add('bg-slate-700');
-                });
-                document.querySelectorAll('.bg-orange-50').forEach(el => {
-                    el.classList.remove('bg-orange-50');
-                    el.classList.add('bg-slate-700');
-                });
-                
-                // Text → light colors for dark background
-                document.querySelectorAll('.text-slate-800, .text-slate-700, .text-slate-600').forEach(el => {
-                    el.classList.remove('text-slate-800', 'text-slate-700', 'text-slate-600');
-                    el.classList.add('text-slate-200');
-                });
-                document.querySelectorAll('.text-blue-600, .text-green-600, .text-purple-600, .text-orange-600').forEach(el => {
-                    el.classList.remove('text-blue-600', 'text-green-600', 'text-purple-600', 'text-orange-600');
-                    el.classList.add('text-slate-100');
-                });
-                document.querySelectorAll('.text-slate-500').forEach(el => {
-                    el.classList.remove('text-slate-500');
-                    el.classList.add('text-slate-400');
-                });
-                document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
-                    el.classList.remove('text-slate-800', 'text-indigo-800');
-                    el.classList.add('text-slate-100');
-                });
-                
-                localStorage.setItem('nightMode', 'true');
-            } else {
-                // Enable LIGHT MODE (restore original)
-                icon.classList.remove('fa-moon', 'text-yellow-300');
-                icon.classList.add('fa-sun', 'text-orange-500');
-                
-                // Main container → white
-                document.querySelectorAll('.bg-slate-800').forEach(el => {
-                    el.classList.remove('bg-slate-800');
-                    el.classList.add('bg-white');
-                });
-                
-                // Dashboard container → light
-                document.querySelectorAll('.dash-container').forEach(el => {
-                    el.classList.remove('bg-slate-800', 'border-slate-700');
-                    el.classList.add('bg-slate-100', 'border-slate-200');
-                });
-                
-                // Dashboard title → dark
-                document.querySelectorAll('.dash-title').forEach(el => {
-                    el.classList.remove('text-slate-200');
-                    el.classList.add('text-slate-800');
-                });
-                
-                // Dashboard cards → light (restore colors)
-                document.querySelectorAll('.dash-card').forEach(el => {
-                    el.classList.remove('bg-slate-700', 'border-slate-600');
-                    // Restore based on child content
-                    if (el.querySelector('.text-purple-700') || el.querySelector('.dash-card-label')) {
-                        el.classList.add('bg-purple-100', 'border-purple-300');
-                    } else if (el.querySelector('.text-green-700')) {
-                        el.classList.add('bg-green-100', 'border-green-300');
-                    } else {
-                        el.classList.add('bg-slate-50');
-                    }
-                });
-                
-                // Dashboard card labels → dark
-                document.querySelectorAll('.dash-card-label, .dash-label, .dash-value').forEach(el => {
-                    el.classList.remove('text-slate-200');
-                    if (el.textContent.includes('FIL')) {
-                        el.classList.add('text-purple-700');
-                    } else if (el.textContent.includes('ENG')) {
-                        el.classList.add('text-green-700');
-                    } else {
-                        el.classList.add('text-slate-700');
-                    }
-                });
-                
-                // Stat cards → light colors (restore by checking border)
-                document.querySelectorAll('.bg-slate-700').forEach(el => {
-                    el.classList.remove('bg-slate-700');
-                    if (el.classList.contains('border-blue-500') || el.querySelector('.border-blue-500')) {
-                        el.classList.add('bg-blue-50');
-                    } else if (el.classList.contains('border-green-500') || el.querySelector('.border-green-500')) {
-                        el.classList.add('bg-green-50');
-                    } else if (el.classList.contains('border-purple-500') || el.querySelector('.border-purple-500')) {
-                        el.classList.add('bg-purple-50');
-                    } else if (el.classList.contains('border-orange-500') || el.querySelector('.border-orange-500')) {
-                        el.classList.add('bg-orange-50');
-                    } else {
-                        el.classList.add('bg-slate-50');
-                    }
-                });
-                
-                // Text → dark colors for light background
-                document.querySelectorAll('.text-slate-200').forEach(el => {
-                    el.classList.remove('text-slate-200');
-                    el.classList.add('text-slate-700');
-                });
-                document.querySelectorAll('.text-slate-100').forEach(el => {
-                    el.classList.remove('text-slate-100');
-                    if (el.parentElement.classList.contains('border-blue-500') || el.closest('.bg-blue-50')) {
-                        el.classList.add('text-blue-600');
-                    } else if (el.parentElement.classList.contains('border-green-500') || el.closest('.bg-green-50')) {
-                        el.classList.add('text-green-600');
-                    } else if (el.parentElement.classList.contains('border-purple-500') || el.closest('.bg-purple-50')) {
-                        el.classList.add('text-purple-600');
-                    } else if (el.parentElement.classList.contains('border-orange-500') || el.closest('.bg-orange-50')) {
-                        el.classList.add('text-orange-600');
-                    } else {
-                        el.classList.add('text-slate-800');
-                    }
-                });
-                document.querySelectorAll('.text-slate-400').forEach(el => {
-                    el.classList.remove('text-slate-400');
-                    el.classList.add('text-slate-600');
-                });
-                document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
-                    el.classList.remove('text-slate-100');
-                    el.classList.add('text-slate-800');
-                });
-                
-                localStorage.setItem('nightMode', 'false');
-            }
-        }
-
-        // Restore night mode preference
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedMode = localStorage.getItem('nightMode');
-            if (savedMode === 'false') {
-                toggleNightMode();
-            }
-        });
-
-        // ========== CATEGORY DASHBOARD ==========
-        
+        // Statistics Dashboard
         let dashExpanded = false;
-        
         function toggleDashExpanded() {
             dashExpanded = !dashExpanded;
-            const content = document.getElementById('dash-content');
-            const icon = document.getElementById('dash-icon');
-            
+            const content = document.getElementById('stats-section');
+            const icon = document.getElementById('dash-icon') || document.querySelector('button[onclick="toggleDashExpanded()"] i');
             if (dashExpanded) {
                 content.classList.remove('hidden');
-                icon.classList.remove('fa-chevron-right');
-                icon.classList.add('fa-chevron-down');
+                if (icon) { icon.classList.remove('fa-chevron-right'); icon.classList.add('fa-chevron-down'); }
                 loadCategoryStats();
             } else {
                 content.classList.add('hidden');
-                icon.classList.remove('fa-chevron-down');
-                icon.classList.add('fa-chevron-right');
+                if (icon) { icon.classList.remove('fa-chevron-down'); icon.classList.add('fa-chevron-right'); }
             }
         }
-        
         async function loadCategoryStats() {
             try {
                 const res = await fetch('{{ url_for("sentencedb.get_category_stats_api") }}');
                 const stats = await res.json();
-                
                 if (!stats || stats.length === 0) {
                     document.getElementById('dash-category-list').innerHTML = '<p class="text-slate-500 text-center py-4">No category data available</p>';
                     return;
                 }
-                
-                // Calculate totals
                 let totalFilUsed = 0, totalFilAvail = 0, totalEngUsed = 0, totalEngAvail = 0;
-                stats.forEach(s => {
-                    totalFilUsed += s.fil_used || 0;
-                    totalFilAvail += s.fil_remaining || 0;
-                    totalEngUsed += s.eng_used || 0;
-                    totalEngAvail += s.eng_remaining || 0;
-                });
-                
-                // Update summary cards
+                stats.forEach(s => { totalFilUsed += s.fil_used || 0; totalFilAvail += s.fil_remaining || 0; totalEngUsed += s.eng_used || 0; totalEngAvail += s.eng_remaining || 0; });
                 document.getElementById('dash-fil-used').textContent = totalFilUsed;
                 document.getElementById('dash-fil-avail').textContent = totalFilAvail;
                 document.getElementById('dash-eng-used').textContent = totalEngUsed;
                 document.getElementById('dash-eng-avail').textContent = totalEngAvail;
-                
-                // Overall progress
                 const totalUsed = totalFilUsed + totalEngUsed;
                 const totalAll = totalFilUsed + totalFilAvail + totalEngUsed + totalEngAvail;
                 const pct = totalAll > 0 ? Math.round((totalUsed / totalAll) * 100) : 0;
-                
                 document.getElementById('dash-overall-text').textContent = `${totalUsed} of ${totalAll} used (${pct}%)`;
                 document.getElementById('dash-overall-bar').style.width = pct + '%';
-                
-                // Category breakdown
-                const listEl = document.getElementById('dash-category-list');
-                listEl.innerHTML = '';
-                
+                const listEl = document.getElementById('dash-category-list'); listEl.innerHTML = '';
                 stats.forEach(s => {
                     const catUsed = (s.fil_used || 0) + (s.eng_used || 0);
                     const catTotal = (s.fil_total || 0) + (s.eng_total || 0);
                     const catPct = catTotal > 0 ? Math.round((catUsed / catTotal) * 100) : 0;
-                    
                     const row = document.createElement('div');
-                    row.className = 'flex items-center gap-3 py-2 border-b border-slate-200';
-                    row.innerHTML = `
-                        <span class="text-sm font-medium text-slate-700 w-32 truncate" title="${s.category}">${s.category}</span>
-                        <div class="flex-1 h-2 bg-slate-300 rounded-full overflow-hidden">
-                            <div class="h-full bg-indigo-600" style="width: ${catPct}%"></div>
-                        </div>
-                        <span class="text-xs text-slate-600 w-20 text-right">${catUsed}/${catTotal} (${catPct}%)</span>
-                    `;
+                    row.className = 'flex items-center gap-3 py-2 border-b border-slate-700';
+                    row.innerHTML = `<span class="text-sm font-medium text-slate-300 w-32 truncate" title="${s.category}">${s.category}</span><div class="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden"><div class="h-full bg-indigo-500" style="width: ${catPct}%"></div></div><span class="text-xs text-slate-400 w-20 text-right">${catUsed}/${catTotal} (${catPct}%)</span>`;
                     listEl.appendChild(row);
                 });
-                
-            } catch (e) {
-                console.error('Failed to load category stats:', e);
-                document.getElementById('dash-category-list').innerHTML = '<p class="text-red-500 text-center py-4">Failed to load category data</p>';
-            }
+            } catch (e) { console.error('Failed to load category stats:', e); document.getElementById('dash-category-list').innerHTML = '<p class="text-red-400 text-center py-4">Failed to load category data</p>'; }
         }
-        
-        // ========== CATEGORY MANAGEMENT ==========
-        
-        // Show "Add New Category" input when selected in dropdown
+
+        // Category Management
         function handleCategoryChange() {
             const select = document.getElementById('category-select');
             const newCategoryInput = document.getElementById('new-category-input');
-            
             if (select.value === '__NEW__') {
                 select.classList.add('hidden');
                 newCategoryInput.classList.remove('hidden');
+                newCategoryInput.value = '';
                 newCategoryInput.focus();
             }
         }
-        
-        // Reset select when leaving new category input
         function resetCategorySelect() {
             const select = document.getElementById('category-select');
             const newCategoryInput = document.getElementById('new-category-input');
-            
             if (newCategoryInput.value.trim() === '') {
-                // User didn't type anything, reset to select
                 newCategoryInput.classList.add('hidden');
                 select.classList.remove('hidden');
                 select.value = '';
             } else {
-                // User typed a category, update select to show it
                 newCategoryInput.classList.add('hidden');
                 select.classList.remove('hidden');
-                // The form will submit with the new category name from the input
+                select.disabled = true;
             }
         }
-        
-        // Show add category form (alternative method)
-        function showAddCategory() {
-            document.getElementById('add-category-form').classList.remove('hidden');
-            document.getElementById('new-category-name').focus();
-        }
-        
-        // Hide add category form
-        function hideAddCategory() {
-            document.getElementById('add-category-form').classList.add('hidden');
-            document.getElementById('new-category-name').value = '';
-        }
-        
-        // Add new category (stores in localStorage for now)
-        function addNewCategory() {
-            const categoryName = document.getElementById('new-category-name').value.trim();
-            if (!categoryName) {
-                alert('Please enter a category name');
-                return;
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('#sentence-section-add form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const select = document.getElementById('category-select');
+                    const newCategoryInput = document.getElementById('new-category-input');
+                    if (!select.classList.contains('hidden') && select.value === '__NEW__') {
+                        e.preventDefault();
+                        alert('Please select a category or enter a new category name');
+                        return false;
+                    }
+                    if (!newCategoryInput.classList.contains('hidden') && newCategoryInput.value.trim() === '') {
+                        e.preventDefault();
+                        alert('Please enter a category name');
+                        return false;
+                    }
+                });
             }
-            
-            // Add to the select dropdown
-            const select = document.getElementById('category-select');
-            const option = document.createElement('option');
-            option.value = categoryName;
-            option.textContent = categoryName;
-            option.selected = true;
-            select.insertBefore(option, select.querySelector('option[value="__NEW__"]'));
-            
-            // Hide the form
-            hideAddCategory();
-            
-            alert('Category "' + categoryName + '" added! You can now use it for your sentence.');
-        }
+        });
     </script>
 </body>
 </html>

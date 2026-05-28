@@ -60,6 +60,11 @@ def add():
             flash('Sentence cannot be empty!', 'error')
             return render_template('sentencedb/add.html', categories=get_categories())
         
+        # Validate category - reject __NEW__ placeholder
+        if not category or category == '__NEW__':
+            flash('Please select or enter a valid category!', 'error')
+            return render_template('sentencedb/add.html', categories=get_categories())
+        
         # Check for duplicates
         exists, existing_id, existing_cat, existing_lang = check_sentence_exists(sentence)
         if exists:
