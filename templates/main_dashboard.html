@@ -126,39 +126,39 @@
                     </div>
 
                     <!-- Collapsible Category Dashboard -->
-                    <div class="bg-slate-100 rounded-lg border border-slate-200 mb-6">
+                    <div class="bg-slate-100 rounded-lg border border-slate-200 mb-6 dash-container">
                         <button onclick="toggleDashExpanded()" class="w-full flex justify-between items-center p-4 hover:bg-slate-200 transition rounded-lg cursor-pointer">
                             <div class="flex items-center gap-3">
                                 <i class="fas fa-chart-bar text-indigo-600 text-xl"></i>
-                                <span class="font-semibold text-slate-800">📊 Usage Distribution by Category</span>
+                                <span class="font-semibold text-slate-800 dash-title">📊 Usage Distribution by Category</span>
                             </div>
                             <i class="fas fa-chevron-right text-slate-400" id="dash-icon"></i>
                         </button>
                         <div id="dash-content" class="hidden px-4 pb-4">
                             <!-- Summary Cards -->
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                                <div class="bg-purple-100 p-3 rounded-lg border-2 border-purple-300">
-                                    <p class="text-xs text-purple-700 font-medium">🟣 FIL Used</p>
+                                <div class="bg-purple-100 p-3 rounded-lg border-2 border-purple-300 dash-card">
+                                    <p class="text-xs text-purple-700 font-medium dash-card-label">🟣 FIL Used</p>
                                     <p class="text-xl font-bold text-purple-700" id="dash-fil-used">-</p>
                                 </div>
-                                <div class="bg-purple-50 p-3 rounded-lg border-2 border-purple-200">
-                                    <p class="text-xs text-purple-600 font-medium">🟣 FIL Available</p>
+                                <div class="bg-purple-50 p-3 rounded-lg border-2 border-purple-200 dash-card">
+                                    <p class="text-xs text-purple-600 font-medium dash-card-label">🟣 FIL Available</p>
                                     <p class="text-xl font-bold text-purple-600" id="dash-fil-avail">-</p>
                                 </div>
-                                <div class="bg-green-100 p-3 rounded-lg border-2 border-green-300">
-                                    <p class="text-xs text-green-700 font-medium">🟢 ENG Used</p>
+                                <div class="bg-green-100 p-3 rounded-lg border-2 border-green-300 dash-card">
+                                    <p class="text-xs text-green-700 font-medium dash-card-label">🟢 ENG Used</p>
                                     <p class="text-xl font-bold text-green-700" id="dash-eng-used">-</p>
                                 </div>
-                                <div class="bg-green-50 p-3 rounded-lg border-2 border-green-200">
-                                    <p class="text-xs text-green-600 font-medium">🟢 ENG Available</p>
+                                <div class="bg-green-50 p-3 rounded-lg border-2 border-green-200 dash-card">
+                                    <p class="text-xs text-green-600 font-medium dash-card-label">🟢 ENG Available</p>
                                     <p class="text-xl font-bold text-green-600" id="dash-eng-avail">-</p>
                                 </div>
                             </div>
                             
                             <!-- Overall Progress -->
                             <div class="mb-4">
-                                <p class="text-sm font-semibold text-slate-700 mb-1">
-                                    Overall: <span id="dash-overall-text">-</span>
+                                <p class="text-sm font-semibold text-slate-700 mb-1 dash-label">
+                                    Overall: <span id="dash-overall-text" class="dash-value">-</span>
                                 </p>
                                 <div class="w-full h-3 bg-slate-300 rounded-full overflow-hidden">
                                     <div id="dash-overall-bar" class="h-full bg-indigo-600 transition-all" style="width: 0%"></div>
@@ -176,37 +176,14 @@
                     <div id="sentence-section-add" class="sentence-section hidden">
                         <h2 class="text-xl font-semibold mb-4">Add New Sentence</h2>
                         
-                        <!-- Add New Category Button -->
-                        <div class="mb-4">
-                            <button onclick="showAddCategory()" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                                <i class="fas fa-plus-circle mr-1"></i>Add New Category
-                            </button>
-                        </div>
-                        
-                        <!-- Add Category Form (Hidden by default) -->
-                        <div id="add-category-form" class="hidden mb-4 p-4 bg-slate-100 rounded-lg">
-                            <h3 class="text-sm font-semibold text-slate-700 mb-2">Create New Category</h3>
-                            <div class="flex gap-2">
-                                <input type="text" id="new-category-name" 
-                                       placeholder="Enter category name..." 
-                                       class="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm">
-                                <button onclick="addNewCategory()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button onclick="hideAddCategory()" class="bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-sm">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                        
                         <form action="{{ url_for('sentencedb.add') }}" method="POST" class="space-y-4 max-w-lg">
                             <textarea name="sentence" rows="3" class="input-field" placeholder="Enter sentence..." required></textarea>
                             
                             <!-- Category Selection -->
                             <div>
-                                <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                                <label class="block text-sm font-medium mb-1">Category</label>
                                 <select name="category" id="category-select" class="input-field" required onchange="handleCategoryChange()">
-                                    <option value="" disabled selected>Select or add category...</option>
+                                    <option value="" disabled selected>Select a category...</option>
                                     {% for cat in categories %}
                                     <option value="{{ cat }}">{{ cat }}</option>
                                     {% endfor %}
@@ -216,7 +193,7 @@
                                 <!-- New Category Input (shown when "+ Add New Category..." is selected) -->
                                 <input type="text" id="new-category-input" name="category" 
                                        class="input-field mt-2 hidden" 
-                                       placeholder="Enter new category name..." 
+                                       placeholder="Type new category name..." 
                                        onblur="resetCategorySelect()">
                             </div>
                             
@@ -1012,6 +989,30 @@
                     el.classList.add('bg-slate-800');
                 });
                 
+                // Dashboard container → dark
+                document.querySelectorAll('.dash-container').forEach(el => {
+                    el.classList.remove('bg-slate-100', 'border-slate-200');
+                    el.classList.add('bg-slate-800', 'border-slate-700');
+                });
+                
+                // Dashboard title → light
+                document.querySelectorAll('.dash-title').forEach(el => {
+                    el.classList.remove('text-slate-800');
+                    el.classList.add('text-slate-200');
+                });
+                
+                // Dashboard cards → dark
+                document.querySelectorAll('.dash-card').forEach(el => {
+                    el.classList.remove('bg-purple-100', 'bg-purple-50', 'bg-green-100', 'bg-green-50', 'border-purple-300', 'border-purple-200', 'border-green-300', 'border-green-200');
+                    el.classList.add('bg-slate-700', 'border-slate-600');
+                });
+                
+                // Dashboard card labels → light
+                document.querySelectorAll('.dash-card-label, .dash-label, .dash-value').forEach(el => {
+                    el.classList.remove('text-purple-700', 'text-purple-600', 'text-green-700', 'text-green-600', 'text-slate-700');
+                    el.classList.add('text-slate-200');
+                });
+                
                 // Stat cards → dark
                 document.querySelectorAll('.bg-blue-50').forEach(el => {
                     el.classList.remove('bg-blue-50');
@@ -1060,10 +1061,46 @@
                     el.classList.add('bg-white');
                 });
                 
+                // Dashboard container → light
+                document.querySelectorAll('.dash-container').forEach(el => {
+                    el.classList.remove('bg-slate-800', 'border-slate-700');
+                    el.classList.add('bg-slate-100', 'border-slate-200');
+                });
+                
+                // Dashboard title → dark
+                document.querySelectorAll('.dash-title').forEach(el => {
+                    el.classList.remove('text-slate-200');
+                    el.classList.add('text-slate-800');
+                });
+                
+                // Dashboard cards → light (restore colors)
+                document.querySelectorAll('.dash-card').forEach(el => {
+                    el.classList.remove('bg-slate-700', 'border-slate-600');
+                    // Restore based on child content
+                    if (el.querySelector('.text-purple-700') || el.querySelector('.dash-card-label')) {
+                        el.classList.add('bg-purple-100', 'border-purple-300');
+                    } else if (el.querySelector('.text-green-700')) {
+                        el.classList.add('bg-green-100', 'border-green-300');
+                    } else {
+                        el.classList.add('bg-slate-50');
+                    }
+                });
+                
+                // Dashboard card labels → dark
+                document.querySelectorAll('.dash-card-label, .dash-label, .dash-value').forEach(el => {
+                    el.classList.remove('text-slate-200');
+                    if (el.textContent.includes('FIL')) {
+                        el.classList.add('text-purple-700');
+                    } else if (el.textContent.includes('ENG')) {
+                        el.classList.add('text-green-700');
+                    } else {
+                        el.classList.add('text-slate-700');
+                    }
+                });
+                
                 // Stat cards → light colors (restore by checking border)
                 document.querySelectorAll('.bg-slate-700').forEach(el => {
                     el.classList.remove('bg-slate-700');
-                    // Check border color to determine original color
                     if (el.classList.contains('border-blue-500') || el.querySelector('.border-blue-500')) {
                         el.classList.add('bg-blue-50');
                     } else if (el.classList.contains('border-green-500') || el.querySelector('.border-green-500')) {
@@ -1084,7 +1121,6 @@
                 });
                 document.querySelectorAll('.text-slate-100').forEach(el => {
                     el.classList.remove('text-slate-100');
-                    // Restore based on context
                     if (el.parentElement.classList.contains('border-blue-500') || el.closest('.bg-blue-50')) {
                         el.classList.add('text-blue-600');
                     } else if (el.parentElement.classList.contains('border-green-500') || el.closest('.bg-green-50')) {
