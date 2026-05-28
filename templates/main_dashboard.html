@@ -341,15 +341,9 @@
                         <h2 class="text-xl font-semibold mb-4">Import / Export</h2>
                         <p class="text-slate-400 mb-4">Manage your sentence database data.</p>
                         
-                        <!-- Import/Export Options -->
-                        <div class="space-y-3">
-                            <a href="{{ url_for('sentencedb.import_page') }}" class="block bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg transition">
-                                <i class="fas fa-file-import mr-2"></i>Open Import/Export Page
-                            </a>
-                            <a href="{{ url_for('sentencedb.shop_export') }}" class="block bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-3 rounded-lg transition">
-                                <i class="fas fa-shopping-cart mr-2"></i>Export Cart as CSV
-                            </a>
-                        </div>
+                        <a href="{{ url_for('sentencedb.import_page') }}" class="block bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-lg transition">
+                            <i class="fas fa-file-import mr-2"></i>Open Import/Export Page
+                        </a>
                     </div>
                 </div>
             </div>
