@@ -11,29 +11,42 @@
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Lexend Deca', sans-serif; }
+        /* Dark theme */
+        .content-card { background: #1e293b; border: 2px solid #334155; border-radius: 12px; color: #f1f5f9; }
+        .input-field {
+            width: 100%; padding: 10px 14px; border: 2px solid #475569; border-radius: 8px;
+            font-size: 0.9rem; transition: all 0.2s; background: #1e293b; color: #f1f5f9;
+        }
+        .input-field:focus { outline: none; border-color: #818cf8; box-shadow: 0 0 0 3px rgba(129,140,248,0.3); background: #334155; }
+        select.input-field {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 12px center; background-size: 18px; padding-right: 36px;
+            -webkit-appearance: none; -moz-appearance: none; appearance: none;
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 min-h-screen">
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen text-slate-200">
     {% extends "base.html" %}
     
     {% block content %}
     <div class="mb-6">
-        <h1 class="text-3xl font-bold text-slate-800 mb-2">Import / Export</h1>
-        <p class="text-slate-600">Manage your sentence database data.</p>
+        <h1 class="text-3xl font-bold text-white mb-2">Import / Export</h1>
+        <p class="text-slate-400">Manage your sentence database data.</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Download Template -->
-        <div class="bg-green-50 p-6 rounded-lg shadow border-2 border-green-200 md:col-span-2">
-            <h2 class="text-xl font-semibold text-green-800 mb-2">
-                <i class="fas fa-file-csv mr-2 text-green-600"></i>CSV Import Template
+        <div class="bg-green-900/30 p-6 rounded-lg shadow border-2 border-green-700 md:col-span-2">
+            <h2 class="text-xl font-semibold text-green-400 mb-2">
+                <i class="fas fa-file-csv mr-2 text-green-500"></i>CSV Import Template
             </h2>
-            <p class="text-green-700 mb-4">Download a sample CSV file to see the required format for importing sentences.</p>
-            <a href="{{ url_for('sentencedb.download_template') }}" class="inline-block bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition font-medium">
+            <p class="text-green-300 mb-4">Download a sample CSV file to see the required format for importing sentences.</p>
+            <a href="{{ url_for('sentencedb.download_template') }}" class="inline-block bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg transition font-medium">
                 <i class="fas fa-download mr-2"></i>Download Template CSV
             </a>
-            <div class="mt-4 bg-white p-3 rounded border border-green-200">
-                <p class="text-xs text-green-700 font-mono">
+            <div class="mt-4 bg-slate-800 p-3 rounded border border-slate-600">
+                <p class="text-xs text-slate-300 font-mono">
                     sentence,category,language<br>
                     Magandang umaga,Greetings,fil<br>
                     Good morning,Greetings,en
@@ -42,54 +55,54 @@
         </div>
 
         <!-- Import CSV -->
-        <div class="bg-white p-6 rounded-lg shadow">
-            <h2 class="text-xl font-semibold text-slate-800 mb-4">
-                <i class="fas fa-file-csv mr-2 text-green-600"></i>Import CSV
+        <div class="content-card p-6">
+            <h2 class="text-xl font-semibold text-white mb-4">
+                <i class="fas fa-file-csv mr-2 text-green-400"></i>Import CSV
             </h2>
             <form method="POST" enctype="multipart/form-data" class="space-y-4">
                 <input type="hidden" name="import_type" value="csv">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">CSV File</label>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">CSV File</label>
                     <input type="file" name="csv_file" accept=".csv" required
-                           class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                           class="w-full border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-800 text-slate-200">
                 </div>
-                <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition font-medium">
+                <button type="submit" class="w-full bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg transition font-medium">
                     <i class="fas fa-upload mr-2"></i>Import CSV
                 </button>
             </form>
         </div>
 
         <!-- Import SQLite -->
-        <div class="bg-white p-6 rounded-lg shadow">
-            <h2 class="text-xl font-semibold text-slate-800 mb-4">
-                <i class="fas fa-database mr-2 text-blue-600"></i>Import SQLite
+        <div class="content-card p-6">
+            <h2 class="text-xl font-semibold text-white mb-4">
+                <i class="fas fa-database mr-2 text-blue-400"></i>Import SQLite
             </h2>
             <form method="POST" enctype="multipart/form-data" class="space-y-4">
                 <input type="hidden" name="import_type" value="sqlite">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">SQLite File</label>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">SQLite File</label>
                     <input type="file" name="sqlite_file" accept=".db,.sqlite,.sqlite3" required
-                           class="w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                           class="w-full border border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-800 text-slate-200">
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition font-medium">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition font-medium">
                     <i class="fas fa-upload mr-2"></i>Import SQLite
                 </button>
             </form>
         </div>
 
         <!-- Export All -->
-        <div class="bg-white p-6 rounded-lg shadow md:col-span-2">
-            <h2 class="text-xl font-semibold text-slate-800 mb-4">
-                <i class="fas fa-download mr-2 text-indigo-600"></i>Export Database
+        <div class="content-card p-6 md:col-span-2">
+            <h2 class="text-xl font-semibold text-white mb-4">
+                <i class="fas fa-download mr-2 text-indigo-400"></i>Export Database
             </h2>
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-slate-600 mb-1">Total Sentences: <strong>{{ total }}</strong></p>
-                    <p class="text-sm text-slate-500">English: {{ eng }} | Filipino: {{ fil }}</p>
+                    <p class="text-slate-300 mb-1">Total Sentences: <strong class="text-white">{{ total }}</strong></p>
+                    <p class="text-sm text-slate-400">English: {{ eng }} | Filipino: {{ fil }}</p>
                 </div>
                 <form method="POST">
                     <input type="hidden" name="import_type" value="export">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition font-medium">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-lg transition font-medium">
                         <i class="fas fa-file-export mr-2"></i>Export All
                     </button>
                 </form>

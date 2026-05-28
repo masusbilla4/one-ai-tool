@@ -11,19 +11,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Lexend Deca', sans-serif; }
+        .content-card { background: #1e293b; border: 2px solid #334155; border-radius: 12px; color: #f1f5f9; }
         .input-field {
-            width: 100%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px;
-            font-size: 0.9rem; transition: all 0.2s; background: #f8fafc;
+            width: 100%; padding: 10px 14px; border: 2px solid #475569; border-radius: 8px;
+            font-size: 0.9rem; transition: all 0.2s; background: #1e293b; color: #f1f5f9;
         }
         .input-field:focus {
-            outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
-            background: #fff;
+            outline: none; border-color: #818cf8; box-shadow: 0 0 0 3px rgba(129,140,248,0.3);
+            background: #334155;
         }
         .input-field::placeholder { color: #94a3b8; }
-        .card {
-            background: white; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            padding: 24px; margin-bottom: 24px;
-        }
         .btn-primary {
             background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white;
             padding: 10px 24px; border-radius: 8px; font-weight: 500;
@@ -31,25 +28,25 @@
         }
         .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
         .btn-secondary {
-            background: #f1f5f9; color: #475569; padding: 10px 24px;
+            background: #334155; color: #f1f5f9; padding: 10px 24px;
             border-radius: 8px; font-weight: 500; transition: all 0.2s;
-            border: 1px solid #e2e8f0; cursor: pointer;
+            border: 1px solid #475569; cursor: pointer;
         }
-        .btn-secondary:hover { background: #e2e8f0; }
+        .btn-secondary:hover { background: #475569; }
         .api-status {
             display: inline-flex; align-items: center; gap: 6px;
             padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 500;
         }
-        .status-configured { background: #dcfce7; color: #166534; }
-        .status-not-configured { background: #fee2e2; color: #991b1b; }
+        .status-configured { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid #22c55e; }
+        .status-not-configured { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid #ef4444; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 min-h-screen">
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen text-slate-200">
     <!-- Top Navigation -->
-    <nav class="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 text-white shadow-lg fixed w-full z-50">
+    <nav class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white shadow-lg fixed w-full z-50 border-b border-slate-700">
         <div class="max-w-5xl mx-auto px-4">
             <div class="flex justify-between items-center h-16">
-                <a href="/" class="text-xl font-bold hover:opacity-80 transition" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                <a href="/" class="text-xl font-bold hover:opacity-80 transition" style="color: #FFD700; text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);">
                     <i class="fas fa-cog mr-2"></i>Settings
                 </a>
                 <a href="/" class="text-slate-300 hover:text-white transition">
@@ -61,34 +58,34 @@
 
     <!-- Main Content -->
     <div class="max-w-5xl mx-auto px-4 pt-24 pb-12">
-        <h1 class="text-3xl font-bold mb-2" style="color: #1e293b;">API Settings</h1>
-        <p class="text-slate-600 mb-8">Configure your API credentials for data extraction services.</p>
+        <h1 class="text-3xl font-bold mb-2 text-white">API Settings</h1>
+        <p class="text-slate-400 mb-8">Configure your API credentials for data extraction services.</p>
 
         <!-- Reddit API -->
-        <div class="card">
+        <div class="content-card">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold" style="color: #1e293b;">
+                <h2 class="text-xl font-semibold text-white">
                     <i class="fab fa-reddit mr-2" style="color: #ff4500;"></i>Reddit API
                 </h2>
                 <span id="reddit-status" class="api-status status-not-configured">
                     <i class="fas fa-circle text-xs"></i>Not Configured
                 </span>
             </div>
-            <p class="text-sm text-slate-600 mb-4">
+            <p class="text-sm text-slate-400 mb-4">
                 Required for extracting comments from Reddit posts. 
-                <a href="https://www.reddit.com/prefs/apps" target="_blank" class="text-indigo-600 hover:underline">Get your credentials here</a>.
+                <a href="https://www.reddit.com/prefs/apps" target="_blank" class="text-indigo-400 hover:text-indigo-300 hover:underline">Get your credentials here</a>.
             </p>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Client ID</label>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Client ID</label>
                     <input type="text" id="reddit-client-id" class="input-field" placeholder="e.g., abc123XYZ">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Client Secret</label>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Client Secret</label>
                     <input type="password" id="reddit-client-secret" class="input-field" placeholder="e.g., abc123XYZ456">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">User Agent</label>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">User Agent</label>
                     <input type="text" id="reddit-user-agent" class="input-field" value="OneAITool/1.0" placeholder="App name">
                 </div>
             </div>
@@ -103,21 +100,21 @@
         </div>
 
         <!-- YouTube API -->
-        <div class="card">
+        <div class="content-card">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold" style="color: #1e293b;">
+                <h2 class="text-xl font-semibold text-white">
                     <i class="fab fa-youtube mr-2" style="color: #ff0000;"></i>YouTube Data API
                 </h2>
                 <span id="youtube-status" class="api-status status-not-configured">
                     <i class="fas fa-circle text-xs"></i>Not Configured
                 </span>
             </div>
-            <p class="text-sm text-slate-600 mb-4">
+            <p class="text-sm text-slate-400 mb-4">
                 Required for extracting comments from YouTube videos.
-                <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-indigo-600 hover:underline">Get your API key here</a>.
+                <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-indigo-400 hover:text-indigo-300 hover:underline">Get your API key here</a>.
             </p>
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">API Key</label>
+                <label class="block text-sm font-medium text-slate-300 mb-1">API Key</label>
                 <input type="password" id="youtube-api-key" class="input-field" placeholder="e.g., AIzaSy...">
             </div>
             <div class="flex gap-3 mt-6">
@@ -131,21 +128,21 @@
         </div>
 
         <!-- Gemini API -->
-        <div class="card">
+        <div class="content-card">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold" style="color: #1e293b;">
+                <h2 class="text-xl font-semibold text-white">
                     <i class="fas fa-robot mr-2" style="color: #6366f1;"></i>Google Gemini API
                 </h2>
                 <span id="gemini-status" class="api-status status-not-configured">
                     <i class="fas fa-circle text-xs"></i>Not Configured
                 </span>
             </div>
-            <p class="text-sm text-slate-600 mb-4">
+            <p class="text-sm text-slate-400 mb-4">
                 Used for AI-powered ASR evaluation and translation alignment.
-                <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-indigo-600 hover:underline">Get your API key here</a>.
+                <a href="https://makersuite.google.com/app/apikey" target="_blank" class="text-indigo-400 hover:text-indigo-300 hover:underline">Get your API key here</a>.
             </p>
             <div>
-                <label class="block text-sm font-medium text-slate-700 mb-1">API Key</label>
+                <label class="block text-sm font-medium text-slate-300 mb-1">API Key</label>
                 <input type="password" id="gemini-api-key" class="input-field" placeholder="e.g., AIzaSy...">
             </div>
             <div class="flex gap-3 mt-6">
@@ -156,26 +153,26 @@
         </div>
 
         <!-- Supabase -->
-        <div class="card">
+        <div class="content-card">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-semibold" style="color: #1e293b;">
+                <h2 class="text-xl font-semibold text-white">
                     <i class="fas fa-database mr-2" style="color: #3ecf8e;"></i>Supabase
                 </h2>
                 <span id="supabase-status" class="api-status status-not-configured">
                     <i class="fas fa-circle text-xs"></i>Not Configured
                 </span>
             </div>
-            <p class="text-sm text-slate-600 mb-4">
+            <p class="text-sm text-slate-400 mb-4">
                 Required for Sentence Database functionality.
-                <a href="https://supabase.com/dashboard/project/_/settings/api" target="_blank" class="text-indigo-600 hover:underline">Get your credentials here</a>.
+                <a href="https://supabase.com/dashboard/project/_/settings/api" target="_blank" class="text-indigo-400 hover:text-indigo-300 hover:underline">Get your credentials here</a>.
             </p>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Project URL</label>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Project URL</label>
                     <input type="text" id="supabase-url" class="input-field" placeholder="https://xxxxx.supabase.co">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">API Key (anon/public)</label>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">API Key (anon/public)</label>
                     <input type="password" id="supabase-key" class="input-field" placeholder="eyJhbG...">
                 </div>
             </div>
@@ -238,7 +235,6 @@
                     if (data.configured) {
                         document.getElementById('reddit-client-id').value = data.client_id || '';
                         document.getElementById('reddit-user-agent').value = data.user_agent || 'OneAITool/1.0';
-                        // Don't show secret for security
                     }
                     updateStatus('reddit', data.configured);
                 } else if (service === 'youtube') {
@@ -254,7 +250,6 @@
                 } else if (service === 'supabase') {
                     if (data.configured) {
                         document.getElementById('supabase-url').value = data.url || '';
-                        // Don't show key for security
                     }
                     updateStatus('supabase', data.configured);
                 }

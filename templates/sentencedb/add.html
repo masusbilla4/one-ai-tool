@@ -4,87 +4,77 @@
 
 {% block content %}
 <div class="max-w-2xl mx-auto">
-    <div class="bg-white rounded-lg shadow-lg p-6">
+    <div class="content-card rounded-lg shadow-lg p-6">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">
-                <i class="fas fa-plus-circle mr-2 text-blue-600"></i>Add New Sentence
+            <h1 class="text-2xl font-bold text-white">
+                <i class="fas fa-plus-circle mr-2 text-indigo-400"></i>Add New Sentence
             </h1>
-            <a href="{{ url_for('sentencedb.dashboard') }}" class="text-gray-600 hover:text-gray-800">
+            <a href="{{ url_for('sentencedb.dashboard') }}" class="text-slate-400 hover:text-slate-200 transition">
                 <i class="fas fa-arrow-left mr-1"></i>Back
             </a>
         </div>
 
         <form method="POST" action="{{ url_for('sentencedb.add') }}">
             <div class="mb-4">
-                <label class="block text-gray-700 font-semibold mb-2" for="sentence">
+                <label class="block text-slate-300 font-semibold mb-2" for="sentence">
                     <i class="fas fa-quote-left mr-2"></i>Sentence
                 </label>
                 <textarea id="sentence" name="sentence" rows="3" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="input-field w-full px-4 py-2"
                     placeholder="Enter the sentence..."></textarea>
-                <p class="text-sm text-gray-500 mt-1">Character count: <span id="char-count">0</span></p>
+                <p class="text-sm text-slate-400 mt-1">Character count: <span id="char-count" class="text-slate-300">0</span></p>
             </div>
 
             <div class="mb-4">
-                <label class="block text-gray-700 font-semibold mb-2" for="category">
+                <label class="block text-slate-300 font-semibold mb-2" for="category">
                     <i class="fas fa-folder mr-2"></i>Category
                 </label>
                 <select id="category" name="category" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="input-field w-full px-4 py-2">
                     <option value="">Select a category</option>
                     {% for cat in categories %}
                     <option value="{{ cat }}">{{ cat }}</option>
                     {% endfor %}
-                    <option value="new_category">+ Add New Category</option>
                 </select>
             </div>
 
-            <div class="mb-4" id="new-category-div" style="display: none;">
-                <label class="block text-gray-700 font-semibold mb-2" for="new_category">
-                    New Category Name
-                </label>
-                <input type="text" id="new_category" name="new_category"
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Enter new category name">
-            </div>
-
             <div class="mb-6">
-                <label class="block text-gray-700 font-semibold mb-2">
+                <label class="block text-slate-300 font-semibold mb-2">
                     <i class="fas fa-globe mr-2"></i>Language
                 </label>
                 <div class="flex space-x-4">
-                    <label class="flex items-center">
+                    <label class="flex items-center cursor-pointer">
                         <input type="radio" name="language" value="fil" checked
-                            class="mr-2 text-blue-600 focus:ring-blue-500">
-                        <span>Filipino</span>
+                            class="mr-2 text-indigo-500 focus:ring-indigo-500 bg-slate-800 border-slate-600">
+                        <span class="text-slate-200">Filipino</span>
                     </label>
-                    <label class="flex items-center">
+                    <label class="flex items-center cursor-pointer">
                         <input type="radio" name="language" value="en"
-                            class="mr-2 text-green-600 focus:ring-green-500">
-                        <span>English</span>
+                            class="mr-2 text-green-500 focus:ring-green-500 bg-slate-800 border-slate-600">
+                        <span class="text-slate-200">English</span>
                     </label>
                 </div>
             </div>
 
             <div class="flex space-x-3">
                 <button type="submit"
-                    class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition">
+                    class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2 px-4 rounded-lg transition font-medium">
                     <i class="fas fa-save mr-2"></i>Save Sentence
                 </button>
                 <button type="reset"
-                    class="flex-1 bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition">
+                    class="flex-1 bg-slate-600 hover:bg-slate-500 text-white py-2 px-4 rounded-lg transition font-medium">
                     <i class="fas fa-undo mr-2"></i>Clear
                 </button>
             </div>
         </form>
 
         {% if existing %}
-        <div class="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded">
-            <h4 class="font-semibold text-yellow-800 mb-2">
+        <div class="mt-6 p-4 bg-yellow-900/30 border-l-4 border-yellow-500 rounded">
+            <h4 class="font-semibold text-yellow-400 mb-2">
                 <i class="fas fa-exclamation-triangle mr-2"></i>Duplicate Detected
             </h4>
-            <p class="text-yellow-700">
-                This sentence already exists with ID: <strong>{{ existing.id }}</strong> in category: <strong>{{ existing.category }}</strong>
+            <p class="text-yellow-300">
+                This sentence already exists with ID: <strong class="text-white">{{ existing.id }}</strong> in category: <strong class="text-white">{{ existing.category }}</strong>
             </p>
         </div>
         {% endif %}
@@ -97,21 +87,6 @@
     const charCount = document.getElementById('char-count');
     sentenceInput.addEventListener('input', () => {
         charCount.textContent = sentenceInput.value.length;
-    });
-
-    // New category toggle
-    const categorySelect = document.getElementById('category');
-    const newCategoryDiv = document.getElementById('new-category-div');
-    const newCategoryInput = document.getElementById('new_category');
-    
-    categorySelect.addEventListener('change', () => {
-        if (categorySelect.value === 'new_category') {
-            newCategoryDiv.style.display = 'block';
-            newCategoryInput.required = true;
-        } else {
-            newCategoryDiv.style.display = 'none';
-            newCategoryInput.required = false;
-        }
     });
 </script>
 {% endblock %}
