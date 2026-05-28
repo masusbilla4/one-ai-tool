@@ -30,10 +30,10 @@ def create_app(config_class=Config):
     # Main routes
     @app.route('/')
     def index():
-        """Landing page - redirect to dashboard if logged in."""
+        """Root route - redirect to login if not logged in, dashboard if logged in."""
         if session.get('user_id'):
             return redirect(url_for('main_dashboard'))
-        return render_template('index.html')
+        return redirect(url_for('auth.login'))
     
     @app.route('/dashboard')
     def main_dashboard():
