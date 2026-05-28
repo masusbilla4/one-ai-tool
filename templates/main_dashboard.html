@@ -28,11 +28,17 @@
         }
         .input-field::placeholder { color: #94a3b8; }
         
-        /* Select dropdowns */
+        /* Select dropdowns - Single icon */
         select.input-field {
             cursor: pointer;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 10px center; background-size: 20px; padding-right: 40px;
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 18px;
+            padding-right: 36px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
         
         /* Cards and containers - Clear borders */
@@ -189,23 +195,36 @@
                     <!-- Add Section -->
                     <div id="sentence-section-add" class="sentence-section hidden">
                         <h2 class="text-xl font-semibold mb-4">Add New Sentence</h2>
-                        <form action="{{ url_for('sentencedb.add') }}" method="POST" class="space-y-4 max-w-lg">
-                            <textarea name="sentence" rows="3" class="input-field" placeholder="Enter sentence..." required></textarea>
-                            <div>
-                                <label class="block text-sm font-medium mb-1">Category</label>
-                                <select name="category" id="category-select" class="input-field" required onchange="handleCategoryChange()">
-                                    <option value="" disabled selected>Select a category...</option>
-                                    {% for cat in categories %}
-                                    <option value="{{ cat }}">{{ cat }}</option>
-                                    {% endfor %}
-                                    <option value="__NEW__">+ Add New Category...</option>
-                                </select>
-                                <input type="text" id="new-category-input" name="category" class="input-field mt-2 hidden" placeholder="Type new category name..." onblur="resetCategorySelect()">
+                        <form action="{{ url_for('sentencedb.add') }}" method="POST">
+                            <!-- Full-width sentence textarea -->
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium mb-2">Sentence</label>
+                                <textarea name="sentence" rows="4" class="input-field w-full" placeholder="Enter sentence..." required style="width: 100%; box-sizing: border-box;"></textarea>
                             </div>
-                            <select name="language" class="input-field">
-                                <option value="fil">Filipino</option>
-                                <option value="en">English</option>
-                            </select>
+                            
+                            <!-- Category and Language side by side -->
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Category</label>
+                                    <select name="category" id="category-select" class="input-field w-full" required onchange="handleCategoryChange()">
+                                        <option value="" disabled selected>Select a category...</option>
+                                        {% for cat in categories %}
+                                        <option value="{{ cat }}">{{ cat }}</option>
+                                        {% endfor %}
+                                        <option value="__NEW__">+ Add New Category...</option>
+                                    </select>
+                                    <input type="text" id="new-category-input" name="category" class="input-field w-full mt-2 hidden" placeholder="Type new category name..." onblur="resetCategorySelect()">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium mb-2">Language</label>
+                                    <select name="language" class="input-field w-full">
+                                        <option value="fil">Filipino</option>
+                                        <option value="en">English</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Buttons -->
                             <div class="flex gap-3">
                                 <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition">
                                     <i class="fas fa-save mr-2"></i>Add Sentence
