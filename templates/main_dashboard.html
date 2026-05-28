@@ -466,7 +466,7 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Input Section -->
+                        <!-- Input Section -->
                     <div class="content-card rounded-lg mb-4">
                         <button onclick="toggleASRSection('asr-input-section')" class="w-full flex justify-between items-center p-4 hover:bg-slate-700 transition rounded-t-lg">
                             <h2 class="text-lg font-semibold text-indigo-400"><i class="fas fa-edit mr-2"></i>Input — True Text / ASR / Translation</h2>
@@ -474,20 +474,32 @@
                         </button>
                         <div id="asr-input-section" class="p-4 pt-0">
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <!-- True Text -->
                                 <div>
                                     <div class="bg-green-600 text-white p-2 font-semibold rounded-t"><span class="mr-1">📝</span>True Text (Reference)</div>
-                                    <textarea id="asr-true-text" rows="8" class="input-field w-full border-0 rounded-t-none bg-slate-800" placeholder="Paste reference text..."></textarea>
-                                    <div class="text-right text-sm text-white bg-green-600 p-1 rounded-b" id="true-count">Lines: 0</div>
+                                    <div class="flex border-2 border-indigo-500 rounded-b-lg overflow-hidden bg-slate-900">
+                                        <div class="asr-line-numbers w-12 bg-slate-700 text-amber-400 font-mono text-sm font-bold text-right py-2 px-1 select-none border-r border-slate-600" id="true-lines-num">1</div>
+                                        <textarea id="asr-true-text" rows="8" class="asr-textarea flex-1 bg-slate-800 text-slate-100 font-mono text-sm p-2 resize-y outline-none border-none" placeholder="Paste reference text..." oninput="updateASRLineNumbers('true'); updateASRLineCounts();"></textarea>
+                                    </div>
+                                    <div class="text-right text-sm text-white bg-green-600 p-1 rounded mt-1" id="true-count">Lines: 0</div>
                                 </div>
+                                <!-- ASR Result -->
                                 <div>
                                     <div class="bg-blue-600 text-white p-2 font-semibold rounded-t"><span class="mr-1">🎤</span>ASR Result</div>
-                                    <textarea id="asr-asr-text" rows="8" class="input-field w-full border-0 rounded-t-none bg-slate-800" placeholder="Paste ASR result..."></textarea>
-                                    <div class="text-right text-sm text-white bg-blue-600 p-1 rounded-b" id="asr-count">Lines: 0</div>
+                                    <div class="flex border-2 border-indigo-500 rounded-b-lg overflow-hidden bg-slate-900">
+                                        <div class="asr-line-numbers w-12 bg-slate-700 text-amber-400 font-mono text-sm font-bold text-right py-2 px-1 select-none border-r border-slate-600" id="asr-lines-num">1</div>
+                                        <textarea id="asr-asr-text" rows="8" class="asr-textarea flex-1 bg-slate-800 text-slate-100 font-mono text-sm p-2 resize-y outline-none border-none" placeholder="Paste ASR result..." oninput="updateASRLineNumbers('asr'); updateASRLineCounts();"></textarea>
+                                    </div>
+                                    <div class="text-right text-sm text-white bg-blue-600 p-1 rounded mt-1" id="asr-count">Lines: 0</div>
                                 </div>
+                                <!-- Translation -->
                                 <div>
                                     <div class="bg-green-700 text-white p-2 font-semibold rounded-t"><span class="mr-1">🌐</span>English Translation</div>
-                                    <textarea id="asr-trans-text" rows="8" class="input-field w-full border-0 rounded-t-none bg-slate-800" placeholder="Paste translation..."></textarea>
-                                    <div class="text-right text-sm text-white bg-green-700 p-1 rounded-b" id="trans-count">Lines: 0</div>
+                                    <div class="flex border-2 border-indigo-500 rounded-b-lg overflow-hidden bg-slate-900">
+                                        <div class="asr-line-numbers w-12 bg-slate-700 text-amber-400 font-mono text-sm font-bold text-right py-2 px-1 select-none border-r border-slate-600" id="trans-lines-num">1</div>
+                                        <textarea id="asr-trans-text" rows="8" class="asr-textarea flex-1 bg-slate-800 text-slate-100 font-mono text-sm p-2 resize-y outline-none border-none" placeholder="Paste translation..." oninput="updateASRLineNumbers('trans'); updateASRLineCounts();"></textarea>
+                                    </div>
+                                    <div class="text-right text-sm text-white bg-green-700 p-1 rounded mt-1" id="trans-count">Lines: 0</div>
                                 </div>
                             </div>
                         </div>
@@ -717,6 +729,36 @@
         }
         function readASRFileAsText(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = (e) => resolve(e.target.result); reader.onerror = (e) => reject(e); reader.readAsText(file, 'utf-8'); }); }
         function clearASRFiles() { asrSplitterFiles = []; document.getElementById('asr-file-list').classList.add('hidden'); document.getElementById('asr-file-items').innerHTML = ''; }
+        
+        // Line numbers for ASR textareas
+        function updateASRLineNumbers(type) {
+            const textId = 'asr-' + type + '-text';
+            const linesNumId = type + '-lines-num';
+            const textarea = document.getElementById(textId);
+            const linesEl = document.getElementById(linesNumId);
+            if (!textarea || !linesEl) return;
+            
+            const lines = textarea.value.split('\n');
+            const lineCount = lines.length || 1;
+            let lineNumbers = '';
+            for (let i = 1; i <= lineCount; i++) {
+                lineNumbers += i + '\n';
+            }
+            linesEl.textContent = lineNumbers;
+        }
+        
+        // Sync line numbers scroll with textarea
+        ['asr-true-text', 'asr-asr-text', 'asr-trans-text'].forEach(id => {
+            const ta = document.getElementById(id);
+            if (ta) {
+                ta.addEventListener('scroll', function() {
+                    const type = id.replace('asr-', '').replace('-text', '');
+                    const linesEl = document.getElementById(type + '-lines-num');
+                    if (linesEl) linesEl.scrollTop = ta.scrollTop;
+                });
+            }
+        });
+        
         function updateASRLineCounts() {
             const count = (id) => (document.getElementById(id).value.split('\n').filter(l => l.trim()).length);
             document.getElementById('true-count').textContent = `Lines: ${count('asr-true-text')}`;
