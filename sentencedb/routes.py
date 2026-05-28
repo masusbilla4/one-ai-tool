@@ -166,11 +166,11 @@ def shop():
                 # Generate CSV for download
                 session['export_csv'] = True
     
-    # Redirect back to dashboard with flash message
+    # Redirect back to dashboard with flash message and section parameter
     if request.method == 'POST':
-        return redirect(url_for('main_dashboard'))
+        return redirect(url_for('main_dashboard') + '#shop')
     
-    return redirect(url_for('main_dashboard'))
+    return redirect(url_for('main_dashboard') + '#shop')
 
 
 @sentencedb_bp.route('/shop/export')

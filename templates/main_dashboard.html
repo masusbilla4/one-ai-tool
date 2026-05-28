@@ -618,8 +618,22 @@
             document.getElementById('stats-section').classList.remove('hidden');
         }
 
-        // Stats
-        document.addEventListener('DOMContentLoaded', function() { fetchStats(); });
+        // Stats + Section Handling
+        document.addEventListener('DOMContentLoaded', function() { 
+            fetchStats();
+            checkUrlHash();
+        });
+        
+        // Check URL hash and open corresponding section
+        function checkUrlHash() {
+            const hash = window.location.hash;
+            if (hash === '#shop') {
+                showSentenceSection('shop');
+                // Clean up hash without scrolling
+                history.replaceState(null, null, window.location.pathname);
+            }
+        }
+        
         async function fetchStats() {
             try {
                 const res = await fetch('{{ url_for("sentencedb.get_stats_api") }}');
