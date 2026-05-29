@@ -572,6 +572,27 @@
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer style="background: #1e293b; border-top: 3px solid #FFD700; padding: 30px 20px; margin-top: auto; width: 100%; visibility: visible; display: block !important;">
+        <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
+            <h3 style="color: #FFD700; font-size: 1.5rem; margin-bottom: 15px; font-weight: bold;">
+                <i class="fas fa-robot"></i> One AI Tool - Footer
+            </h3>
+            <p style="color: #94a3b8; margin-bottom: 10px;">
+                Unified platform for Sentence Database, Data Extractor, and ASR Aligner.
+            </p>
+            <p style="color: #64748b; font-size: 0.85rem;">
+                &copy; 2026 One AI Tool. All rights reserved. | Version: {{ app_version if app_version else 'N/A' }}
+            </p>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #334155;">
+                <a href="{{ url_for('main_dashboard') }}" style="color: #818cf8; text-decoration: none; margin: 0 10px;">Dashboard</a>
+                <a href="{{ url_for('sentencedb.shop') }}" style="color: #818cf8; text-decoration: none; margin: 0 10px;">Sentence Shop</a>
+                <a href="{{ url_for('extractor.extractor_home') }}" style="color: #818cf8; text-decoration: none; margin: 0 10px;">Data Extractor</a>
+                <a href="{{ url_for('asr.aligner') }}" style="color: #818cf8; text-decoration: none; margin: 0 10px;">ASR Aligner</a>
+            </div>
+        </div>
+    </footer>
+
     <script>
         // Tab Switching
         function switchTab(tabId) {
