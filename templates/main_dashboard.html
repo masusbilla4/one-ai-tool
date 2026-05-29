@@ -873,11 +873,20 @@
             asrAlignmentData.forEach((d, idx) => {
                 const tr = document.createElement('tr'); tr.className = idx % 2 === 0 ? 'bg-slate-800' : '';
                 const scoreClass = d.ai_score == 3 ? 'text-green-400 font-bold' : '';
-                tr.innerHTML = `<td class="py-2 px-3 text-center">${d.id}</td><td class="py-2 px-3">${escapeHtmlASR(d.true)}</td><td class="py-2 px-3">${escapeHtmlASR(d.asr_separated || d.asr_nobreak || '')}</td><td class="py-2 px-3">${renderASRDiffs(d.diffs)}</td><td class="py-2 px-3 text-center">${d.wer}</td><td class="py-2 px-3 text-center ${scoreClass}">${d.ai_score || ''}</td><td class="py-2 px-3">${escapeHtmlASR(d.translation || '')}</td>`;
+                const asrSeparated = d.asr_separated || d.asr_nobreak || '';
+                tr.innerHTML = `<td class="py-2 px-3 text-center">${d.id}</td><td class="py-2 px-3">${escapeHtmlASR(d.true)}</td><td class="py-2 px-3"><input type="text" class="asr-editable-cell bg-slate-700 border border-slate-600 rounded px-2 py-1 text-slate-100 w-full focus:border-indigo-500 focus:outline-none" value="${escapeHtmlASR(asrSeparated)}" onchange="updateASRSeparated(${idx}, this.value)"></td><td class="py-2 px-3">${renderASRDiffs(d.diffs)}</td><td class="py-2 px-3 text-center">${d.wer}</td><td class="py-2 px-3 text-center ${scoreClass}">${d.ai_score || ''}</td><td class="py-2 px-3">${escapeHtmlASR(d.translation || '')}</td>`;
                 tbody.appendChild(tr);
             });
             const s = asrOverallStats;
             document.getElementById('asr-results-title').textContent = `📊 Alignment Results — Overall WER: ${asrOverallWer}% (S:${s.subs||0} D:${s.dels||0} I:${s.ins||0} / ${s.refs||0} words)`;
+        }
+
+        // Update ASR Separated value when edited
+        function updateASRSeparated(index, newValue) {
+            if (asrAlignmentData[index]) {
+                asrAlignmentData[index].asr_separated = newValue;
+                console.log(`Updated row ${index + 1} ASR separated to: ${newValue}`);
+            }
         }
         function escapeHtmlASR(s) { const div = document.createElement('div'); div.textContent = s || ''; return div.innerHTML; }
         function renderASRDiffs(diffs) { if (!diffs || !diffs.length) return ''; return diffs.map(([color, word]) => { if (color === 'red') return `<span class="text-red-400 font-bold">${escapeHtmlASR(word)}</span>`; if (color === 'blue') return `<span class="text-blue-400 font-bold">${escapeHtmlASR(word)}</span>`; return escapeHtmlASR(word); }).join(' '); }
