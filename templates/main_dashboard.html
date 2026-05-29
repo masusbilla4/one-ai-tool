@@ -589,19 +589,21 @@
                                 </button>
                             </div>
                             <div class="overflow-x-auto">
-                                <table class="w-full text-sm" style="table-layout: fixed;">
+                                <table class="w-full text-sm" style="table-layout: fixed; min-width: 1200px;">
                                     <colgroup>
                                         <col style="width: 40px;">
-                                        <col style="width: 20%;">
-                                        <col style="width: 45%;">
-                                        <col style="width: 70px;">
+                                        <col style="width: 18%;">
                                         <col style="width: 25%;">
+                                        <col style="width: 25%;">
+                                        <col style="width: 60px;">
+                                        <col style="width: 20%;">
                                     </colgroup>
                                     <thead class="bg-indigo-600 text-white">
                                         <tr>
                                             <th class="py-2 px-3 text-center">No</th>
                                             <th class="py-2 px-3">Test Language</th>
                                             <th class="py-2 px-3">ASR Separated</th>
+                                            <th class="py-2 px-3">Differences</th>
                                             <th class="py-2 px-3 text-center">WER%</th>
                                             <th class="py-2 px-3">Translation</th>
                                         </tr>
@@ -878,8 +880,8 @@
             asrAlignmentData.forEach((d, idx) => {
                 const tr = document.createElement('tr'); tr.className = idx % 2 === 0 ? 'bg-slate-800' : '';
                 const asrSeparated = d.asr_separated || d.asr_nobreak || '';
-                // Use textarea for multi-line editing with full text visibility and auto-resize (Differences column removed for more space)
-                tr.innerHTML = `<td class="py-2 px-3 text-center align-top">${d.id}</td><td class="py-2 px-3 align-top">${escapeHtmlASR(d.true)}</td><td class="py-2 px-3 align-top"><textarea class="asr-editable-cell bg-slate-700 border border-slate-600 rounded px-2 py-1 text-slate-100 w-full min-h-[80px] resize-y focus:border-indigo-500 focus:outline-none text-sm" rows="3" oninput="autoResizeTextarea(this); updateASRSeparated(${idx}, this.value)" onchange="updateASRSeparated(${idx}, this.value)">${escapeHtmlASR(asrSeparated)}</textarea></td><td class="py-2 px-3 text-center align-top">${d.wer}</td><td class="py-2 px-3 align-top">${escapeHtmlASR(d.translation || '')}</td>`;
+                // Use textarea for multi-line editing with full text visibility and auto-resize (with horizontal scroll for spacing)
+                tr.innerHTML = `<td class="py-2 px-3 text-center align-top">${d.id}</td><td class="py-2 px-3 align-top">${escapeHtmlASR(d.true)}</td><td class="py-2 px-3 align-top"><textarea class="asr-editable-cell bg-slate-700 border border-slate-600 rounded px-2 py-1 text-slate-100 w-full min-h-[80px] resize-y focus:border-indigo-500 focus:outline-none text-sm" rows="3" oninput="autoResizeTextarea(this); updateASRSeparated(${idx}, this.value)" onchange="updateASRSeparated(${idx}, this.value)">${escapeHtmlASR(asrSeparated)}</textarea></td><td class="py-2 px-3 align-top max-w-xs overflow-x-auto">${renderASRDiffs(d.diffs)}</td><td class="py-2 px-3 text-center align-top">${d.wer}</td><td class="py-2 px-3 align-top">${escapeHtmlASR(d.translation || '')}</td>`;
                 tbody.appendChild(tr);
             });
             // Auto-resize all textareas after rendering
