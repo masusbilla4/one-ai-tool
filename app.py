@@ -48,13 +48,17 @@ def create_app(config_class=Config):
         # Get shop data
         fil_remaining, eng_remaining = get_remaining_stats()
         categories = get_categories()
+        
+        # Get app version
+        from config import APP_VERSION
         cart = session.get('cart', [])
         
         return render_template('main_dashboard.html',
                              fil_remaining=fil_remaining,
                              eng_remaining=eng_remaining,
                              categories=categories,
-                             cart=cart)
+                             cart=cart,
+                             app_version=APP_VERSION)
     
     # Error handlers
     @app.errorhandler(404)

@@ -740,11 +740,12 @@
             
             const lines = textarea.value.split('\n');
             const lineCount = lines.length || 1;
-            let lineNumbers = '';
+            let lineNumbers = [];
             for (let i = 1; i <= lineCount; i++) {
-                lineNumbers += i + '\n';
+                lineNumbers.push(i);
             }
-            linesEl.textContent = lineNumbers;
+            // Display each number on its own line
+            linesEl.innerHTML = lineNumbers.map(n => '<div>' + n + '</div>').join('');
         }
         
         // Sync line numbers scroll with textarea

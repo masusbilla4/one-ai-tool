@@ -3,13 +3,26 @@ Configuration module for One AI Tool.
 Loads environment variables and provides application settings.
 """
 import os
+from datetime import datetime
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
 
+# Load version from VERSION file
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+VERSION_FILE = os.path.join(BASE_DIR, 'VERSION')
+try:
+    with open(VERSION_FILE, 'r') as f:
+        APP_VERSION = f.read().strip()
+except FileNotFoundError:
+    APP_VERSION = datetime.now().strftime('%Y%m%d%H%M%S')
+
 class Config:
     """Base configuration class."""
+    
+    # App Version
+    VERSION = APP_VERSION
     
     # Flask
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')

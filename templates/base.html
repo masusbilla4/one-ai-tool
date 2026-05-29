@@ -126,6 +126,13 @@
                     </div>
                 </div>
 <div class="flex items-center space-x-4">
+                    <!-- App Version -->
+                    {% if app_version %}
+                    <span class="text-xs text-slate-500 font-mono bg-slate-800 px-2 py-1 rounded" title="App Version">
+                        <i class="fas fa-code-branch mr-1"></i>v{{ app_version }}
+                    </span>
+                    {% endif %}
+                    
                     <!-- Settings Link -->
                     <a href="{{ url_for('settings.settings_home') }}" class="hover:bg-slate-600 p-2 rounded-full transition" title="API Settings">
                         <i class="fas fa-cog text-slate-300"></i>
