@@ -911,10 +911,29 @@
         async function exportASRExcel() {
             if (!asrAlignmentData.length) { alert('No data to export.'); return; }
             try {
-                const res = await fetch('/asr/export/excel/' + asrCurrentTaskId, { method: 'POST' });
-                if (!res.ok) { const d = await res.json(); alert(d.error || 'Export failed'); return; }
-                const blob = await res.blob(); const url = URL.createObjectURL(blob); const a = document.createElement('a');
-                a.href = url; a.download = 'ASR_Evaluation.xlsx'; a.click(); URL.revokeObjectURL(url); alert('Excel exported!');
+                const res = await fetch('/asr/export/excel', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ alignment_data: asrAlignmentData })
+                });
+                if (!res.ok) { 
+                    const contentType = res.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const d = await res.json(); 
+                        alert(d.error || 'Export failed'); 
+                    } else {
+                        alert('Export failed: Server returned HTML (likely login required or route error)');
+                    }
+                    return; 
+                }
+                const blob = await res.blob(); 
+                const url = URL.createObjectURL(blob); 
+                const a = document.createElement('a');
+                a.href = url; 
+                a.download = 'ASR_Evaluation.xlsx'; 
+                a.click(); 
+                URL.revokeObjectURL(url); 
+                alert('Excel exported!');
             } catch (e) { alert('Export error: ' + e.message); }
         }
         async function reevaluateASR() {

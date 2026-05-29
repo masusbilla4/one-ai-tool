@@ -382,14 +382,20 @@ def import_txt_files():
     })
 
 
-@asr_bp.route('/export/excel/<task_id>')
+@asr_bp.route('/export/excel', methods=['POST'])
 @login_required
-def export_excel(task_id):
+def export_excel():
     """Export alignment results as Excel."""
-    alignment_data = _stored_alignment.get("data")
+    # Try to get alignment data from request body first (from frontend), fallback to stored data
+    data = request.get_json(silent=True) or {}
+    alignment_data = None
+    if data and 'alignment_data' in data:
+        alignment_data = data['alignment_data']
+    else:
+        alignment_data = _stored_alignment.get("data")
+    
     if not alignment_data:
-        flash('No data to export.', 'error')
-        return redirect(url_for('asr.asr_home'))
+        return jsonify({"error": "No data to export. Run alignment first."}), 400
 
     try:
         wb = Workbook()
@@ -447,13 +453,19 @@ def export_excel(task_id):
 
         ws.freeze_panes = "A2"
 
+        # Save to BytesIO instead of file
+        output = io.BytesIO()
+        wb.save(output)
+        output.seek(0)
+
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"ASR_Evaluation_{timestamp}.xlsx"
-        filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "exports", filename)
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
-        wb.save(filepath)
 
-        return send_file(filepath, as_attachment=True, download_name=filename)
+        return send_file(
+            output,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=filename
+        )
     except Exception as e:
-        flash(f'Export failed: {str(e)}', 'error')
-        return redirect(url_for('asr.asr_home'))
+        return jsonify({"error": f'Export failed: {str(e)}'}), 500
