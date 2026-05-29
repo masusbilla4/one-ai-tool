@@ -874,11 +874,22 @@
                 const tr = document.createElement('tr'); tr.className = idx % 2 === 0 ? 'bg-slate-800' : '';
                 const scoreClass = d.ai_score == 3 ? 'text-green-400 font-bold' : '';
                 const asrSeparated = d.asr_separated || d.asr_nobreak || '';
-                tr.innerHTML = `<td class="py-2 px-3 text-center">${d.id}</td><td class="py-2 px-3">${escapeHtmlASR(d.true)}</td><td class="py-2 px-3"><input type="text" class="asr-editable-cell bg-slate-700 border border-slate-600 rounded px-2 py-1 text-slate-100 w-full focus:border-indigo-500 focus:outline-none" value="${escapeHtmlASR(asrSeparated)}" onchange="updateASRSeparated(${idx}, this.value)"></td><td class="py-2 px-3">${renderASRDiffs(d.diffs)}</td><td class="py-2 px-3 text-center">${d.wer}</td><td class="py-2 px-3 text-center ${scoreClass}">${d.ai_score || ''}</td><td class="py-2 px-3">${escapeHtmlASR(d.translation || '')}</td>`;
+                // Use textarea for multi-line editing with full text visibility and auto-resize
+                tr.innerHTML = `<td class="py-2 px-3 text-center align-top">${d.id}</td><td class="py-2 px-3 align-top">${escapeHtmlASR(d.true)}</td><td class="py-2 px-3 align-top"><textarea class="asr-editable-cell bg-slate-700 border border-slate-600 rounded px-2 py-1 text-slate-100 w-full min-h-[80px] resize-y focus:border-indigo-500 focus:outline-none text-sm" rows="3" oninput="autoResizeTextarea(this); updateASRSeparated(${idx}, this.value)" onchange="updateASRSeparated(${idx}, this.value)">${escapeHtmlASR(asrSeparated)}</textarea></td><td class="py-2 px-3 align-top">${renderASRDiffs(d.diffs)}</td><td class="py-2 px-3 text-center align-top">${d.wer}</td><td class="py-2 px-3 text-center align-top ${scoreClass}">${d.ai_score || ''}</td><td class="py-2 px-3 align-top">${escapeHtmlASR(d.translation || '')}</td>`;
                 tbody.appendChild(tr);
             });
+            // Auto-resize all textareas after rendering
+            setTimeout(() => {
+                document.querySelectorAll('.asr-editable-cell').forEach(ta => autoResizeTextarea(ta));
+            }, 100);
             const s = asrOverallStats;
             document.getElementById('asr-results-title').textContent = `📊 Alignment Results — Overall WER: ${asrOverallWer}% (S:${s.subs||0} D:${s.dels||0} I:${s.ins||0} / ${s.refs||0} words)`;
+        }
+
+        // Auto-resize textarea to fit content
+        function autoResizeTextarea(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px';
         }
 
         // Update ASR Separated value when edited
