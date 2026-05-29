@@ -476,10 +476,23 @@
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <!-- True Text -->
                                 <div>
-                                    <div class="bg-green-600 text-white p-2 font-semibold rounded-t"><span class="mr-1">📝</span>True Text (Reference)</div>
-                                    <div class="flex border-2 border-indigo-500 rounded-b-lg overflow-hidden bg-slate-900">
+                                    <div class="bg-green-600 text-white p-2 font-semibold rounded-t flex justify-between items-center">
+                                        <span><span class="mr-1">📝</span>True Text (Reference)</span>
+                                        <span class="text-xs font-normal opacity-80">📄 Drop .txt file here</span>
+                                    </div>
+                                    <div id="asr-true-drop-zone" class="flex border-2 border-indigo-500 rounded-b-lg overflow-hidden bg-slate-900 relative" 
+                                         style="min-height: 200px;"
+                                         ondragover="handleTrueTextDragOver(event)" 
+                                         ondragleave="handleTrueTextDragLeave(event)" 
+                                         ondrop="handleTrueTextDrop(event)">
                                         <div class="asr-line-numbers w-12 bg-slate-700 text-amber-400 font-mono text-sm font-bold text-right py-2 px-1 select-none border-r border-slate-600" id="true-lines-num">1</div>
-                                        <textarea id="asr-true-text" rows="8" class="asr-textarea flex-1 bg-slate-800 text-slate-100 font-mono text-sm p-2 resize-y outline-none border-none" placeholder="Paste reference text..." oninput="updateASRLineNumbers('true'); updateASRLineCounts();"></textarea>
+                                        <textarea id="asr-true-text" rows="8" class="asr-textarea flex-1 bg-slate-800 text-slate-100 font-mono text-sm p-2 resize-y outline-none border-none" placeholder="Paste text or drop .txt file..." oninput="updateASRLineNumbers('true'); updateASRLineCounts();"></textarea>
+                                        <div id="asr-true-drop-overlay" class="absolute inset-0 bg-green-600/80 flex items-center justify-center hidden pointer-events-none">
+                                            <div class="text-center text-white">
+                                                <i class="fas fa-file-import text-4xl mb-2"></i>
+                                                <p class="font-bold">Drop file to load</p>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="text-right text-sm text-white bg-green-600 p-1 rounded mt-1" id="true-count">Lines: 0</div>
                                 </div>
@@ -971,6 +984,57 @@
                 });
             }
         });
+
+        // ========== True Text Drag & Drop Functions ==========
+        function handleTrueTextDragOver(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const dropZone = document.getElementById('asr-true-drop-zone');
+            const overlay = document.getElementById('asr-true-drop-overlay');
+            dropZone.classList.add('border-green-400', 'border-4');
+            overlay.classList.remove('hidden');
+        }
+
+        function handleTrueTextDragLeave(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const dropZone = document.getElementById('asr-true-drop-zone');
+            const overlay = document.getElementById('asr-true-drop-overlay');
+            dropZone.classList.remove('border-green-400', 'border-4');
+            overlay.classList.add('hidden');
+        }
+
+        function handleTrueTextDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const dropZone = document.getElementById('asr-true-drop-zone');
+            const overlay = document.getElementById('asr-true-drop-overlay');
+            dropZone.classList.remove('border-green-400', 'border-4');
+            overlay.classList.add('hidden');
+
+            const files = Array.from(event.dataTransfer.files);
+            if (files.length === 0) return;
+
+            const txtFile = files.find(f => f.name.toLowerCase().endsWith('.txt'));
+            if (!txtFile) {
+                alert('Please drop a .txt file only.');
+                return;
+            }
+
+            // Read file content
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const textarea = document.getElementById('asr-true-text');
+                textarea.value = content;
+                updateASRLineNumbers('true');
+                updateASRLineCounts();
+            };
+            reader.onerror = function() {
+                alert('Error reading file.');
+            };
+            reader.readAsText(txtFile, 'utf-8');
+        }
     </script>
 </body>
 </html>
