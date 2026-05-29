@@ -1,10 +1,18 @@
 """
 Sentence Database - Core Supabase CRUD operations.
 Handles: insert, update, delete, check_exists, generate_id
+
+OPTIMIZED: Invalidates stats cache when data changes
 """
 from supabase import create_client, Client
 from config import Config
 from settings.routes import get_supabase_config
+
+# Import cache invalidation
+try:
+    from .stats import _invalidate_cache
+except ImportError:
+    _invalidate_cache = lambda: None
 
 
 # Table names
@@ -69,6 +77,8 @@ def insert_sentence(sentence: str, category: str, language: str) -> dict:
     """
     Insert a new sentence into the database.
     Returns: dict with sen_id and status
+    
+    OPTIMIZED: Invalidates stats cache after insert
     """
     char_count = len(sentence)
     word_count = len(sentence.split())
@@ -91,6 +101,9 @@ def insert_sentence(sentence: str, category: str, language: str) -> dict:
     client = get_supabase_client()
     result = client.table(table_name).insert(data).execute()
     
+    # Invalidate cache after data change
+    _invalidate_cache()
+    
     return {
         "sen_id": sen_id,
         "success": result.data is not None,
@@ -104,11 +117,16 @@ def update_sentence(sen_id: str, text: str, language: str) -> dict:
     """
     Update an existing sentence.
     Returns: dict with status
+    
+    OPTIMIZED: Invalidates stats cache after update
     """
     client = get_supabase_client()
     table_name = get_table_name(language)
     
     result = client.table(table_name).update({"sentence": text}).eq("sen_id", sen_id).execute()
+    
+    # Invalidate cache after data change
+    _invalidate_cache()
     
     return {
         "success": result.data is not None,
@@ -120,11 +138,16 @@ def delete_sentence(sen_id: str, language: str) -> dict:
     """
     Delete a sentence by ID.
     Returns: dict with status
+    
+    OPTIMIZED: Invalidates stats cache after delete
     """
     client = get_supabase_client()
     table_name = get_table_name(language)
     
     result = client.table(table_name).delete().eq("sen_id", sen_id).execute()
+    
+    # Invalidate cache after data change
+    _invalidate_cache()
     
     return {
         "success": result.data is not None or True,  # Supabase returns empty on success
@@ -133,11 +156,19 @@ def delete_sentence(sen_id: str, language: str) -> dict:
 
 
 def mark_sentence_as_used(sentence: str, language: str, category: str) -> bool:
-    """Mark a sentence as used."""
+    """
+    Mark a sentence as used.
+    
+    OPTIMIZED: Invalidates stats cache after marking used
+    """
     client = get_supabase_client()
     table_name = get_table_name(language)
     
     result = client.table(table_name).update({"used": 1}).eq("sentence", sentence).eq("category", category).execute()
+    
+    # Invalidate cache after data change
+    _invalidate_cache()
+    
     return result.data is not None
 
 

@@ -8,7 +8,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from werkzeug.utils import secure_filename
 
 from .db import insert_sentence, update_sentence, delete_sentence, check_sentence_exists, get_sentence_by_id
-from .stats import get_stats, get_remaining_stats, get_categories, get_category_stats, get_database_info
+from .stats import get_stats, get_remaining_stats, get_categories, get_category_stats, get_database_info, _invalidate_cache
 from .cart import get_all_sentences, search_sentences, get_filtered_sentences, mark_sentences_as_used
 from .import_export import import_from_csv_to_db, import_from_sqlite_file, export_to_csv_string
 from .duplicates import find_duplicate_sentences, delete_duplicate_sentences
