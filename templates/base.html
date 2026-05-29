@@ -70,26 +70,30 @@
         .flash-message { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Sticky footer - always at bottom - IMPORTANT */
+        /* Sticky footer - always at bottom - ULTIMATE FIX */
         html {
             height: 100%;
+            overflow-y: scroll;
         }
         body { 
-            display: flex; 
-            flex-direction: column; 
-            min-height: 100vh;
-            height: 100%;
-            margin: 0;
-            padding: 0;
+            display: flex !important; 
+            flex-direction: column !important; 
+            min-height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
         .main-content { 
-            flex: 1 0 auto;
-            padding-bottom: 3rem;
+            flex: 1 0 auto !important;
+            padding-bottom: 2rem !important;
         }
         footer { 
-            flex-shrink: 0;
-            width: 100%;
-            position: relative;
+            flex-shrink: 0 !important;
+            width: 100% !important;
+            background: #0f172a !important;
+            border-top: 2px solid #334155 !important;
+            margin-top: auto !important;
+            position: relative !important;
+            clear: both !important;
         }
         
         /* Dark mode styles */
@@ -210,22 +214,21 @@
     </div>
 
     <!-- Footer - Always at bottom - Dark Gradient -->
-    <footer class="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-slate-400 py-6 border-t border-slate-700 mt-auto">
-        <div class="max-w-7xl mx-auto px-4">
+    <footer id="page-footer" style="background: linear-gradient(to right, #0f172a, #1e293b, #0f172a); border-top: 2px solid #334155; padding: 24px 0; margin-top: auto; width: 100%;">
+        <div style="max-width: 1280px; margin: 0 auto; padding: 0 16px;">
             <!-- Main Footer Content -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 24px;">
                 <!-- Brand Section -->
-                <div class="md:col-span-2">
-                    <h3 class="text-lg font-bold text-white mb-2" style="color: #FFD700;">
+                <div style="grid-column: span 2;">
+                    <h3 style="font-size: 1.125rem; font-weight: 700; color: #FFD700; margin-bottom: 8px;">
                         <i class="fas fa-robot mr-2"></i>One AI Tool
                     </h3>
-                    <p class="text-sm text-slate-400 mb-3">
+                    <p style="font-size: 0.875rem; color: #94a3b8; margin-bottom: 12px;">
                         Unified platform for Sentence Database management, Universal Data Extraction, and ASR Alignment.
-                        Built for efficient test case development and data processing.
                     </p>
                     {% if app_version %}
-                    <p class="text-xs text-slate-500 font-mono">
-                        <i class="fas fa-code-branch mr-1"></i>Version: <span class="text-indigo-400">{{ app_version }}</span>
+                    <p style="font-size: 0.75rem; color: #64748b; font-family: monospace;">
+                        <i class="fas fa-code-branch"></i> Version: {{ app_version }}
                     </p>
                     {% endif %}
                 </div>
