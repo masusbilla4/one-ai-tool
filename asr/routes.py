@@ -18,7 +18,16 @@ from openpyxl.cell.rich_text import CellRichText, TextBlock
 
 from .alignment_engine import run_alignment, align_translation_local
 from auth.routes import login_required
-from settings.routes import get_gemini_api_key
+
+# Import get_gemini_api_key from settings module
+def get_gemini_api_key():
+    """Helper to get Gemini API key from session or config."""
+    from settings.routes import GEMINI_CONFIG
+    from config import Config
+    session_config = session.get(GEMINI_CONFIG, {})
+    if session_config.get('api_key'):
+        return session_config['api_key']
+    return Config.GEMINI_API_KEY if Config.GEMINI_API_KEY else None
 
 asr_bp = Blueprint('asr', __name__, template_folder='templates')
 
