@@ -20,6 +20,14 @@ extractor_bp = Blueprint('extractor', __name__, template_folder='templates')
 
 # Store extraction results in memory (per session)
 _extraction_results = {}
+_result_counter = 0
+
+
+def get_next_task_id(prefix):
+    """Generate unique task ID."""
+    global _result_counter
+    _result_counter += 1
+    return f"{prefix}_{_result_counter}"
 
 
 @extractor_bp.route('/')
@@ -35,6 +43,7 @@ def extractor_home():
 @login_required
 def extract_reddit():
     """Extract comments from Reddit post."""
+    global _result_counter
     data = request.json
     url_or_id = data.get('url_or_id', '')
     
@@ -61,17 +70,19 @@ def extract_reddit():
         
         results = scraper.scrape(post_id)
         
-        # Store results
-        task_id = f"reddit_{len(_extraction_results) + 1}"
+        # Store results with unique task ID
+        _result_counter += 1
+        task_id = f"reddit_{_result_counter}"
         _extraction_results[task_id] = results
         
         return jsonify({
             'success': True,
             'count': len(results),
             'task_id': task_id,
-            'data': results[:10]  # Return first 10 for preview
+            'data': results  # Return ALL data for display
         })
     except Exception as e:
+        print(f"Reddit extraction error: {e}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -81,6 +92,7 @@ def extract_reddit():
 @login_required
 def extract_youtube_comments():
     """Extract comments from YouTube video."""
+    global _result_counter
     data = request.json
     url = data.get('url', '')
     max_results = data.get('max_results', 100)
@@ -102,16 +114,18 @@ def extract_youtube_comments():
         
         results = scraper.scrape(video_id, max_results)
         
-        task_id = f"yt_comments_{len(_extraction_results) + 1}"
+        _result_counter += 1
+        task_id = f"yt_comments_{_result_counter}"
         _extraction_results[task_id] = results
         
         return jsonify({
             'success': True,
             'count': len(results),
             'task_id': task_id,
-            'data': results[:10]
+            'data': results  # Return ALL data for display
         })
     except Exception as e:
+        print(f"YouTube comments extraction error: {e}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -121,6 +135,7 @@ def extract_youtube_comments():
 @login_required
 def extract_youtube_subtitles():
     """Extract subtitles from YouTube video."""
+    global _result_counter
     data = request.json
     url = data.get('url', '')
     language = data.get('language', 'en')
@@ -137,16 +152,18 @@ def extract_youtube_subtitles():
         
         results = extractor.download_and_parse_vtt(video_id, language)
         
-        task_id = f"yt_subs_{len(_extraction_results) + 1}"
+        _result_counter += 1
+        task_id = f"yt_subs_{_result_counter}"
         _extraction_results[task_id] = results
         
         return jsonify({
             'success': True,
             'count': len(results),
             'task_id': task_id,
-            'data': results[:10]
+            'data': results  # Return ALL data for display
         })
     except Exception as e:
+        print(f"YouTube subtitles extraction error: {e}")
         return jsonify({'error': str(e)}), 500
 
 
@@ -156,6 +173,7 @@ def extract_youtube_subtitles():
 @login_required
 def extract_document():
     """Extract text from uploaded documents."""
+    global _result_counter
     if 'files' not in request.files:
         return jsonify({'error': 'No files uploaded'}), 400
     
@@ -186,16 +204,18 @@ def extract_document():
             except:
                 pass
         
-        task_id = f"doc_{len(_extraction_results) + 1}"
+        _result_counter += 1
+        task_id = f"doc_{_result_counter}"
         _extraction_results[task_id] = results
         
         return jsonify({
             'success': True,
             'count': len(results),
             'task_id': task_id,
-            'data': results[:10]
+            'data': results  # Return ALL data for display
         })
     except Exception as e:
+        print(f"Document extraction error: {e}")
         return jsonify({'error': str(e)}), 500
 
 

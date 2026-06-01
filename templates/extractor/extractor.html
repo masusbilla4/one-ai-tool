@@ -195,30 +195,40 @@ function updateLoadingStatus(text, progress = null) {
 }
 
 function displayResults(data) {
+    console.log('Displaying results:', data.length, 'items');
     currentResults = data;
     document.getElementById('result-count').textContent = data.length;
     
-    let html = '<table class="min-w-full bg-white border"><thead class="bg-gray-100"><tr>';
-    html += '<th class="py-2 px-4 text-left">#</th>';
-    html += '<th class="py-2 px-4 text-left">Sentence</th>';
-    html += '<th class="py-2 px-4 text-left">Words</th>';
-    html += '<th class="py-2 px-4 text-left">Source</th>';
-    html += '</tr></thead><tbody>';
-    
-    data.slice(0, 50).forEach((item, idx) => {
-        html += '<tr class="border-b">';
-        html += '<td class="py-2 px-4">' + (idx + 1) + '</td>';
-        html += '<td class="py-2 px-4 max-w-md truncate">' + (item.sentence || '').substring(0, 100) + '...</td>';
-        html += '<td class="py-2 px-4">' + (item.word_count || 0) + '</td>';
-        html += '<td class="py-2 px-4 text-sm text-gray-600">' + (item.source_type || '') + '</td>';
-        html += '</tr>';
-    });
-    
-    if (data.length > 50) {
-        html += '<tr><td colspan="4" class="py-2 px-4 text-center text-gray-500">... and ' + (data.length - 50) + ' more rows</td></tr>';
+    if (!data || data.length === 0) {
+        document.getElementById('results-container').innerHTML = '<p class="text-gray-500 text-center py-8">No data extracted.</p>';
+        showTab('results');
+        return;
     }
     
-    html += '</tbody></table>';
+    let html = '<div class="overflow-x-auto"><table class="min-w-full bg-white border border-gray-300"><thead class="bg-gray-100"><tr>';
+    html += '<th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">#</th>';
+    html += '<th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Sentence</th>';
+    html += '<th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Words</th>';
+    html += '<th class="py-3 px-4 border-b text-left text-sm font-semibold text-gray-700">Source</th>';
+    html += '</tr></thead><tbody>';
+    
+    const displayCount = Math.min(data.length, 50);
+    for (let idx = 0; idx < displayCount; idx++) {
+        const item = data[idx];
+        const sentence = (item.sentence || '').replace(/"/g, '"').substring(0, 150);
+        html += '<tr class="hover:bg-gray-50">';
+        html += '<td class="py-2 px-4 border-b text-sm">' + (idx + 1) + '</td>';
+        html += '<td class="py-2 px-4 border-b text-sm text-gray-700">' + sentence + (item.sentence && item.sentence.length > 150 ? '...' : '') + '</td>';
+        html += '<td class="py-2 px-4 border-b text-sm text-center">' + (item.word_count || 0) + '</td>';
+        html += '<td class="py-2 px-4 border-b text-sm text-gray-600">' + (item.source_type || '') + '</td>';
+        html += '</tr>';
+    }
+    
+    if (data.length > 50) {
+        html += '<tr><td colspan="4" class="py-3 px-4 text-center text-gray-500 text-sm">... and ' + (data.length - 50) + ' more rows. Export to see all.</td></tr>';
+    }
+    
+    html += '</tbody></table></div>';
     document.getElementById('results-container').innerHTML = html;
     showTab('results');
 }
