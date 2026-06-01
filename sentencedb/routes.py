@@ -194,13 +194,14 @@ def shop_export():
 
 def export_cart_csv(cart):
     """Generate CSV from cart data."""
-    from io import BytesIO
-    output = BytesIO()
+    from io import StringIO, BytesIO
+    # Use StringIO for csv.writer (it works with text streams)
+    output = StringIO()
     writer = csv.writer(output)
     writer.writerow(['sentence', 'category', 'language', 'word_count'])
     writer.writerows(cart)
-    output.seek(0)
-    return output
+    # Convert to BytesIO for send_file
+    return BytesIO(output.getvalue().encode('utf-8'))
 
 
 # ========== IMPORT/EXPORT ==========
@@ -252,17 +253,13 @@ def import_page():
 @login_required
 def download_template():
     """Download CSV import template."""
-    from io import BytesIO
-    import csv
-    
-    # Create CSV in memory
-    output = BytesIO()
+    # Create CSV in memory using StringIO (csv module works with text streams)
+    from io import StringIO, BytesIO
+    output = StringIO()
     writer = csv.writer(output)
     
-    # Write header
+    # Write header and sample rows
     writer.writerow(['sentence', 'category', 'language'])
-    
-    # Write sample rows
     writer.writerow(['Magandang umaga', 'Greetings', 'fil'])
     writer.writerow(['Good morning', 'Greetings', 'en'])
     writer.writerow(['Salamat', 'Greetings', 'fil'])
@@ -270,10 +267,11 @@ def download_template():
     writer.writerow(['Kumusta ka?', 'Greetings', 'fil'])
     writer.writerow(['How are you?', 'Greetings', 'en'])
     
-    output.seek(0)
+    # Convert to bytes for send_file
+    csv_bytes = BytesIO(output.getvalue().encode('utf-8'))
     
     return send_file(
-        output,
+        csv_bytes,
         mimetype='text/csv',
         as_attachment=True,
         download_name='sentence_import_template.csv'
