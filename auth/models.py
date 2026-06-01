@@ -189,3 +189,118 @@ def init_users_table():
     );
     """
     pass
+
+
+# ========== USER API CREDENTIALS STORAGE ==========
+
+def get_user_api_credentials(user_id: int, provider: str) -> dict:
+    """
+    Get API credentials for a specific user from Supabase.
+    provider: 'reddit', 'youtube', 'gemini', 'supabase'
+    Returns: dict with credentials or empty dict if not found
+    """
+    try:
+        client = get_supabase_client()
+        response = client.table('user_api_credentials').select('*').eq('user_id', user_id).eq('provider', provider).execute()
+        if response.data:
+            return response.data[0]
+        return {}
+    except Exception as e:
+        print(f"Error getting user API credentials: {e}")
+        return {}
+
+
+def save_user_api_credentials(user_id: int, provider: str, credentials: dict) -> tuple:
+    """
+    Save/update API credentials for a specific user in Supabase.
+    provider: 'reddit', 'youtube', 'gemini', 'supabase'
+    credentials: dict with credential keys/values
+    Returns: (success: bool, message: str)
+    """
+    try:
+        client = get_supabase_client()
+        
+        # Check if credentials exist for this user/provider
+        existing = get_user_api_credentials(user_id, provider)
+        
+        # Prepare data
+        cred_data = {
+            'user_id': user_id,
+            'provider': provider,
+            'credentials': json.dumps(credentials),  # Store as JSON string
+            'updated_at': datetime.now().isoformat()
+        }
+        
+        if existing:
+            # Update existing
+            response = client.table('user_api_credentials').update(cred_data).eq('id', existing['id']).execute()
+        else:
+            # Insert new
+            cred_data['created_at'] = datetime.now().isoformat()
+            response = client.table('user_api_credentials').insert(cred_data).execute()
+        
+        if response.data:
+            return True, "Credentials saved"
+        return False, "Failed to save credentials"
+    except Exception as e:
+        return False, f"Error: {str(e)}"
+
+
+def delete_user_api_credentials(user_id: int, provider: str) -> tuple:
+    """
+    Delete API credentials for a specific user.
+    Returns: (success: bool, message: str)
+    """
+    try:
+        client = get_supabase_client()
+        response = client.table('user_api_credentials').delete().eq('user_id', user_id).eq('provider', provider).execute()
+        return True, "Credentials deleted"
+    except Exception as e:
+        return False, f"Error: {str(e)}"
+
+
+def get_all_user_api_credentials(user_id: int) -> dict:
+    """
+    Get all API credentials for a specific user.
+    Returns: dict with provider as key and credentials as value
+    """
+    try:
+        client = get_supabase_client()
+        response = client.table('user_api_credentials').select('*').eq('user_id', user_id).execute()
+        
+        result = {}
+        if response.data:
+            for row in response.data:
+                provider = row['provider']
+                try:
+                    result[provider] = json.loads(row['credentials'])
+                except:
+                    result[provider] = {}
+        
+        return result
+    except Exception as e:
+        print(f"Error getting all user API credentials: {e}")
+        return {}
+
+
+def init_api_credentials_table():
+    """
+    Initialize the user_api_credentials table in Supabase.
+    Run this once to create the table structure.
+    Note: This requires admin privileges in Supabase.
+    
+    SQL to run in Supabase SQL Editor:
+    CREATE TABLE user_api_credentials (
+        id BIGSERIAL PRIMARY KEY,
+        user_id BIGINT REFERENCES app_users(id) ON DELETE CASCADE,
+        provider TEXT NOT NULL,
+        credentials JSONB NOT NULL,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(user_id, provider)
+    );
+    
+    CREATE INDEX idx_user_api_credentials_user_id ON user_api_credentials(user_id);
+    CREATE INDEX idx_user_api_credentials_provider ON user_api_credentials(provider);
+    """
+    pass

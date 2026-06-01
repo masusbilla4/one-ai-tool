@@ -97,14 +97,20 @@ class RedditScraper:
             
         except MemoryError:
             # Handle out of memory - return what we have
+            print(f"Memory error during Reddit scraping: returning {len(results)} results")
             pass
         except Exception as e:
             # Log error but don't crash
             error_msg = str(e)
+            print(f"Reddit scraping error: {error_msg}")
             if "rate limit" in error_msg.lower() or "sleep" in error_msg.lower():
                 raise ValueError("Reddit API rate limit reached. Please wait a moment and try again.")
             elif "timeout" in error_msg.lower():
                 raise ValueError("Request timed out. The post may have too many comments.")
+            elif "invalid" in error_msg.lower() or "not found" in error_msg.lower():
+                raise ValueError(f"Invalid Reddit post ID or post not found: {post_id}")
+            elif "private" in error_msg.lower():
+                raise ValueError("This Reddit post is from a private subreddit.")
             else:
                 raise ValueError(f"Error scraping Reddit: {error_msg}")
         
