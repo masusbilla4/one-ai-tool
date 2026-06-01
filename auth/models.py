@@ -5,14 +5,31 @@ import os
 import json
 import hashlib
 from datetime import datetime
-from supabase import create_client, Client
 
 from config import Config
 
+# Lazy Supabase client initialization
+_supabase_client = None
 
-def get_supabase_client() -> Client:
-    """Create and return Supabase client."""
-    return create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
+
+def get_supabase_client():
+    """Create and return Supabase client with error handling."""
+    global _supabase_client
+    
+    if not Config.SUPABASE_URL or not Config.SUPABASE_KEY:
+        raise ValueError("Supabase credentials not configured. Please set SUPABASE_URL and SUPABASE_KEY environment variables.")
+    
+    if 'your-' in Config.SUPABASE_URL or 'your-' in Config.SUPABASE_KEY:
+        raise ValueError("Supabase credentials not configured. Please update SUPABASE_URL and SUPABASE_KEY with valid values.")
+    
+    if _supabase_client is None:
+        try:
+            from supabase import create_client
+            _supabase_client = create_client(Config.SUPABASE_URL, Config.SUPABASE_KEY)
+        except Exception as e:
+            raise ValueError(f"Failed to initialize Supabase client: {str(e)}")
+    
+    return _supabase_client
 
 
 def hash_password(password: str) -> str:

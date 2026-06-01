@@ -57,6 +57,11 @@ def login():
         else:
             flash(message or 'Invalid username or password.', 'error')
     
+    # Check if Supabase is configured before rendering login page
+    from config import Config
+    if not Config.is_supabase_configured():
+        flash('Authentication system not configured. Please contact the administrator.', 'error')
+    
     return render_template('login.html')
 
 
