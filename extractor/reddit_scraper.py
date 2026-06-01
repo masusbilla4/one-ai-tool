@@ -55,10 +55,14 @@ class RedditScraper:
         
         return url_or_id
     
-    def scrape(self, post_id: str) -> List[Dict[str, Any]]:
+    def scrape(self, post_id: str, max_comments: int = 500) -> List[Dict[str, Any]]:
         """
         Scrape comments from a Reddit post.
         Returns: list of comment dicts with sentence, word_count, source, source_type, timestamp
+        
+        Args:
+            post_id: Reddit post ID
+            max_comments: Maximum number of comments to fetch (default 500 to prevent OOM)
         """
         if not self.reddit:
             raise ValueError("Not authenticated with Reddit")
@@ -67,22 +71,41 @@ class RedditScraper:
         
         try:
             submission = self.reddit.submission(id=post_id)
-            submission.comments.replace_more(limit=None)
-            comments = submission.comments.list()
             
-            for comment in comments:
+            # Limit replace_more to prevent memory exhaustion on large posts
+            # limit=50 means fetch up to 50 "more comments" objects
+            submission.comments.replace_more(limit=50)
+            
+            # Get comments with limit to prevent OOM
+            comments = []
+            for comment in submission.comments.list():
+                if len(comments) >= max_comments:
+                    break
                 if hasattr(comment, 'body'):
                     text = comment.body.replace('\n', ' ').strip()
                     if text:
                         timestamp = datetime.fromtimestamp(comment.created_utc, tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
-                        results.append({
+                        comments.append({
                             'sentence': text,
                             'word_count': len(text.split()),
                             'source': f"https://reddit.com{comment.permalink}",
                             'source_type': 'Reddit',
                             'timestamp': timestamp
                         })
-        except Exception:
+            
+            results = comments[:max_comments]
+            
+        except MemoryError:
+            # Handle out of memory - return what we have
             pass
+        except Exception as e:
+            # Log error but don't crash
+            error_msg = str(e)
+            if "rate limit" in error_msg.lower() or "sleep" in error_msg.lower():
+                raise ValueError("Reddit API rate limit reached. Please wait a moment and try again.")
+            elif "timeout" in error_msg.lower():
+                raise ValueError("Request timed out. The post may have too many comments.")
+            else:
+                raise ValueError(f"Error scraping Reddit: {error_msg}")
         
         return results
