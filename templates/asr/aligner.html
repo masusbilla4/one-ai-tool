@@ -227,22 +227,24 @@
                 </button>
             </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-purple-600 text-white">
+        <!-- Table with fixed height container for vertical scroll -->
+        <div class="overflow-auto border border-gray-300 rounded" style="max-height: 500px; min-height: 400px;">
+            <table class="w-full text-sm" style="table-layout: fixed;">
+                <thead class="bg-purple-600 text-white sticky top-0 z-10">
                     <tr>
-                        <th class="py-2 px-3 text-center">No</th>
-                        <th class="py-2 px-3">Test Language</th>
-                        <th class="py-2 px-3">ASR Separated</th>
-                        <th class="py-2 px-3">Differences</th>
-                        <th class="py-2 px-3 text-center">WER%</th>
-                        <th class="py-2 px-3 text-center">AI Score</th>
-                        <th class="py-2 px-3">Translation</th>
+                        <th class="py-2 px-3 text-center" style="width: 50px;">No</th>
+                        <th class="py-2 px-3" style="width: 150px;">Test Language</th>
+                        <th class="py-2 px-3" style="width: 300px;">ASR Separated</th>
+                        <th class="py-2 px-3" style="width: 200px;">Differences</th>
+                        <th class="py-2 px-3 text-center" style="width: 80px;">WER%</th>
+                        <th class="py-2 px-3 text-center" style="width: 80px;">AI Score</th>
+                        <th class="py-2 px-3" style="width: 300px;">Translation</th>
                     </tr>
                 </thead>
                 <tbody id="resultsBody"></tbody>
             </table>
         </div>
+        <div class="text-sm text-gray-600 mt-2" id="resultsInfo"></div>
     </div>
 </div>
 
