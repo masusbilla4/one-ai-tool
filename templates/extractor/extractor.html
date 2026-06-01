@@ -133,11 +133,16 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
+    <!-- Loading Overlay with Progress Bar -->
     <div id="loading" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-lg text-center">
-            <i class="fas fa-spinner fa-spin text-4xl text-green-600 mb-4"></i>
-            <p class="text-lg font-semibold">Extracting data...</p>
+        <div class="bg-white p-8 rounded-lg text-center max-w-md w-full mx-4">
+            <i class="fas fa-spinner fa-spin text-5xl text-green-600 mb-4"></i>
+            <p id="loading-text" class="text-lg font-semibold mb-4">Extracting data...</p>
+            <!-- Progress Bar -->
+            <div class="w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden">
+                <div id="progress-bar" class="bg-green-600 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+            <p id="progress-text" class="text-sm text-gray-500">Starting...</p>
         </div>
     </div>
 </div>
@@ -145,6 +150,7 @@
 <script>
 let currentTaskId = null;
 let currentResults = [];
+let progressInterval = null;
 
 function showTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -157,8 +163,36 @@ function showTab(tabId) {
     document.getElementById('tab-' + tabId).classList.add('border-green-500', 'text-green-600');
 }
 
-function showLoading() { document.getElementById('loading').classList.remove('hidden'); }
-function hideLoading() { document.getElementById('loading').classList.add('hidden'); }
+function showLoading(statusText = 'Starting...') { 
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('progress-text').textContent = statusText;
+    document.getElementById('progress-bar').style.width = '0%';
+    
+    // Simulate progress animation
+    let progress = 0;
+    clearInterval(progressInterval);
+    progressInterval = setInterval(() => {
+        if (progress < 90) {
+            progress += Math.random() * 10;
+            document.getElementById('progress-bar').style.width = Math.min(progress, 90) + '%';
+        }
+    }, 500);
+}
+
+function hideLoading() { 
+    clearInterval(progressInterval);
+    document.getElementById('progress-bar').style.width = '100%';
+    setTimeout(() => {
+        document.getElementById('loading').classList.add('hidden');
+    }, 300);
+}
+
+function updateLoadingStatus(text, progress = null) {
+    document.getElementById('loading-text').textContent = text;
+    if (progress !== null) {
+        document.getElementById('progress-bar').style.width = progress + '%';
+    }
+}
 
 function displayResults(data) {
     currentResults = data;
@@ -192,7 +226,7 @@ function displayResults(data) {
 function extractReddit() {
     const url = document.getElementById('reddit-url').value.trim();
     if (!url) { alert('Please enter a Reddit URL'); return; }
-    showLoading();
+    showLoading('Connecting to Reddit...');
     fetch('/extractor/reddit', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -204,7 +238,7 @@ function extractReddit() {
         if (data.success) {
             currentTaskId = data.task_id;
             displayResults(data.data);
-            alert('Extracted ' + data.count + ' comments!');
+            alert('Successfully extracted ' + data.count + ' Reddit comments!');
         } else {
             alert('Error: ' + (data.error || 'Unknown error'));
         }
@@ -216,7 +250,7 @@ function extractYouTubeComments() {
     const url = document.getElementById('yt-comments-url').value.trim();
     const max = document.getElementById('yt-comments-max').value;
     if (!url) { alert('Please enter a YouTube URL'); return; }
-    showLoading();
+    showLoading('Fetching YouTube comments...');
     fetch('/extractor/youtube/comments', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -228,7 +262,7 @@ function extractYouTubeComments() {
         if (data.success) {
             currentTaskId = data.task_id;
             displayResults(data.data);
-            alert('Extracted ' + data.count + ' comments!');
+            alert('Successfully extracted ' + data.count + ' YouTube comments!');
         } else {
             alert('Error: ' + (data.error || 'Unknown error'));
         }
@@ -240,7 +274,7 @@ function extractYouTubeSubtitles() {
     const url = document.getElementById('yt-subs-url').value.trim();
     const lang = document.getElementById('yt-subs-lang').value;
     if (!url) { alert('Please enter a YouTube URL'); return; }
-    showLoading();
+    showLoading('Downloading subtitles...');
     fetch('/extractor/youtube/subtitles', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -252,7 +286,7 @@ function extractYouTubeSubtitles() {
         if (data.success) {
             currentTaskId = data.task_id;
             displayResults(data.data);
-            alert('Extracted ' + data.count + ' sentences!');
+            alert('Successfully extracted ' + data.count + ' subtitle sentences!');
         } else {
             alert('Error: ' + (data.error || 'Unknown error'));
         }
@@ -263,7 +297,7 @@ function extractYouTubeSubtitles() {
 function extractDocuments() {
     const files = document.getElementById('doc-files').files;
     if (!files.length) { alert('Please select files'); return; }
-    showLoading();
+    showLoading('Extracting text from documents...');
     const formData = new FormData();
     for (let f of files) formData.append('files', f);
     fetch('/extractor/document', {method: 'POST', body: formData})
@@ -273,7 +307,7 @@ function extractDocuments() {
         if (data.success) {
             currentTaskId = data.task_id;
             displayResults(data.data);
-            alert('Extracted ' + data.count + ' sentences!');
+            alert('Successfully extracted ' + data.count + ' sentences from documents!');
         } else {
             alert('Error: ' + (data.error || 'Unknown error'));
         }
