@@ -53,6 +53,9 @@ RETRY_DELAY = 10
 MAX_RETRIES = 5
 BATCH_DELAY = 15
 
+# Thread-safety lock for shared state
+_asr_lock = threading.Lock()
+
 # Server-side stored alignment data
 _stored_alignment = {"data": None, "overall_wer": 0, "overall_stats": {}}
 
@@ -69,22 +72,25 @@ _progress_store = {
 }
 
 def add_log(msg):
-    _progress_store["logs"].append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {msg}")
-    if len(_progress_store["logs"]) > 500:
-        _progress_store["logs"] = _progress_store["logs"][-500:]
+    with _asr_lock:
+        _progress_store["logs"].append(f"[{datetime.datetime.now().strftime('%H:%M:%S')}] {msg}")
+        if len(_progress_store["logs"]) > 500:
+            _progress_store["logs"] = _progress_store["logs"][-500:]
 
 def reset_progress(task_name=""):
-    _progress_store["task_id"] += 1
-    _progress_store["logs"] = []
-    _progress_store["progress"] = 0
-    _progress_store["status"] = task_name
-    _progress_store["running"] = True
+    with _asr_lock:
+        _progress_store["task_id"] += 1
+        _progress_store["logs"] = []
+        _progress_store["progress"] = 0
+        _progress_store["status"] = task_name
+        _progress_store["running"] = True
     if task_name:
         add_log(f"▶ Started: {task_name}")
 
 def finish_progress(msg="Done"):
-    _progress_store["running"] = False
-    _progress_store["progress"] = 100
+    with _asr_lock:
+        _progress_store["running"] = False
+        _progress_store["progress"] = 100
     add_log(f"✅ {msg}")
 
 

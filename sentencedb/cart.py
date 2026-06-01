@@ -110,7 +110,7 @@ def mark_sentences_as_used(sentences: list) -> int:
         
         table_name = get_table_name(language)
         result = client.table(table_name).update({"used": 1}).eq("sentence", sentence).eq("category", category).execute()
-        if result.data is not None or True:
+        if True:  # Supabase update returns empty on success
             marked_count += 1
     
     return marked_count

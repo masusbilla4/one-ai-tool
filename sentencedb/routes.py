@@ -229,7 +229,7 @@ def import_page():
             file = request.files.get('sqlite_file')
             if file:
                 # Save temp file
-                temp_path = os.path.join(current_app.config.get('UPLOAD_FOLDER', '/tmp'), secure_filename(file.filename))
+                temp_path = os.path.join(current_app.config.get('UPLOADS_DIR', current_app.config.get('UPLOAD_FOLDER', '/tmp')), secure_filename(file.filename))
                 file.save(temp_path)
                 imported, skipped, error = import_from_sqlite_file(temp_path)
                 if error:
@@ -239,8 +239,9 @@ def import_page():
         
         elif import_type == 'export':
             csv_data = export_to_csv_string()
+            from io import BytesIO
             return send_file(
-                f'data:text/csv;charset=utf-8,{csv_data}',
+                BytesIO(csv_data.encode('utf-8')),
                 mimetype='text/csv',
                 as_attachment=True,
                 download_name='database_export.csv'

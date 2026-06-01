@@ -355,7 +355,21 @@ def get_gemini_api_key():
 
 
 def get_supabase_config():
-    """Helper to get Supabase config from session or config."""
+    """Helper to get Supabase config from database, session, or config."""
+    user_id = session.get('user_id')
+    
+    # Try database first (persistent storage)
+    if user_id:
+        try:
+            db_config = get_user_api_credentials(user_id, 'supabase')
+            if db_config and db_config.get('credentials'):
+                creds = json.loads(db_config['credentials']) if isinstance(db_config['credentials'], str) else db_config['credentials']
+                if creds.get('url') and creds.get('key'):
+                    return creds
+        except Exception as e:
+            print(f"Error getting Supabase config from database: {e}")
+    
+    # Try session
     session_config = session.get(SUPABASE_CONFIG, {})
     if session_config.get('url') and session_config.get('key'):
         return session_config

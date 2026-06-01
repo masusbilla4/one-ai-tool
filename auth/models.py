@@ -129,9 +129,7 @@ def delete_user(user_id: int) -> tuple:
     try:
         client = get_supabase_client()
         response = client.table('app_users').delete().eq('id', user_id).execute()
-        if response.data is not None or True:  # Supabase returns empty on success
-            return True, "User deleted"
-        return False, "Failed to delete user"
+        return True, "User deleted"
     except Exception as e:
         return False, f"Error: {str(e)}"
 

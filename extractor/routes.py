@@ -3,6 +3,7 @@ Data Extractor - Flask routes.
 All URL routes for the Universal Data Extractor module.
 """
 import os
+import threading
 from flask import Blueprint, render_template, request, jsonify, session, send_file, current_app, flash, redirect, url_for
 from werkzeug.utils import secure_filename
 
@@ -18,16 +19,18 @@ from settings.routes import get_reddit_credentials, get_youtube_api_key
 
 extractor_bp = Blueprint('extractor', __name__, template_folder='templates')
 
-# Store extraction results in memory (per session)
+# Store extraction results in memory (per session) - thread-safe
+_extraction_lock = threading.Lock()
 _extraction_results = {}
 _result_counter = 0
 
 
 def get_next_task_id(prefix):
-    """Generate unique task ID."""
+    """Generate unique task ID (thread-safe)."""
     global _result_counter
-    _result_counter += 1
-    return f"{prefix}_{_result_counter}"
+    with _extraction_lock:
+        _result_counter += 1
+        return f"{prefix}_{_result_counter}"
 
 
 @extractor_bp.route('/')
@@ -70,10 +73,11 @@ def extract_reddit():
         
         results = scraper.scrape(post_id)
         
-        # Store results with unique task ID
-        _result_counter += 1
-        task_id = f"reddit_{_result_counter}"
-        _extraction_results[task_id] = results
+        # Store results with unique task ID (thread-safe)
+        with _extraction_lock:
+            _result_counter += 1
+            task_id = f"reddit_{_result_counter}"
+            _extraction_results[task_id] = results
         
         return jsonify({
             'success': True,
@@ -114,9 +118,10 @@ def extract_youtube_comments():
         
         results = scraper.scrape(video_id, max_results)
         
-        _result_counter += 1
-        task_id = f"yt_comments_{_result_counter}"
-        _extraction_results[task_id] = results
+        with _extraction_lock:
+            _result_counter += 1
+            task_id = f"yt_comments_{_result_counter}"
+            _extraction_results[task_id] = results
         
         return jsonify({
             'success': True,
@@ -152,9 +157,10 @@ def extract_youtube_subtitles():
         
         results = extractor.download_and_parse_vtt(video_id, language)
         
-        _result_counter += 1
-        task_id = f"yt_subs_{_result_counter}"
-        _extraction_results[task_id] = results
+        with _extraction_lock:
+            _result_counter += 1
+            task_id = f"yt_subs_{_result_counter}"
+            _extraction_results[task_id] = results
         
         return jsonify({
             'success': True,
@@ -204,9 +210,10 @@ def extract_document():
             except:
                 pass
         
-        _result_counter += 1
-        task_id = f"doc_{_result_counter}"
-        _extraction_results[task_id] = results
+        with _extraction_lock:
+            _result_counter += 1
+            task_id = f"doc_{_result_counter}"
+            _extraction_results[task_id] = results
         
         return jsonify({
             'success': True,

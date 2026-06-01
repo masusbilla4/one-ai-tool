@@ -150,7 +150,7 @@ def delete_sentence(sen_id: str, language: str) -> dict:
     _invalidate_cache()
     
     return {
-        "success": result.data is not None or True,  # Supabase returns empty on success
+        "success": True,  # Supabase delete returns empty on success
         "sen_id": sen_id
     }
 

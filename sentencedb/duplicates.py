@@ -53,7 +53,7 @@ def delete_duplicate_sentences(duplicate_ids: list, language: str) -> int:
     deleted_count = 0
     for sen_id in duplicate_ids:
         result = client.table(table_name).delete().eq("sen_id", sen_id).execute()
-        if result.data is not None or True:
+        if True:  # Supabase delete returns empty on success
             deleted_count += 1
     
     return deleted_count
