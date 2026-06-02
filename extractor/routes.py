@@ -81,6 +81,11 @@ def extract_reddit():
             _result_counter += 1
             task_id = f"reddit_{_result_counter}"
             _extraction_results[task_id] = results
+            # Also store task_id in session for export
+            if 'extraction_task_ids' not in session:
+                session['extraction_task_ids'] = []
+            session['extraction_task_ids'].append(task_id)
+            session.modified = True
         
         return jsonify({
             'success': True,
@@ -125,6 +130,11 @@ def extract_youtube_comments():
             _result_counter += 1
             task_id = f"yt_comments_{_result_counter}"
             _extraction_results[task_id] = results
+            # Store task_id in session for export
+            if 'extraction_task_ids' not in session:
+                session['extraction_task_ids'] = []
+            session['extraction_task_ids'].append(task_id)
+            session.modified = True
         
         return jsonify({
             'success': True,
@@ -164,6 +174,11 @@ def extract_youtube_subtitles():
             _result_counter += 1
             task_id = f"yt_subs_{_result_counter}"
             _extraction_results[task_id] = results
+            # Store task_id in session for export
+            if 'extraction_task_ids' not in session:
+                session['extraction_task_ids'] = []
+            session['extraction_task_ids'].append(task_id)
+            session.modified = True
         
         return jsonify({
             'success': True,
@@ -217,6 +232,11 @@ def extract_document():
             _result_counter += 1
             task_id = f"doc_{_result_counter}"
             _extraction_results[task_id] = results
+            # Store task_id in session for export
+            if 'extraction_task_ids' not in session:
+                session['extraction_task_ids'] = []
+            session['extraction_task_ids'].append(task_id)
+            session.modified = True
         
         return jsonify({
             'success': True,

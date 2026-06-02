@@ -263,7 +263,10 @@
             showProgress('Extracting Reddit comments...');
             payload = JSON.stringify({url_or_id: url});
             fetchOpts = { method: 'POST', headers: {'Content-Type': 'application/json'}, body: payload };
-            fetch('/extractor/reddit', fetchOpts).then(function(r) { return r.json(); }).then(handleResponse).catch(handleError);
+            fetch('/extractor/reddit', fetchOpts)
+                .then(function(r) { return r.json(); })
+                .then(handleResponse)
+                .catch(handleError);
 
         } else if (type === 'youtube') {
             url = document.getElementById('yt-url').value.trim();
@@ -272,7 +275,10 @@
             showProgress('Fetching YouTube comments...');
             payload = JSON.stringify({url: url, max_results: max});
             fetchOpts = { method: 'POST', headers: {'Content-Type': 'application/json'}, body: payload };
-            fetch('/extractor/youtube/comments', fetchOpts).then(function(r) { return r.json(); }).then(handleResponse).catch(handleError);
+            fetch('/extractor/youtube/comments', fetchOpts)
+                .then(function(r) { return r.json(); })
+                .then(handleResponse)
+                .catch(handleError);
 
         } else if (type === 'subtitles') {
             url = document.getElementById('subs-url').value.trim();
@@ -281,7 +287,10 @@
             showProgress('Downloading subtitles...');
             payload = JSON.stringify({url: url, language: lang});
             fetchOpts = { method: 'POST', headers: {'Content-Type': 'application/json'}, body: payload };
-            fetch('/extractor/youtube/subtitles', fetchOpts).then(function(r) { return r.json(); }).then(handleResponse).catch(handleError);
+            fetch('/extractor/youtube/subtitles', fetchOpts)
+                .then(function(r) { return r.json(); })
+                .then(handleResponse)
+                .catch(handleError);
 
         } else if (type === 'documents') {
             var files = document.getElementById('doc-files').files;
@@ -289,15 +298,31 @@
             showProgress('Extracting text from documents...');
             var formData = new FormData();
             for (var i = 0; i < files.length; i++) { formData.append('files', files[i]); }
-            fetch('/extractor/document', { method: 'POST', body: formData }).then(function(r) { return r.json(); }).then(handleResponse).catch(handleError);
+            fetch('/extractor/document', { method: 'POST', body: formData })
+                .then(function(r) { return r.json(); })
+                .then(handleResponse)
+                .catch(handleError);
         }
     }
 
     function handleResponse(data) {
         hideProgress();
+        console.log('Extraction response:', data);
+        
         if (data.success) {
             activeTaskId = data.task_id;
-            renderResults(data.data);
+            console.log('Task ID stored:', activeTaskId);
+            console.log('Data received:', data.data);
+            
+            // Make sure data is an array
+            var dataArray = Array.isArray(data.data) ? data.data : [];
+            
+            if (dataArray.length === 0) {
+                document.getElementById('results-area').innerHTML = '<p class="text-slate-500 text-center py-8">No data extracted.</p>';
+            } else {
+                renderResults(dataArray);
+            }
+            
             alert('Extracted ' + data.count + ' items successfully!');
         } else {
             alert('Error: ' + (data.error || 'Unknown error'));
@@ -306,11 +331,13 @@
 
     function handleError(err) {
         hideProgress();
+        console.error('Request failed:', err);
         alert('Request failed: ' + err);
     }
 
     // Export
     function doExport(format) {
+        console.log('Exporting format:', format, 'with task_id:', activeTaskId);
         if (!activeTaskId) { alert('No results to export. Extract data first.'); return; }
         window.location.href = '/extractor/export/' + format + '/' + activeTaskId;
     }
