@@ -4,6 +4,8 @@ Main entry point that registers all blueprints.
 """
 import os
 from flask import Flask, render_template, redirect, url_for, session
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from config import Config
 
@@ -19,6 +21,14 @@ def create_app(config_class=Config):
     """Application factory for creating Flask app."""
     app = Flask(__name__)
     app.config.from_object(config_class)
+    
+    # Initialize rate limiter
+    limiter = Limiter(
+        app=app,
+        key_func=get_remote_address,
+        default_limits=["200 per day", "50 per hour"],
+        storage_uri="memory://"
+    )
     
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')

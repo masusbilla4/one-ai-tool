@@ -163,13 +163,8 @@ def shop():
                 marked = mark_sentences_as_used(cart)
                 session['cart'] = []
                 flash(f'Checkout complete! {marked} sentences marked as used.', 'success')
-                # Generate CSV for download
-                session['export_csv'] = True
     
-    # Redirect back to dashboard with flash message and section parameter
-    if request.method == 'POST':
-        return redirect(url_for('main_dashboard') + '#shop')
-    
+    # Redirect back to dashboard with shop section hash
     return redirect(url_for('main_dashboard') + '#shop')
 
 

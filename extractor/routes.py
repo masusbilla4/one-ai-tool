@@ -17,6 +17,9 @@ from auth.routes import login_required
 from config import Config
 from settings.routes import get_reddit_credentials, get_youtube_api_key
 
+# Use Config.UPLOADS_DIR for consistent upload folder path
+UPLOAD_FOLDER = Config.UPLOADS_DIR
+
 extractor_bp = Blueprint('extractor', __name__, template_folder='templates')
 
 # Store extraction results in memory (per session) - thread-safe
@@ -187,8 +190,8 @@ def extract_document():
     if not files:
         return jsonify({'error': 'No files selected'}), 400
     
-    # Save uploaded files
-    upload_folder = current_app.config.get('UPLOAD_FOLDER', '/tmp')
+    # Save uploaded files to configured upload folder
+    upload_folder = UPLOAD_FOLDER
     os.makedirs(upload_folder, exist_ok=True)
     
     file_paths = []

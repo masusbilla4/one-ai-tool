@@ -190,18 +190,39 @@ def get_database_info() -> dict:
 
 
 def count_duplicates() -> int:
-    """Count total duplicate sentences across both tables."""
+    """
+    Count total duplicate sentences across both tables.
+    
+    OPTIMIZED: Uses minimal column fetch and early exit for empty tables
+    """
     client = get_supabase_client()
     duplicates = 0
     
     for table in [TABLE_FIL, TABLE_ENG]:
+        # Fetch only sentence column (minimal data transfer)
         result = client.table(table).select("sentence").execute()
-        sentences = [r['sentence'] for r in result.data]
-        dup_counts = {}
-        for s in sentences:
-            dup_counts[s] = dup_counts.get(s, 0) + 1
-        for s, c in dup_counts.items():
-            if c > 1:
-                duplicates += c - 1
+        
+        if not result.data:
+            continue
+            
+        # Count duplicates using set-based approach
+        seen = set()
+        duplicates_set = set()
+        for row in result.data:
+            sentence = row.get('sentence')
+            if sentence in seen:
+                duplicates_set.add(sentence)
+            else:
+                seen.add(sentence)
+        
+        # Count total duplicate instances (not just unique duplicate sentences)
+        if duplicates_set:
+            sentence_counts = {}
+            for row in result.data:
+                sentence = row.get('sentence')
+                sentence_counts[sentence] = sentence_counts.get(sentence, 0) + 1
+            for s, c in sentence_counts.items():
+                if c > 1:
+                    duplicates += c - 1
     
     return duplicates

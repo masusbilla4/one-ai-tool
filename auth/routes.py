@@ -3,11 +3,20 @@ Authentication routes - Login, Register, Logout, User Management.
 """
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from functools import wraps
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 from .models import (
     authenticate_user, create_user, get_all_users, 
     delete_user, update_user_password, set_user_admin,
     get_user_by_id
+)
+
+# Rate limiter setup
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
 )
 
 auth_bp = Blueprint('auth', __name__, template_folder='../templates')
@@ -37,6 +46,7 @@ def admin_required(f):
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")
 def login():
     """Login page and handler."""
     if request.method == 'POST':

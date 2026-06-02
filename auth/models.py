@@ -3,10 +3,10 @@ Authentication models and Supabase auth helpers.
 """
 import os
 import json
-import hashlib
 from datetime import datetime
 
 from config import Config
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Lazy Supabase client initialization
 _supabase_client = None
@@ -33,8 +33,13 @@ def get_supabase_client():
 
 
 def hash_password(password: str) -> str:
-    """Hash password using SHA-256."""
-    return hashlib.sha256(password.encode()).hexdigest()
+    """Hash password using werkzeug's secure method."""
+    return generate_password_hash(password, method='pbkdf2:sha256', salt_length=16)
+
+
+def verify_password(password_hash: str, password: str) -> bool:
+    """Verify password against hash using werkzeug's secure method."""
+    return check_password_hash(password_hash, password)
 
 
 def get_user_by_username(username: str) -> dict:
@@ -103,7 +108,7 @@ def authenticate_user(username: str, password: str) -> tuple:
         if not user:
             return False, None, "Invalid username or password"
         
-        if user.get('password_hash') == hash_password(password):
+        if verify_password(user.get('password_hash', ''), password):
             return True, user, "Login successful"
         return False, None, "Invalid username or password"
     except Exception as e:

@@ -130,15 +130,20 @@ def run_alignment(true_lines, asr_lines):
 
         # Convert ops to aligned_pairs format
         aligned_pairs = []
+        last_sid = 0  # Track last sentence ID for insertions
         for op, ri, hi in ops:
             if op == "match":
                 aligned_pairs.append((ref_disp[ri], asr_disp[hi], 'match', ref_sid[ri]))
+                last_sid = ref_sid[ri]
             elif op == "sub":
                 aligned_pairs.append((ref_disp[ri], asr_disp[hi], 'sub', ref_sid[ri]))
+                last_sid = ref_sid[ri]
             elif op == "del":
                 aligned_pairs.append((ref_disp[ri], None, 'del', ref_sid[ri]))
+                last_sid = ref_sid[ri]
             elif op == "ins":
-                aligned_pairs.append((None, asr_disp[hi], 'ins', 0))
+                # Use last_sid for inserted words to maintain proper context
+                aligned_pairs.append((None, asr_disp[hi], 'ins', last_sid))
 
     # Build per-sentence results
     separated_rows = [[] for _ in true_lines]
