@@ -793,17 +793,10 @@
         var extractorTaskId = null;
         var extractorProgressTimer = null;
         
-        function setExtractorProgress(pct, text) {
-            document.getElementById('extractor-progress').style.width = pct + '%';
-            if (text) document.getElementById('extractor-status').textContent = text;
-        }
-        
         function clearExtractorResults() {
             extractorTaskId = null;
             document.getElementById('extractor-results').classList.add('hidden');
             document.getElementById('extractor-output').innerHTML = '';
-            document.getElementById('extractor-progress').style.width = '0%';
-            document.getElementById('extractor-status').textContent = 'Ready';
             // Clear input fields
             document.getElementById('reddit-url').value = '';
             document.getElementById('yt-comments-url').value = '';
@@ -813,7 +806,6 @@
         }
         
         function showExtractorResults(data) {
-            setExtractorProgress(100, '✅ Complete');
             document.getElementById('extractor-results').classList.remove('hidden');
             
             if (data.success && data.task_id) {
