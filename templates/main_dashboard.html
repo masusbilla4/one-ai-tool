@@ -418,6 +418,18 @@
                             </button>
                         </div>
                     </div>
+                    <!-- Loading Overlay (shown during extraction) -->
+                    <div id="extractor-loading" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+                        <div class="bg-slate-800 border-2 border-indigo-500 rounded-xl p-8 text-center max-w-md mx-4">
+                            <i class="fas fa-spinner fa-spin text-5xl text-indigo-400 mb-4"></i>
+                            <h3 class="text-xl font-bold text-white mb-2" id="extractor-loading-title">Extracting Data...</h3>
+                            <div class="w-full h-3 bg-slate-700 rounded-full overflow-hidden mb-3">
+                                <div id="extractor-loading-progress" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all" style="width: 0%"></div>
+                            </div>
+                            <p id="extractor-loading-status" class="text-sm text-slate-400">Please wait, do not close this page...</p>
+                        </div>
+                    </div>
+                    
                     <!-- Results Area -->
                     <div id="extractor-results" class="mt-6 hidden">
                         <div class="flex justify-between items-center mb-3">
@@ -425,13 +437,6 @@
                             <button onclick="clearExtractorResults()" class="bg-slate-600 hover:bg-slate-500 text-white px-3 py-1.5 rounded-lg transition text-sm">
                                 <i class="fas fa-trash mr-1"></i>Clear
                             </button>
-                        </div>
-                        <!-- Progress Bar -->
-                        <div class="mb-3">
-                            <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
-                                <div id="extractor-progress" class="h-full bg-indigo-500 transition-all" style="width: 0%"></div>
-                            </div>
-                            <p id="extractor-status" class="text-xs text-slate-400 mt-1">Ready</p>
                         </div>
                         <div class="border border-slate-600 rounded-lg p-4 bg-slate-800 max-h-96 overflow-y-auto">
                             <div id="extractor-output" class="text-sm text-slate-300"></div>
@@ -696,46 +701,94 @@
             } catch (e) { console.error('Failed to load stats:', e); }
         }
 
+        // Extractor Loading Overlay Functions
+        function showExtractorLoading(title) {
+            document.getElementById('extractor-loading').classList.remove('hidden');
+            document.getElementById('extractor-loading-title').textContent = title || 'Extracting Data...';
+            document.getElementById('extractor-loading-progress').style.width = '0%';
+            document.getElementById('extractor-loading-status').textContent = 'Starting...';
+            
+            // Animate progress bar
+            let pct = 0;
+            if (extractorProgressTimer) clearInterval(extractorProgressTimer);
+            extractorProgressTimer = setInterval(function() {
+                if (pct < 90) {
+                    pct += Math.random() * 10;
+                    document.getElementById('extractor-loading-progress').style.width = Math.min(pct, 90) + '%';
+                    document.getElementById('extractor-loading-status').textContent = 'Extracting... please wait...';
+                }
+            }, 500);
+        }
+        
+        function hideExtractorLoading() {
+            if (extractorProgressTimer) clearInterval(extractorProgressTimer);
+            document.getElementById('extractor-loading-progress').style.width = '100%';
+            document.getElementById('extractor-loading-status').textContent = 'Complete!';
+            setTimeout(function() {
+                document.getElementById('extractor-loading').classList.add('hidden');
+            }, 500);
+        }
+        
         // Extractor Functions
         async function extractReddit() {
             const url = document.getElementById('reddit-url').value;
             if (!url) { alert('Please enter a Reddit URL'); return; }
+            showExtractorLoading('Extracting Reddit Comments...');
             try {
                 const res = await fetch('/extractor/reddit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url_or_id: url }) });
                 const data = await res.json();
+                hideExtractorLoading();
                 showExtractorResults(data);
-            } catch (e) { alert('Error: ' + e.message); }
+            } catch (e) {
+                hideExtractorLoading();
+                alert('Error: ' + e.message);
+            }
         }
         async function extractYoutubeComments() {
             const url = document.getElementById('yt-comments-url').value;
             const maxResults = document.getElementById('yt-comments-count').value;
             if (!url) { alert('Please enter a YouTube URL'); return; }
+            showExtractorLoading('Extracting YouTube Comments...');
             try {
                 const res = await fetch('/extractor/youtube/comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url, max_results: parseInt(maxResults) }) });
                 const data = await res.json();
+                hideExtractorLoading();
                 showExtractorResults(data);
-            } catch (e) { alert('Error: ' + e.message); }
+            } catch (e) {
+                hideExtractorLoading();
+                alert('Error: ' + e.message);
+            }
         }
         async function extractYoutubeSubs() {
             const url = document.getElementById('yt-subs-url').value;
             const lang = document.getElementById('yt-subs-lang').value;
             if (!url) { alert('Please enter a YouTube URL'); return; }
+            showExtractorLoading('Extracting YouTube Subtitles...');
             try {
                 const res = await fetch('/extractor/youtube/subtitles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url, language: lang }) });
                 const data = await res.json();
+                hideExtractorLoading();
                 showExtractorResults(data);
-            } catch (e) { alert('Error: ' + e.message); }
+            } catch (e) {
+                hideExtractorLoading();
+                alert('Error: ' + e.message);
+            }
         }
         async function extractDocument() {
             const files = document.getElementById('doc-files').files;
             if (!files.length) { alert('Please select files'); return; }
             const formData = new FormData();
             for (let f of files) formData.append('files', f);
+            showExtractorLoading('Extracting Text from Documents...');
             try {
                 const res = await fetch('/extractor/document', { method: 'POST', body: formData });
                 const data = await res.json();
+                hideExtractorLoading();
                 showExtractorResults(data);
-            } catch (e) { alert('Error: ' + e.message); }
+            } catch (e) {
+                hideExtractorLoading();
+                alert('Error: ' + e.message);
+            }
         }
         var extractorTaskId = null;
         var extractorProgressTimer = null;
