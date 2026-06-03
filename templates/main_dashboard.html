@@ -420,9 +420,21 @@
                     </div>
                     <!-- Results Area -->
                     <div id="extractor-results" class="mt-6 hidden">
-                        <h3 class="font-semibold text-lg mb-3">Extraction Results</h3>
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="font-semibold text-lg">Extraction Results</h3>
+                            <button onclick="clearExtractorResults()" class="bg-slate-600 hover:bg-slate-500 text-white px-3 py-1.5 rounded-lg transition text-sm">
+                                <i class="fas fa-trash mr-1"></i>Clear
+                            </button>
+                        </div>
+                        <!-- Progress Bar -->
+                        <div class="mb-3">
+                            <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div id="extractor-progress" class="h-full bg-indigo-500 transition-all" style="width: 0%"></div>
+                            </div>
+                            <p id="extractor-status" class="text-xs text-slate-400 mt-1">Ready</p>
+                        </div>
                         <div class="border border-slate-600 rounded-lg p-4 bg-slate-800 max-h-96 overflow-y-auto">
-                            <pre id="extractor-output" class="text-sm whitespace-pre-wrap text-slate-300"></pre>
+                            <div id="extractor-output" class="text-sm text-slate-300"></div>
                         </div>
                         <div class="flex gap-3 mt-4">
                             <button onclick="exportExtractorCSV()" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg transition">
@@ -726,7 +738,29 @@
             } catch (e) { alert('Error: ' + e.message); }
         }
         var extractorTaskId = null;
+        var extractorProgressTimer = null;
+        
+        function setExtractorProgress(pct, text) {
+            document.getElementById('extractor-progress').style.width = pct + '%';
+            if (text) document.getElementById('extractor-status').textContent = text;
+        }
+        
+        function clearExtractorResults() {
+            extractorTaskId = null;
+            document.getElementById('extractor-results').classList.add('hidden');
+            document.getElementById('extractor-output').innerHTML = '';
+            document.getElementById('extractor-progress').style.width = '0%';
+            document.getElementById('extractor-status').textContent = 'Ready';
+            // Clear input fields
+            document.getElementById('reddit-url').value = '';
+            document.getElementById('yt-comments-url').value = '';
+            document.getElementById('yt-comments-count').value = '100';
+            document.getElementById('yt-subs-url').value = '';
+            document.getElementById('doc-files').value = '';
+        }
+        
         function showExtractorResults(data) {
+            setExtractorProgress(100, '✅ Complete');
             document.getElementById('extractor-results').classList.remove('hidden');
             
             if (data.success && data.task_id) {
