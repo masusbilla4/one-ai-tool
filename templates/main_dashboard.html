@@ -725,12 +725,74 @@
                 showExtractorResults(data);
             } catch (e) { alert('Error: ' + e.message); }
         }
+        var extractorTaskId = null;
         function showExtractorResults(data) {
             document.getElementById('extractor-results').classList.remove('hidden');
-            document.getElementById('extractor-output').textContent = JSON.stringify(data.data, null, 2);
+            
+            if (data.success && data.task_id) {
+                extractorTaskId = data.task_id;
+            }
+            
+            // Display as TABLE instead of JSON
+            var dataArray = data.data || [];
+            if (!Array.isArray(dataArray)) {
+                dataArray = data.data?.results || data.data?.items || [data.data];
+            }
+            
+            if (!dataArray || dataArray.length === 0) {
+                document.getElementById('extractor-output').innerHTML = '<p class="text-slate-400 text-center py-4">No data extracted.</p>';
+            } else {
+                // Build HTML table
+                var html = '<div class="overflow-x-auto"><table class="w-full text-sm">';
+                html += '<thead class="bg-indigo-600 text-white"><tr>';
+                html += '<th class="py-2 px-3 text-left">#</th>';
+                html += '<th class="py-2 px-3 text-left">Sentence</th>';
+                html += '<th class="py-2 px-3 text-center">Words</th>';
+                html += '<th class="py-2 px-3 text-left">Source</th>';
+                html += '</tr></thead><tbody>';
+                
+                var showCount = Math.min(dataArray.length, 100);
+                for (var i = 0; i < showCount; i++) {
+                    var item = dataArray[i];
+                    var sentence = (item.sentence || '').substring(0, 150);
+                    var words = item.word_count || 0;
+                    var source = item.source_type || '';
+                    html += '<tr class="' + (i % 2 === 0 ? 'bg-slate-800' : '') + '">';
+                    html += '<td class="py-2 px-3">' + (i + 1) + '</td>';
+                    html += '<td class="py-2 px-3">' + escapeHtml(sentence) + (sentence.length < (item.sentence || '').length ? '...' : '') + '</td>';
+                    html += '<td class="py-2 px-3 text-center">' + words + '</td>';
+                    html += '<td class="py-2 px-3">' + source + '</td>';
+                    html += '</tr>';
+                }
+                
+                if (dataArray.length > 100) {
+                    html += '<tr><td colspan="4" class="text-center py-3 text-slate-400">... and ' + (dataArray.length - 100) + ' more rows. Export to see all.</td></tr>';
+                }
+                
+                html += '</tbody></table></div>';
+                document.getElementById('extractor-output').innerHTML = html;
+            }
         }
-        function exportExtractorCSV() { window.open('/extractor/export/csv/latest'); }
-        function exportExtractorExcel() { window.open('/extractor/export/excel/latest'); }
+        function escapeHtml(text) {
+            if (!text) return '';
+            var div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        function exportExtractorCSV() { 
+            if (extractorTaskId) {
+                window.location.href = '/extractor/export/csv/' + extractorTaskId;
+            } else {
+                alert('Extract data first to get a task ID for export.');
+            }
+        }
+        function exportExtractorExcel() { 
+            if (extractorTaskId) {
+                window.location.href = '/extractor/export/excel/' + extractorTaskId;
+            } else {
+                alert('Extract data first to get a task ID for export.');
+            }
+        }
 
         // ASR Functions
         let asrAlignmentData = [], asrOverallWer = 0, asrOverallStats = {}, asrCurrentTaskId = null, asrSplitterFiles = [];
