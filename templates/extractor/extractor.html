@@ -164,6 +164,8 @@
         <div id="results-area">
             <p class="text-slate-500 text-center py-8">No results yet. Extract data to see results here.</p>
         </div>
+        <!-- Hidden debug area -->
+        <pre id="debug-area" style="display:none; background:#0f172a; color:#22c55e; padding:1rem; border-radius:8px; overflow:auto; max-height:300px; font-size:0.75rem;"></pre>
     </div>
 </div>
 
@@ -308,19 +310,36 @@
     function handleResponse(data) {
         hideProgress();
         console.log('Extraction response:', data);
+        console.log('Data type:', typeof data.data);
+        console.log('Is array?', Array.isArray(data.data));
         
         if (data.success) {
             activeTaskId = data.task_id;
             console.log('Task ID stored:', activeTaskId);
             console.log('Data received:', data.data);
             
-            // Make sure data is an array
-            var dataArray = Array.isArray(data.data) ? data.data : [];
+            // Make sure data is an array - handle nested structures
+            var dataArray = [];
+            if (Array.isArray(data.data)) {
+                dataArray = data.data;
+            } else if (data.data && typeof data.data === 'object') {
+                // Handle case where data might be wrapped
+                dataArray = data.data.results || data.data.items || [data.data];
+            }
+            
+            console.log('Final dataArray:', dataArray);
+            console.log('Array length:', dataArray.length);
             
             if (dataArray.length === 0) {
                 document.getElementById('results-area').innerHTML = '<p class="text-slate-500 text-center py-8">No data extracted.</p>';
             } else {
-                renderResults(dataArray);
+                try {
+                    renderResults(dataArray);
+                    console.log('renderResults called successfully');
+                } catch (e) {
+                    console.error('Error in renderResults:', e);
+                    document.getElementById('results-area').innerHTML = '<p class="text-red-500">Error displaying results: ' + e.message + '</p>';
+                }
             }
             
             alert('Extracted ' + data.count + ' items successfully!');
