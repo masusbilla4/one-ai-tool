@@ -38,8 +38,21 @@ def hash_password(password: str) -> str:
 
 
 def verify_password(password_hash: str, password: str) -> bool:
-    """Verify password against hash using werkzeug's secure method."""
-    return check_password_hash(password_hash, password)
+    """
+    Verify password against hash using werkzeug's secure method.
+    Falls back to SHA-256 for backward compatibility with old hashes.
+    """
+    # First try werkzeug's PBKDF2 method (new format)
+    if check_password_hash(password_hash, password):
+        return True
+    
+    # Fallback: Try old SHA-256 method for backward compatibility
+    import hashlib
+    old_hash = hashlib.sha256(password.encode()).hexdigest()
+    if password_hash == old_hash:
+        return True
+    
+    return False
 
 
 def get_user_by_username(username: str) -> dict:
