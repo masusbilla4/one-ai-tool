@@ -378,6 +378,26 @@
                                 <i class="fas fa-download mr-2"></i>Extract Comments
                             </button>
                         </div>
+                        <!-- Reddit Results -->
+                        <div id="reddit-results" class="mt-4 hidden">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-semibold text-white text-sm">Results</h4>
+                                <button onclick="clearExtractorResults('reddit')" class="text-slate-400 hover:text-white text-xs">
+                                    <i class="fas fa-trash mr-1"></i>Clear
+                                </button>
+                            </div>
+                            <div class="border border-slate-600 rounded-lg p-3 bg-slate-800 max-h-64 overflow-y-auto">
+                                <div id="reddit-output" class="text-sm text-slate-300"></div>
+                            </div>
+                            <div class="flex gap-2 mt-3">
+                                <button onclick="exportExtractorCSV('reddit')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded text-xs transition">
+                                    <i class="fas fa-file-csv mr-1"></i>CSV
+                                </button>
+                                <button onclick="exportExtractorExcel('reddit')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded text-xs transition">
+                                    <i class="fas fa-file-excel mr-1"></i>Excel
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <!-- YouTube Comments Tab -->
                     <div id="extractor-yt-comments" class="extractor-tab-content hidden">
@@ -388,6 +408,26 @@
                             <button onclick="extractYoutubeComments()" class="bg-red-600 hover:bg-red-500 text-white px-6 py-2 rounded-lg transition">
                                 <i class="fas fa-download mr-2"></i>Extract Comments
                             </button>
+                        </div>
+                        <!-- YouTube Comments Results -->
+                        <div id="yt-comments-results" class="mt-4 hidden">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-semibold text-white text-sm">Results</h4>
+                                <button onclick="clearExtractorResults('yt-comments')" class="text-slate-400 hover:text-white text-xs">
+                                    <i class="fas fa-trash mr-1"></i>Clear
+                                </button>
+                            </div>
+                            <div class="border border-slate-600 rounded-lg p-3 bg-slate-800 max-h-64 overflow-y-auto">
+                                <div id="yt-comments-output" class="text-sm text-slate-300"></div>
+                            </div>
+                            <div class="flex gap-2 mt-3">
+                                <button onclick="exportExtractorCSV('yt-comments')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded text-xs transition">
+                                    <i class="fas fa-file-csv mr-1"></i>CSV
+                                </button>
+                                <button onclick="exportExtractorExcel('yt-comments')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded text-xs transition">
+                                    <i class="fas fa-file-excel mr-1"></i>Excel
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <!-- YouTube Subtitles Tab -->
@@ -406,6 +446,26 @@
                                 <i class="fas fa-closed-captioning mr-2"></i>Extract Subtitles
                             </button>
                         </div>
+                        <!-- YouTube Subtitles Results -->
+                        <div id="yt-subs-results" class="mt-4 hidden">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-semibold text-white text-sm">Results</h4>
+                                <button onclick="clearExtractorResults('yt-subs')" class="text-slate-400 hover:text-white text-xs">
+                                    <i class="fas fa-trash mr-1"></i>Clear
+                                </button>
+                            </div>
+                            <div class="border border-slate-600 rounded-lg p-3 bg-slate-800 max-h-64 overflow-y-auto">
+                                <div id="yt-subs-output" class="text-sm text-slate-300"></div>
+                            </div>
+                            <div class="flex gap-2 mt-3">
+                                <button onclick="exportExtractorCSV('yt-subs')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded text-xs transition">
+                                    <i class="fas fa-file-csv mr-1"></i>CSV
+                                </button>
+                                <button onclick="exportExtractorExcel('yt-subs')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded text-xs transition">
+                                    <i class="fas fa-file-excel mr-1"></i>Excel
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <!-- Document Tab -->
                     <div id="extractor-document" class="extractor-tab-content hidden">
@@ -417,6 +477,26 @@
                                 <i class="fas fa-upload mr-2"></i>Upload & Extract
                             </button>
                         </div>
+                        <!-- Document Results -->
+                        <div id="document-results" class="mt-4 hidden">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-semibold text-white text-sm">Results</h4>
+                                <button onclick="clearExtractorResults('document')" class="text-slate-400 hover:text-white text-xs">
+                                    <i class="fas fa-trash mr-1"></i>Clear
+                                </button>
+                            </div>
+                            <div class="border border-slate-600 rounded-lg p-3 bg-slate-800 max-h-64 overflow-y-auto">
+                                <div id="document-output" class="text-sm text-slate-300"></div>
+                            </div>
+                            <div class="flex gap-2 mt-3">
+                                <button onclick="exportExtractorCSV('document')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded text-xs transition">
+                                    <i class="fas fa-file-csv mr-1"></i>CSV
+                                </button>
+                                <button onclick="exportExtractorExcel('document')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded text-xs transition">
+                                    <i class="fas fa-file-excel mr-1"></i>Excel
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <!-- Loading Overlay (shown during extraction) -->
                     <div id="extractor-loading" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
@@ -427,27 +507,6 @@
                                 <div id="extractor-loading-progress" class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all" style="width: 0%"></div>
                             </div>
                             <p id="extractor-loading-status" class="text-sm text-slate-400">Please wait, do not close this page...</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Results Area -->
-                    <div id="extractor-results" class="mt-6 hidden">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-semibold text-lg">Extraction Results</h3>
-                            <button onclick="clearExtractorResults()" class="bg-slate-600 hover:bg-slate-500 text-white px-3 py-1.5 rounded-lg transition text-sm">
-                                <i class="fas fa-trash mr-1"></i>Clear
-                            </button>
-                        </div>
-                        <div class="border border-slate-600 rounded-lg p-4 bg-slate-800 max-h-96 overflow-y-auto">
-                            <div id="extractor-output" class="text-sm text-slate-300"></div>
-                        </div>
-                        <div class="flex gap-3 mt-4">
-                            <button onclick="exportExtractorCSV()" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg transition">
-                                <i class="fas fa-file-csv mr-2"></i>Export CSV
-                            </button>
-                            <button onclick="exportExtractorExcel()" class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg transition">
-                                <i class="fas fa-file-excel mr-2"></i>Export Excel
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -733,6 +792,7 @@
         async function extractReddit() {
             const url = document.getElementById('reddit-url').value;
             if (!url) { alert('Please enter a Reddit URL'); return; }
+            currentExtractorType = 'reddit';
             showExtractorLoading('Extracting Reddit Comments...');
             try {
                 const res = await fetch('/extractor/reddit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url_or_id: url }) });
@@ -748,6 +808,7 @@
             const url = document.getElementById('yt-comments-url').value;
             const maxResults = document.getElementById('yt-comments-count').value;
             if (!url) { alert('Please enter a YouTube URL'); return; }
+            currentExtractorType = 'yt-comments';
             showExtractorLoading('Extracting YouTube Comments...');
             try {
                 const res = await fetch('/extractor/youtube/comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url, max_results: parseInt(maxResults) }) });
@@ -763,6 +824,7 @@
             const url = document.getElementById('yt-subs-url').value;
             const lang = document.getElementById('yt-subs-lang').value;
             if (!url) { alert('Please enter a YouTube URL'); return; }
+            currentExtractorType = 'yt-subs';
             showExtractorLoading('Extracting YouTube Subtitles...');
             try {
                 const res = await fetch('/extractor/youtube/subtitles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: url, language: lang }) });
@@ -779,6 +841,7 @@
             if (!files.length) { alert('Please select files'); return; }
             const formData = new FormData();
             for (let f of files) formData.append('files', f);
+            currentExtractorType = 'document';
             showExtractorLoading('Extracting Text from Documents...');
             try {
                 const res = await fetch('/extractor/document', { method: 'POST', body: formData });
@@ -790,26 +853,48 @@
                 alert('Error: ' + e.message);
             }
         }
-        var extractorTaskId = null;
+        // Store task IDs per extractor type
+        var extractorTaskIds = {
+            reddit: null,
+            'yt-comments': null,
+            'yt-subs': null,
+            document: null
+        };
         var extractorProgressTimer = null;
+        var currentExtractorType = null;
         
-        function clearExtractorResults() {
-            extractorTaskId = null;
-            document.getElementById('extractor-results').classList.add('hidden');
-            document.getElementById('extractor-output').innerHTML = '';
-            // Clear input fields
-            document.getElementById('reddit-url').value = '';
-            document.getElementById('yt-comments-url').value = '';
-            document.getElementById('yt-comments-count').value = '100';
-            document.getElementById('yt-subs-url').value = '';
-            document.getElementById('doc-files').value = '';
+        function clearExtractorResults(type) {
+            if (type) {
+                // Clear specific tab results
+                extractorTaskIds[type] = null;
+                var resultsDiv = document.getElementById(type + '-results');
+                var outputDiv = document.getElementById(type + '-output');
+                if (resultsDiv) resultsDiv.classList.add('hidden');
+                if (outputDiv) outputDiv.innerHTML = '';
+            } else {
+                // Clear all tabs
+                extractorTaskIds = { reddit: null, 'yt-comments': null, 'yt-subs': null, document: null };
+                ['reddit', 'yt-comments', 'yt-subs', 'document'].forEach(function(t) {
+                    var resultsDiv = document.getElementById(t + '-results');
+                    var outputDiv = document.getElementById(t + '-output');
+                    if (resultsDiv) resultsDiv.classList.add('hidden');
+                    if (outputDiv) outputDiv.innerHTML = '';
+                });
+            }
         }
         
         function showExtractorResults(data) {
-            document.getElementById('extractor-results').classList.remove('hidden');
+            if (!currentExtractorType) return;
+            
+            var resultsDiv = document.getElementById(currentExtractorType + '-results');
+            var outputDiv = document.getElementById(currentExtractorType + '-output');
+            
+            if (!resultsDiv || !outputDiv) return;
+            
+            resultsDiv.classList.remove('hidden');
             
             if (data.success && data.task_id) {
-                extractorTaskId = data.task_id;
+                extractorTaskIds[currentExtractorType] = data.task_id;
             }
             
             // Display as TABLE instead of JSON
@@ -819,7 +904,7 @@
             }
             
             if (!dataArray || dataArray.length === 0) {
-                document.getElementById('extractor-output').innerHTML = '<p class="text-slate-400 text-center py-4">No data extracted.</p>';
+                outputDiv.innerHTML = '<p class="text-slate-400 text-center py-4">No data extracted.</p>';
             } else {
                 // Build HTML table
                 var html = '<div class="overflow-x-auto"><table class="w-full text-sm">';
@@ -849,7 +934,7 @@
                 }
                 
                 html += '</tbody></table></div>';
-                document.getElementById('extractor-output').innerHTML = html;
+                outputDiv.innerHTML = html;
             }
         }
         function escapeHtml(text) {
@@ -858,16 +943,18 @@
             div.textContent = text;
             return div.innerHTML;
         }
-        function exportExtractorCSV() { 
-            if (extractorTaskId) {
-                window.location.href = '/extractor/export/csv/' + extractorTaskId;
+        function exportExtractorCSV(type) { 
+            var taskId = extractorTaskIds[type];
+            if (taskId) {
+                window.location.href = '/extractor/export/csv/' + taskId;
             } else {
                 alert('Extract data first to get a task ID for export.');
             }
         }
-        function exportExtractorExcel() { 
-            if (extractorTaskId) {
-                window.location.href = '/extractor/export/excel/' + extractorTaskId;
+        function exportExtractorExcel(type) { 
+            var taskId = extractorTaskIds[type];
+            if (taskId) {
+                window.location.href = '/extractor/export/excel/' + taskId;
             } else {
                 alert('Extract data first to get a task ID for export.');
             }
