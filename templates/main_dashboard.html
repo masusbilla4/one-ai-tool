@@ -390,6 +390,9 @@
                                 <div id="reddit-output" class="text-sm text-slate-300"></div>
                             </div>
                             <div class="flex gap-2 mt-3">
+                                <button onclick="copyExtractorToClipboard('reddit')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs transition">
+                                    <i class="fas fa-copy mr-1"></i>Copy
+                                </button>
                                 <button onclick="exportExtractorCSV('reddit')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded text-xs transition">
                                     <i class="fas fa-file-csv mr-1"></i>CSV
                                 </button>
@@ -421,6 +424,9 @@
                                 <div id="yt-comments-output" class="text-sm text-slate-300"></div>
                             </div>
                             <div class="flex gap-2 mt-3">
+                                <button onclick="copyExtractorToClipboard('yt-comments')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs transition">
+                                    <i class="fas fa-copy mr-1"></i>Copy
+                                </button>
                                 <button onclick="exportExtractorCSV('yt-comments')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded text-xs transition">
                                     <i class="fas fa-file-csv mr-1"></i>CSV
                                 </button>
@@ -458,6 +464,9 @@
                                 <div id="yt-subs-output" class="text-sm text-slate-300"></div>
                             </div>
                             <div class="flex gap-2 mt-3">
+                                <button onclick="copyExtractorToClipboard('yt-subs')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs transition">
+                                    <i class="fas fa-copy mr-1"></i>Copy
+                                </button>
                                 <button onclick="exportExtractorCSV('yt-subs')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded text-xs transition">
                                     <i class="fas fa-file-csv mr-1"></i>CSV
                                 </button>
@@ -489,6 +498,9 @@
                                 <div id="document-output" class="text-sm text-slate-300"></div>
                             </div>
                             <div class="flex gap-2 mt-3">
+                                <button onclick="copyExtractorToClipboard('document')" class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded text-xs transition">
+                                    <i class="fas fa-copy mr-1"></i>Copy
+                                </button>
                                 <button onclick="exportExtractorCSV('document')" class="bg-green-600 hover:bg-green-500 text-white px-3 py-1.5 rounded text-xs transition">
                                     <i class="fas fa-file-csv mr-1"></i>CSV
                                 </button>
@@ -958,6 +970,59 @@
             } else {
                 alert('Extract data first to get a task ID for export.');
             }
+        }
+        
+        // Copy table to clipboard (TSV format for Excel paste)
+        function copyExtractorToClipboard(type) {
+            var taskId = extractorTaskIds[type];
+            if (!taskId) {
+                alert('Extract data first.');
+                return;
+            }
+            
+            var outputDiv = document.getElementById(type + '-output');
+            if (!outputDiv) return;
+            
+            var table = outputDiv.querySelector('table');
+            if (!table) {
+                alert('No table data to copy.');
+                return;
+            }
+            
+            // Convert table to TSV (Tab-Separated Values) format for Excel
+            var rows = table.querySelectorAll('tr');
+            var tsvData = [];
+            
+            for (var i = 0; i < rows.length; i++) {
+                var cells = rows[i].querySelectorAll('th, td');
+                var rowData = [];
+                for (var j = 0; j < cells.length; j++) {
+                    // Get text content and clean it
+                    var cellText = cells[j].textContent.replace(/\t/g, ' ').replace(/\n/g, ' ').replace(/\r/g, ' ').trim();
+                    rowData.push(cellText);
+                }
+                tsvData.push(rowData.join('\t'));
+            }
+            
+            var tsvString = tsvData.join('\n');
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(tsvString).then(function() {
+                alert('Table copied to clipboard! You can now paste it into Excel (Ctrl+V).');
+            }).catch(function(err) {
+                // Fallback for older browsers
+                var textArea = document.createElement('textarea');
+                textArea.value = tsvString;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Table copied to clipboard! You can now paste it into Excel (Ctrl+V).');
+                } catch (err) {
+                    alert('Failed to copy. Please try exporting to Excel instead.');
+                }
+                document.body.removeChild(textArea);
+            });
         }
 
         // ASR Functions
