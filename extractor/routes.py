@@ -149,6 +149,39 @@ def extract_youtube_comments():
 
 # ========== YOUTUBE SUBTITLES ==========
 
+@extractor_bp.route('/youtube/subtitles-languages', methods=['POST'])
+@login_required
+def get_youtube_subtitle_languages():
+    """Get available subtitle languages for a YouTube video."""
+    data = request.json
+    url = data.get('url', '')
+    
+    if not url:
+        return jsonify({'error': 'YouTube URL is required', 'manual': [], 'auto': []}), 400
+    
+    extractor = YouTubeSubtitleExtractor()
+    
+    try:
+        video_id = extractor.extract_video_id(url)
+        if not video_id:
+            return jsonify({'error': 'Invalid YouTube URL', 'manual': [], 'auto': []}), 400
+        
+        # Get available subtitles
+        subtitles_info = extractor.get_available_subtitles(video_id)
+        
+        return jsonify({
+            'success': True,
+            'video_id': video_id,
+            'manual': subtitles_info.get('manual', []),
+            'auto': subtitles_info.get('auto', []),
+            'has_manual': len(subtitles_info.get('manual', [])) > 0,
+            'has_auto': len(subtitles_info.get('auto', [])) > 0,
+        })
+    except Exception as e:
+        print(f"YouTube subtitle languages error: {e}")
+        return jsonify({'error': str(e), 'manual': [], 'auto': []}), 500
+
+
 @extractor_bp.route('/youtube/subtitles', methods=['POST'])
 @login_required
 def extract_youtube_subtitles():

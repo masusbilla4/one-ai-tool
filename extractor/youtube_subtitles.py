@@ -43,6 +43,40 @@ class YouTubeSubtitleExtractor:
                 return match.group(1)
         return None
     
+    def get_available_subtitles(self, video_id: str) -> Dict[str, Any]:
+        """
+        Get list of available subtitles (manual and auto-generated) for a video.
+        Returns: dict with 'manual' and 'auto' lists of language codes
+        """
+        if not YT_DLP_AVAILABLE:
+            return {'manual': [], 'auto': [], 'error': None}
+        
+        try:
+            ydl_opts = {
+                'quiet': True,
+                'no_warnings': True,
+                'skip_download': True,
+                'no_check_certificate': True,
+            }
+            
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(f"https://youtube.com/watch?v={video_id}", download=False)
+                
+                result = {'manual': [], 'auto': [], 'error': None}
+                
+                # Get manual subtitles
+                if 'subtitles' in info and info['subtitles']:
+                    result['manual'] = list(info['subtitles'].keys())
+                
+                # Get auto-generated subtitles
+                if 'automatic_captions' in info and info['automatic_captions']:
+                    result['auto'] = list(info['automatic_captions'].keys())
+                
+                return result
+                
+        except Exception as e:
+            return {'manual': [], 'auto': [], 'error': str(e)}
+    
     def download_and_parse_vtt(self, video_id: str, language: str = 'en', include_auto: bool = True) -> List[Dict[str, Any]]:
         """
         Download and parse YouTube subtitles.
@@ -60,7 +94,7 @@ class YouTubeSubtitleExtractor:
                 'quiet': True,
                 'no_warnings': True,
                 'writesubtitles': True,
-                'writeautomaticsub': include_auto,
+                'writeautomaticsub': True,  # Always enable auto subtitles as fallback
                 'subtitleslangs': [language],
                 'skip_download': True,
                 'subtitlesformat': 'vtt',
@@ -71,12 +105,26 @@ class YouTubeSubtitleExtractor:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([f"https://youtube.com/watch?v={video_id}"])
             
-            # Find downloaded VTT file
+            # Find downloaded VTT file - try multiple patterns
             vtt_path = None
-            for file in os.listdir(self.subtitles_dir):
-                if video_id in file and file.endswith('.vtt'):
-                    vtt_path = os.path.join(self.subtitles_dir, file)
+            priority_patterns = [
+                f"{video_id}.{language}.vtt",  # Exact language match
+                f"{video_id}.{language.split('-')[0]}.vtt",  # Language code without region
+            ]
+            
+            # First try exact matches
+            for pattern in priority_patterns:
+                potential_path = os.path.join(self.subtitles_dir, pattern)
+                if os.path.exists(potential_path):
+                    vtt_path = potential_path
                     break
+            
+            # If no exact match, find any VTT file for this video
+            if not vtt_path:
+                for file in os.listdir(self.subtitles_dir):
+                    if video_id in file and file.endswith('.vtt'):
+                        vtt_path = os.path.join(self.subtitles_dir, file)
+                        break
             
             if vtt_path:
                 return self.parse_vtt_file(vtt_path, video_id)
