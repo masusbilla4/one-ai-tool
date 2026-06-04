@@ -52,11 +52,13 @@ class YouTubeSubtitleExtractor:
             return {'manual': [], 'auto': [], 'error': None}
         
         try:
+            # Use list_subtitles option to get all available subtitles
             ydl_opts = {
                 'quiet': True,
                 'no_warnings': True,
                 'skip_download': True,
                 'no_check_certificate': True,
+                'list_subtitles': True,  # This forces subtitle info to be fetched
             }
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -64,17 +66,21 @@ class YouTubeSubtitleExtractor:
                 
                 result = {'manual': [], 'auto': [], 'error': None}
                 
-                # Get manual subtitles
+                # Get manual subtitles (subtitles key)
                 if 'subtitles' in info and info['subtitles']:
-                    result['manual'] = list(info['subtitles'].keys())
+                    result['manual'] = [lang for lang in info['subtitles'].keys() if info['subtitles'][lang]]
                 
-                # Get auto-generated subtitles
+                # Get auto-generated subtitles (automatic_captions key)
                 if 'automatic_captions' in info and info['automatic_captions']:
-                    result['auto'] = list(info['automatic_captions'].keys())
+                    result['auto'] = [lang for lang in info['automatic_captions'].keys() if info['automatic_captions'][lang]]
+                
+                # Debug: print what we found
+                print(f"Video {video_id}: Manual={result['manual']}, Auto={result['auto']}")
                 
                 return result
                 
         except Exception as e:
+            print(f"Error getting subtitles: {e}")
             return {'manual': [], 'auto': [], 'error': str(e)}
     
     def download_and_parse_vtt(self, video_id: str, language: str = 'en', include_auto: bool = True) -> List[Dict[str, Any]]:
