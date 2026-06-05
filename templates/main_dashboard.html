@@ -50,8 +50,65 @@
         .stat-card { background: #1e293b; border: 2px solid #334155; border-left-width: 4px; }
         
         /* Dashboard section */
-        .dash-container { background: #1e293b; border: 2px solid #475569; }
-        .dash-card { background: #334155; border: 2px solid #475569; }
+        .dash-container { background: linear-gradient(135deg, #1e293b, #334155); border: 2px solid #475569; border-radius: 16px; }
+        .dash-card { background: linear-gradient(135deg, #334155, #475569); border: 2px solid #475569; border-radius: 12px; transition: transform 0.2s, box-shadow 0.2s; }
+        .dash-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.2); }
+        
+        /* Animated progress bars */
+        @keyframes progressSlide { from { width: 0; } }
+        .progress-animate { animation: progressSlide 1s ease-out forwards; }
+        
+        /* Stat cards with gradients */
+        .stat-gradient-card {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-radius: 16px;
+            padding: 20px;
+            border: 2px solid #475569;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-gradient-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 4px;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6, #a855f7);
+        }
+        .stat-gradient-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.3);
+            border-color: #6366f1;
+        }
+        .stat-gradient-card.fil-total::before { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
+        .stat-gradient-card.eng-total::before { background: linear-gradient(90deg, #10b981, #34d399); }
+        .stat-gradient-card.fil-remaining::before { background: linear-gradient(90deg, #8b5cf6, #a855f7); }
+        .stat-gradient-card.eng-remaining::before { background: linear-gradient(90deg, #f97316, #fb923c); }
+        
+        /* Number display */
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-gradient-card.fil-total .stat-number { background: linear-gradient(135deg, #3b82f6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-gradient-card.eng-total .stat-number { background: linear-gradient(135deg, #10b981, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-gradient-card.fil-remaining .stat-number { background: linear-gradient(135deg, #8b5cf6, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-gradient-card.eng-remaining .stat-number { background: linear-gradient(135deg, #f97316, #fb923c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* Icon backgrounds */
+        .stat-icon {
+            width: 50px; height: 50px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+        }
+        .stat-icon.fil { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(6, 182, 212, 0.2)); }
+        .stat-icon.eng { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(52, 211, 153, 0.2)); }
+        .stat-icon.remaining { background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.2)); }
         
         /* Extractor tabs */
         .extractor-tab-btn.active { background: #334155; color: #f97316; border: 1px solid #f97316; }
@@ -141,53 +198,68 @@
 
                     <!-- Statistics Section (Collapsible) -->
                     <div id="stats-section" class="hidden mb-6">
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                            <div class="stat-card rounded-lg p-4" style="border-left-color: #3b82f6;">
-                                <p class="text-sm text-slate-400">Filipino Total</p>
-                                <p class="text-2xl font-bold text-blue-400" id="fil-total">-</p>
+                        <!-- Main Stats Grid -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <!-- Filipino Total -->
+                            <div class="stat-gradient-card fil-total">
+                                <div class="stat-icon fil"><i class="fas fa-flag"></i></div>
+                                <p class="text-sm text-slate-400 mb-1">Filipino Total</p>
+                                <p class="stat-number" id="fil-total">-</p>
                             </div>
-                            <div class="stat-card rounded-lg p-4" style="border-left-color: #10b981;">
-                                <p class="text-sm text-slate-400">English Total</p>
-                                <p class="text-2xl font-bold text-green-400" id="eng-total">-</p>
+                            <!-- English Total -->
+                            <div class="stat-gradient-card eng-total">
+                                <div class="stat-icon eng"><i class="fas fa-language"></i></div>
+                                <p class="text-sm text-slate-400 mb-1">English Total</p>
+                                <p class="stat-number" id="eng-total">-</p>
                             </div>
-                            <div class="stat-card rounded-lg p-4" style="border-left-color: #8b5cf6;">
-                                <p class="text-sm text-slate-400">Filipino Remaining</p>
-                                <p class="text-2xl font-bold text-purple-400" id="fil-remaining">-</p>
+                            <!-- Filipino Remaining -->
+                            <div class="stat-gradient-card fil-remaining">
+                                <div class="stat-icon remaining"><i class="fas fa-clock"></i></div>
+                                <p class="text-sm text-slate-400 mb-1">Filipino Remaining</p>
+                                <p class="stat-number" id="fil-remaining">-</p>
                             </div>
-                            <div class="stat-card rounded-lg p-4" style="border-left-color: #f97316;">
-                                <p class="text-sm text-slate-400">English Remaining</p>
-                                <p class="text-2xl font-bold text-orange-400" id="eng-remaining">-</p>
+                            <!-- English Remaining -->
+                            <div class="stat-gradient-card eng-remaining">
+                                <div class="stat-icon remaining"><i class="fas fa-hourglass-half"></i></div>
+                                <p class="text-sm text-slate-400 mb-1">English Remaining</p>
+                                <p class="stat-number" id="eng-remaining">-</p>
                             </div>
                         </div>
 
                         <!-- Category Dashboard -->
-                        <div class="dash-container rounded-lg p-4">
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                                <div class="dash-card p-3 rounded-lg">
-                                    <p class="text-xs text-slate-300 font-medium">🟣 FIL Used</p>
-                                    <p class="text-xl font-bold text-purple-400" id="dash-fil-used">-</p>
+                        <div class="dash-container rounded-lg p-6">
+                            <h3 class="text-lg font-bold text-white mb-4">
+                                <i class="fas fa-chart-pie mr-2 text-indigo-400"></i>Category Overview
+                            </h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                                <div class="dash-card p-4 rounded-lg text-center">
+                                    <p class="text-xs text-slate-400 mb-2">🟣 FIL Used</p>
+                                    <p class="text-2xl font-bold text-purple-400" id="dash-fil-used">-</p>
                                 </div>
-                                <div class="dash-card p-3 rounded-lg">
-                                    <p class="text-xs text-slate-300 font-medium">🟣 FIL Available</p>
-                                    <p class="text-xl font-bold text-purple-300" id="dash-fil-avail">-</p>
+                                <div class="dash-card p-4 rounded-lg text-center">
+                                    <p class="text-xs text-slate-400 mb-2">🟣 FIL Available</p>
+                                    <p class="text-2xl font-bold text-purple-300" id="dash-fil-avail">-</p>
                                 </div>
-                                <div class="dash-card p-3 rounded-lg">
-                                    <p class="text-xs text-slate-300 font-medium">🟢 ENG Used</p>
-                                    <p class="text-xl font-bold text-green-400" id="dash-eng-used">-</p>
+                                <div class="dash-card p-4 rounded-lg text-center">
+                                    <p class="text-xs text-slate-400 mb-2">🟢 ENG Used</p>
+                                    <p class="text-2xl font-bold text-green-400" id="dash-eng-used">-</p>
                                 </div>
-                                <div class="dash-card p-3 rounded-lg">
-                                    <p class="text-xs text-slate-300 font-medium">🟢 ENG Available</p>
-                                    <p class="text-xl font-bold text-green-300" id="dash-eng-avail">-</p>
-                                </div>
-                            </div>
-                            <div class="mb-4">
-                                <p class="text-sm font-semibold text-slate-300 mb-1">
-                                    Overall: <span id="dash-overall-text">-</span>
-                                </p>
-                                <div class="w-full h-3 bg-slate-600 rounded-full overflow-hidden">
-                                    <div id="dash-overall-bar" class="h-full bg-indigo-500 transition-all" style="width: 0%"></div>
+                                <div class="dash-card p-4 rounded-lg text-center">
+                                    <p class="text-xs text-slate-400 mb-2">🟢 ENG Available</p>
+                                    <p class="text-2xl font-bold text-green-300" id="dash-eng-avail">-</p>
                                 </div>
                             </div>
+                            <!-- Overall Progress -->
+                            <div class="bg-slate-800/50 rounded-xl p-4 mb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm font-semibold text-slate-300">Overall Progress</span>
+                                    <span id="dash-overall-text" class="text-sm font-bold text-indigo-400">-</span>
+                                </div>
+                                <div class="w-full h-4 bg-slate-700 rounded-full overflow-hidden">
+                                    <div id="dash-overall-bar" class="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 transition-all progress-animate" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <!-- Category List -->
                             <div id="dash-category-list" class="space-y-2"></div>
                         </div>
                     </div>
