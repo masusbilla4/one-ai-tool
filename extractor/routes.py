@@ -8,8 +8,6 @@ from flask import Blueprint, render_template, request, jsonify, session, send_fi
 from werkzeug.utils import secure_filename
 
 from .reddit_scraper import RedditScraper
-from .youtube_comments import YouTubeCommentScraper
-from .youtube_subtitles import YouTubeSubtitleExtractor
 from .document_extractor import DocumentExtractor
 from .output_manager import OutputManager
 
@@ -98,130 +96,13 @@ def extract_reddit():
         return jsonify({'error': str(e)}), 500
 
 
-# ========== YOUTUBE COMMENTS ==========
-
-@extractor_bp.route('/youtube/comments', methods=['POST'])
-@login_required
-def extract_youtube_comments():
-    """Extract comments from YouTube video."""
-    global _result_counter
-    data = request.json
-    url = data.get('url', '')
-    max_results = data.get('max_results', 100)
-    
-    if not url:
-        return jsonify({'error': 'YouTube URL is required'}), 400
-    
-    # Get API key from session (user-specific) or fallback to config
-    api_key = get_youtube_api_key()
-    if not api_key:
-        return jsonify({'error': 'YouTube API key not configured. Go to Settings to add it.'}), 400
-    
-    scraper = YouTubeCommentScraper(api_key)
-    
-    try:
-        video_id = scraper.extract_video_id(url)
-        if not video_id:
-            return jsonify({'error': 'Invalid YouTube URL'}), 400
-        
-        results = scraper.scrape(video_id, max_results)
-        
-        with _extraction_lock:
-            _result_counter += 1
-            task_id = f"yt_comments_{_result_counter}"
-            _extraction_results[task_id] = results
-            # Store task_id in session for export
-            if 'extraction_task_ids' not in session:
-                session['extraction_task_ids'] = []
-            session['extraction_task_ids'].append(task_id)
-            session.modified = True
-        
-        return jsonify({
-            'success': True,
-            'count': len(results),
-            'task_id': task_id,
-            'data': results  # Return ALL data for display
-        })
-    except Exception as e:
-        print(f"YouTube comments extraction error: {e}")
-        return jsonify({'error': str(e)}), 500
-
-
-# ========== YOUTUBE SUBTITLES ==========
-
-@extractor_bp.route('/youtube/subtitles-languages', methods=['POST'])
-@login_required
-def get_youtube_subtitle_languages():
-    """Get available subtitle languages for a YouTube video."""
-    data = request.json
-    url = data.get('url', '')
-    
-    if not url:
-        return jsonify({'error': 'YouTube URL is required', 'manual': [], 'auto': []}), 400
-    
-    extractor = YouTubeSubtitleExtractor()
-    
-    try:
-        video_id = extractor.extract_video_id(url)
-        if not video_id:
-            return jsonify({'error': 'Invalid YouTube URL', 'manual': [], 'auto': []}), 400
-        
-        # Get available subtitles
-        subtitles_info = extractor.get_available_subtitles(video_id)
-        
-        return jsonify({
-            'success': True,
-            'video_id': video_id,
-            'manual': subtitles_info.get('manual', []),
-            'auto': subtitles_info.get('auto', []),
-            'has_manual': len(subtitles_info.get('manual', [])) > 0,
-            'has_auto': len(subtitles_info.get('auto', [])) > 0,
-        })
-    except Exception as e:
-        print(f"YouTube subtitle languages error: {e}")
-        return jsonify({'error': str(e), 'manual': [], 'auto': []}), 500
-
-
-@extractor_bp.route('/youtube/subtitles', methods=['POST'])
-@login_required
-def extract_youtube_subtitles():
-    """Extract subtitles from YouTube video."""
-    global _result_counter
-    data = request.json
-    url = data.get('url', '')
-    language = data.get('language', 'en')
-    
-    if not url:
-        return jsonify({'error': 'YouTube URL is required'}), 400
-    
-    extractor = YouTubeSubtitleExtractor()
-    
-    try:
-        video_id = extractor.extract_video_id(url)
-        if not video_id:
-            return jsonify({'error': 'Invalid YouTube URL'}), 400
-        
-        results = extractor.download_and_parse_vtt(video_id, language)
-        
-        with _extraction_lock:
-            _result_counter += 1
-            task_id = f"yt_subs_{_result_counter}"
-            _extraction_results[task_id] = results
-            # Store task_id in session for export
-            if 'extraction_task_ids' not in session:
-                session['extraction_task_ids'] = []
-            session['extraction_task_ids'].append(task_id)
-            session.modified = True
-        
-        return jsonify({
-            'success': True,
-            'count': len(results),
-            'task_id': task_id,
-            'data': results  # Return ALL data for display
-        })
-    except Exception as e:
-        print(f"YouTube subtitles extraction error: {e}")
-        return jsonify({'error': str(e)}), 500
+# ========== YOUTUBE FEATURES REMOVED ==========
+# Note: YouTube Comments and Subtitles features removed due to aggressive 
+# bot detection on cloud hosting platforms. YouTube blocks datacenter IPs
+# from Render, Heroku, AWS, GCP, etc.
+#
+# Use the local Universal Data Extractor for YouTube extraction:
+# C:\Users\m.susbilla\Desktop\Galaxy AI\Tools & Scripts\Python\Audio Converter\Universal Data Extractor\
 
 
 # ========== DOCUMENT EXTRACTOR ==========
