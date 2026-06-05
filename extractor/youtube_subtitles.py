@@ -57,8 +57,8 @@ class YouTubeSubtitleExtractor:
         cookies_data = os.environ.get('YOUTUBE_COOKIES', '')
         
         ydl_opts = {
-            'quiet': True,
-            'no_warnings': True,
+            'quiet': False,  # Show more output for debugging
+            'no_warnings': False,
             'skip_download': True,
             'no_check_certificate': True,
             'extract_flat': False,
@@ -75,17 +75,26 @@ class YouTubeSubtitleExtractor:
         # Add cookies if available
         if cookies_path and os.path.exists(cookies_path):
             ydl_opts['cookies'] = cookies_path
-            print(f"Using cookies from: {cookies_path}")
+            print(f"Using cookies from file: {cookies_path}")
         elif cookies_data:
-            # Write cookies to temp file
-            temp_cookies = os.path.join(os.path.dirname(__file__), 'temp_cookies.txt')
+            # Write cookies to temp file in /tmp directory (writable on Render)
+            temp_cookies = '/tmp/youtube_cookies.txt'
             try:
                 with open(temp_cookies, 'w') as f:
                     f.write(cookies_data)
                 ydl_opts['cookies'] = temp_cookies
-                print(f"Using cookies from environment variable")
+                print(f"Using cookies from environment variable, written to: {temp_cookies}")
+                print(f"Cookies file size: {len(cookies_data)} bytes")
+                # Verify first few lines
+                first_lines = cookies_data.split('\n')[:3]
+                print(f"Cookies header: {first_lines}")
             except Exception as e:
                 print(f"Failed to write temp cookies: {e}")
+                ydl_opts['cookies'] = None
+        else:
+            print("No cookies configured")
+        
+        print(f"yt-dlp options: {ydl_opts}")
         
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -96,7 +105,7 @@ class YouTubeSubtitleExtractor:
                 
                 if info is None:
                     print(f"No info returned for video {video_id}")
-                    result['error'] = 'No data returned from YouTube'
+                    result['error'] = 'No data returned from YouTube - cookies may be expired'
                     return result
                 
                 # Get manual subtitles (subtitles key)
