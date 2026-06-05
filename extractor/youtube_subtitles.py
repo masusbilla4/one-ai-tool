@@ -52,19 +52,31 @@ class YouTubeSubtitleExtractor:
             return {'manual': [], 'auto': [], 'error': None}
         
         try:
-            # Use list_subtitles option to get all available subtitles
+            # Use multiple extractor args to avoid bot detection
             ydl_opts = {
                 'quiet': True,
                 'no_warnings': True,
                 'skip_download': True,
                 'no_check_certificate': True,
-                'list_subtitles': True,  # This forces subtitle info to be fetched
+                'extract_flat': False,
+                'ignoreerrors': True,
+                # Use web browser extractor args to appear more legitimate
+                'extractor_args': {
+                    'youtube': {
+                        'player_client': ['web', 'web_embedded', 'android'],
+                        'player_skip': ['webpage'],
+                    }
+                },
             }
             
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(f"https://youtube.com/watch?v={video_id}", download=False)
                 
                 result = {'manual': [], 'auto': [], 'error': None}
+                
+                if info is None:
+                    print(f"No info returned for video {video_id}")
+                    return result
                 
                 # Get manual subtitles (subtitles key)
                 if 'subtitles' in info and info['subtitles']:
