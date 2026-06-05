@@ -6,6 +6,7 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
 import os
 import re
+import json
 
 try:
     import yt_dlp
@@ -49,45 +50,69 @@ class YouTubeSubtitleExtractor:
         Returns: dict with 'manual' and 'auto' lists of language codes
         """
         if not YT_DLP_AVAILABLE:
-            return {'manual': [], 'auto': [], 'error': None}
+            return {'manual': [], 'auto': [], 'error': 'yt-dlp not available'}
+        
+        # Check for cookies file
+        cookies_path = os.environ.get('YOUTUBE_COOKIES_PATH', '')
+        cookies_data = os.environ.get('YOUTUBE_COOKIES', '')
+        
+        ydl_opts = {
+            'quiet': True,
+            'no_warnings': True,
+            'skip_download': True,
+            'no_check_certificate': True,
+            'extract_flat': False,
+            'ignoreerrors': True,
+            # Use multiple player clients to bypass bot detection
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['web', 'web_embedded', 'android', 'ios'],
+                    'player_skip': ['webpage'],
+                }
+            },
+        }
+        
+        # Add cookies if available
+        if cookies_path and os.path.exists(cookies_path):
+            ydl_opts['cookies'] = cookies_path
+            print(f"Using cookies from: {cookies_path}")
+        elif cookies_data:
+            # Write cookies to temp file
+            temp_cookies = os.path.join(os.path.dirname(__file__), 'temp_cookies.txt')
+            try:
+                with open(temp_cookies, 'w') as f:
+                    f.write(cookies_data)
+                ydl_opts['cookies'] = temp_cookies
+                print(f"Using cookies from environment variable")
+            except Exception as e:
+                print(f"Failed to write temp cookies: {e}")
         
         try:
-            # Use multiple extractor args to avoid bot detection
-            ydl_opts = {
-                'quiet': True,
-                'no_warnings': True,
-                'skip_download': True,
-                'no_check_certificate': True,
-                'extract_flat': False,
-                'ignoreerrors': True,
-                # Use web browser extractor args to appear more legitimate
-                'extractor_args': {
-                    'youtube': {
-                        'player_client': ['web', 'web_embedded', 'android'],
-                        'player_skip': ['webpage'],
-                    }
-                },
-            }
-            
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                print(f"Fetching subtitle info for video: {video_id}")
                 info = ydl.extract_info(f"https://youtube.com/watch?v={video_id}", download=False)
                 
                 result = {'manual': [], 'auto': [], 'error': None}
                 
                 if info is None:
                     print(f"No info returned for video {video_id}")
+                    result['error'] = 'No data returned from YouTube'
                     return result
                 
                 # Get manual subtitles (subtitles key)
                 if 'subtitles' in info and info['subtitles']:
                     result['manual'] = [lang for lang in info['subtitles'].keys() if info['subtitles'][lang]]
+                    print(f"Manual subtitles found: {result['manual']}")
                 
                 # Get auto-generated subtitles (automatic_captions key)
                 if 'automatic_captions' in info and info['automatic_captions']:
                     result['auto'] = [lang for lang in info['automatic_captions'].keys() if info['automatic_captions'][lang]]
+                    print(f"Auto subtitles found: {result['auto']}")
                 
-                # Debug: print what we found
-                print(f"Video {video_id}: Manual={result['manual']}, Auto={result['auto']}")
+                if not result['manual'] and not result['auto']:
+                    print(f"No subtitles found for video {video_id}")
+                    print(f"Available info keys: {list(info.keys()) if info else 'None'}")
+                    result['error'] = 'No subtitles available for this video'
                 
                 return result
                 
