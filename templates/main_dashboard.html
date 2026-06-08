@@ -601,6 +601,33 @@
                 </h2>
                 <p class="text-slate-400 mb-6">Align and evaluate ASR results with translations</p>
 
+                <!-- Step 1: ASR Splitter Drop Zone -->
+                <div class="mb-6 p-4 bg-gradient-to-r from-green-900/30 to-emerald-900/30 border-2 border-green-500 rounded-lg">
+                    <h3 class="text-lg font-semibold text-green-400 mb-2">
+                        <i class="fas fa-step-1 mr-2"></i>Step 1: Upload TXT Files (ASR + Translation Splitter)
+                    </h3>
+                    <p class="text-sm text-slate-400 mb-3">
+                        <i class="fas fa-info-circle mr-1"></i>Drop your TXT files here. Each file will be split: <strong>First half = ASR Result</strong>, <strong>Second half = Translation</strong>
+                    </p>
+                    <div id="asr-splitter-dropzone" class="drop-zone bg-slate-800 border-dashed border-green-600 hover:border-green-400 hover:bg-slate-700 cursor-pointer" onclick="document.getElementById('asr-splitter-file').click()">
+                        <div class="text-center py-6">
+                            <i class="fas fa-file-import text-4xl text-green-500 mb-3"></i>
+                            <p class="text-white font-medium">Drop .txt files here or click to browse</p>
+                            <p class="text-xs text-slate-400 mt-1">Files are sorted A→Z. First half = ASR, Second half = Translation</p>
+                        </div>
+                    </div>
+                    <input type="file" id="asr-splitter-file" multiple accept=".txt" style="display:none" onchange="handleASRSplitterFile(event)">
+                    <div id="asr-splitter-filelist" class="mt-3 hidden">
+                        <div class="flex justify-between items-center bg-slate-800 p-2 rounded">
+                            <span class="text-sm text-slate-300" id="asr-splitter-count">0 files</span>
+                            <button onclick="clearASRSplitter()" class="text-red-400 hover:text-red-300 text-xs">
+                                <i class="fas fa-trash mr-1"></i>Clear
+                            </button>
+                        </div>
+                        <div id="asr-splitter-items" class="max-h-32 overflow-y-auto bg-slate-800 p-2 rounded mt-2"></div>
+                    </div>
+                </div>
+
                 <!-- Step Wizard -->
                 <div class="flex items-center justify-between mb-6">
                     <div class="asr-step active" id="asr-step-1">
@@ -1163,6 +1190,49 @@
                 if (data.alignment_data) { asrAlignmentData = data.alignment_data; renderASRResults(); alert(`Translation aligned: ${data.count} sentences`); }
             } catch (e) { alert('Error: ' + e.message); }
         }
+
+        // ASR Splitter functions
+        let asrSplitterFiles = [];
+        const asrSplitterDropzone = document.getElementById('asr-splitter-dropzone');
+        if (asrSplitterDropzone) {
+            asrSplitterDropzone.addEventListener('dragover', (e) => { e.preventDefault(); e.stopPropagation(); asrSplitterDropzone.classList.add('drag-over'); });
+            asrSplitterDropzone.addEventListener('dragleave', (e) => { e.preventDefault(); e.stopPropagation(); asrSplitterDropzone.classList.remove('drag-over'); });
+            asrSplitterDropzone.addEventListener('drop', (e) => {
+                e.preventDefault(); e.stopPropagation(); asrSplitterDropzone.classList.remove('drag-over');
+                const files = Array.from(e.dataTransfer.files).filter(f => f.name.toLowerCase().endsWith('.txt'));
+                if (files.length === 0) { alert('Please drop .txt files only.'); return; }
+                processASRSplitterFiles(files);
+            });
+        }
+        function handleASRSplitterFile(event) {
+            const files = Array.from(event.target.files).filter(f => f.name.toLowerCase().endsWith('.txt'));
+            if (files.length === 0) { alert('Please select .txt files only.'); return; }
+            processASRSplitterFiles(files); event.target.value = '';
+        }
+        async function processASRSplitterFiles(files) {
+            files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+            asrSplitterFiles = files;
+            document.getElementById('asr-splitter-filelist').classList.remove('hidden');
+            document.getElementById('asr-splitter-count').textContent = files.length + ' file' + (files.length > 1 ? 's' : '') + ' (sorted A→Z)';
+            const itemsEl = document.getElementById('asr-splitter-items'); itemsEl.innerHTML = '';
+            files.forEach((f, i) => { itemsEl.innerHTML += '<div class="text-sm text-slate-400 py-1"><i class="fas fa-file mr-2 text-green-500"></i>' + (i+1) + '. ' + escapeHtml(f.name) + '</div>'; });
+            let allAsrLines = [], allTransLines = [];
+            for (let i = 0; i < files.length; i++) {
+                try {
+                    const content = await readFileAsText(files[i]);
+                    const lines = content.split('\n');
+                    const mid = Math.floor(lines.length / 2);
+                    allAsrLines.push(...lines.slice(0, mid).map(l => l.trim()).filter(l => l));
+                    allTransLines.push(...lines.slice(mid).map(l => l.trim()).filter(l => l));
+                } catch (e) { alert('Error reading ' + files[i].name + ': ' + e.message); }
+            }
+            if (allAsrLines.length > 0) document.getElementById('asr-asr-text').value = allAsrLines.join('\n');
+            if (allTransLines.length > 0) document.getElementById('asr-trans-text').value = allTransLines.join('\n');
+            updateASRLineCounts();
+            alert('Split complete: ' + allAsrLines.length + ' ASR + ' + allTransLines.length + ' Translation lines');
+        }
+        function readFileAsText(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = (e) => resolve(e.target.result); reader.onerror = (e) => reject(e); reader.readAsText(file, 'utf-8'); }); }
+        function clearASRSplitter() { asrSplitterFiles = []; document.getElementById('asr-splitter-filelist').classList.add('hidden'); document.getElementById('asr-splitter-items').innerHTML = ''; document.getElementById('asr-splitter-file').value = ''; }
     </script>
 </body>
 </html>
