@@ -125,11 +125,15 @@
         </div>
     </div>
 
-    <!-- ASR Splitter Drop Zone -->
-    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h2 class="text-lg font-semibold mb-3 text-purple-800">
-            <i class="fas fa-file-import mr-2"></i>ASR Splitter — Drop .txt Files
+    <!-- Step 1: ASR Splitter Drop Zone - Upload TXT files containing ASR and Translation -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6 border-2 border-green-400">
+        <h2 class="text-lg font-semibold mb-3 text-green-800">
+            <i class="fas fa-step-1 mr-2"></i>Step 1: Upload TXT Files (ASR + Translation)
         </h2>
+        <p class="text-sm text-gray-600 mb-3">
+            <i class="fas fa-info-circle mr-1"></i>
+            Drop your TXT files here. Each file will be split: <strong>First half = ASR Result</strong>, <strong>Second half = Translation</strong>
+        </p>
         <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
             <div class="drop-zone-content">
                 <span style="font-size:2rem">📄</span>
@@ -138,7 +142,7 @@
             </div>
         </div>
         <input type="file" id="fileInput" multiple accept=".txt" style="display:none" onchange="handleFileSelect(event)">
-        <div id="fileList" class="bg-gray-100 border border-gray-300 rounded p-3" style="display:none">
+        <div id="fileList" class="bg-gray-100 border border-gray-300 rounded p-3 mt-3" style="display:none">
             <div class="flex justify-between items-center mb-2 font-semibold text-sm">
                 <span id="fileCountLabel">0 files</span>
                 <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs" onclick="clearSplitterFiles()">✕ Clear</button>
@@ -152,15 +156,31 @@
         <h2 class="text-lg font-semibold mb-4 text-purple-800">
             <i class="fas fa-edit mr-2"></i>Input — True Text / ASR / Translation
         </h2>
+        
+        <!-- Step 1: True Text File Upload -->
+        <div class="mb-4">
+            <h3 class="text-md font-semibold mb-2 text-green-700">
+                <i class="fas fa-step-1 mr-2"></i>Step 1: Upload True Text (Reference) File
+            </h3>
+            <div id="trueTextDropZone" class="drop-zone" onclick="document.getElementById('trueTextInput').click()">
+                <div class="drop-zone-content">
+                    <span style="font-size:2rem">📄</span>
+                    <div><strong>Drop .txt file here</strong> — or click to browse</div>
+                    <div class="drop-zone-hint">Supported formats: .txt (UTF-8 encoded)</div>
+                </div>
+            </div>
+            <input type="file" id="trueTextInput" accept=".txt" style="display:none" onchange="handleTrueTextFile(event)">
+        </div>
+        
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- True Text -->
             <div class="textarea-group">
                 <div class="textarea-label bg-green-500 text-white p-2 font-semibold rounded-t">
-                    📝 True Text (Reference) — drop .txt here
+                    📝 True Text (Reference)
                 </div>
                 <div class="textarea-wrap" id="trueWrap">
                     <div class="line-numbers" id="trueLines">1</div>
-                    <textarea id="trueText" placeholder="Paste reference text here, or drop a .txt file..."></textarea>
+                    <textarea id="trueText" placeholder="Paste reference text here, or use the drop zone above..."></textarea>
                 </div>
                 <div class="text-right text-sm text-white bg-green-500 p-1 rounded-b" id="trueCount">Lines: 0</div>
             </div>
@@ -315,6 +335,64 @@ function updateLineCounts() {
     document.getElementById('trueCount').textContent = `Lines: ${count('trueText')}`;
     document.getElementById('asrCount').textContent = `Lines: ${count('asrText')}`;
     document.getElementById('transCount').textContent = `Lines: ${count('transText')}`;
+}
+
+// ========== Step 1: True Text File Upload Drop Zone ==========
+const trueTextDropZone = document.getElementById('trueTextDropZone');
+
+trueTextDropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    trueTextDropZone.classList.add('drag-over');
+});
+
+trueTextDropZone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    trueTextDropZone.classList.remove('drag-over');
+});
+
+trueTextDropZone.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    trueTextDropZone.classList.remove('drag-over');
+    const files = Array.from(e.dataTransfer.files).filter(f => f.name.toLowerCase().endsWith('.txt'));
+    if (files.length === 0) {
+        showToast('Please drop .txt files only.', 'warning');
+        return;
+    }
+    await loadTrueTextFiles(files);
+});
+
+function handleTrueTextFile(event) {
+    const files = Array.from(event.target.files).filter(f => f.name.toLowerCase().endsWith('.txt'));
+    if (files.length === 0) {
+        showToast('Please select .txt files only.', 'warning');
+        return;
+    }
+    loadTrueTextFiles(files);
+    event.target.value = '';
+}
+
+async function loadTrueTextFiles(files) {
+    files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+    
+    let allContent = [];
+    for (const f of files) {
+        try {
+            const content = await readFileAsText(f);
+            const lines = content.splitlines ? content.splitlines().map(l => l.trim()).filter(l => l) : content.split('\n').map(l => l.trim()).filter(l => l);
+            allContent.push(...lines);
+        } catch (err) {
+            showToast(`Error reading ${f.name}: ${err.message}`, 'error');
+        }
+    }
+    if (allContent.length > 0) {
+        document.getElementById('trueText').value = allContent.join('\n');
+        updateLineNumbers('trueText');
+        updateLineCounts();
+        showToast(`Loaded ${allContent.length} lines from ${files.length} file(s)`);
+    }
 }
 
 // ========== Drag & Drop on True Text textarea ==========
