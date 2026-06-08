@@ -56,45 +56,35 @@ class YouTubeSubtitleExtractor:
         cookies_path = os.environ.get('YOUTUBE_COOKIES_PATH', '')
         cookies_data = os.environ.get('YOUTUBE_COOKIES', '')
         
+        # Write cookies to temp file in /tmp directory (writable on Render)
+        temp_cookies = '/tmp/youtube_cookies.txt'
+        cookies_file = None
+        
+        if cookies_path and os.path.exists(cookies_path):
+            cookies_file = cookies_path
+            print(f"Using cookies from file: {cookies_path}")
+        elif cookies_data:
+            try:
+                with open(temp_cookies, 'w') as f:
+                    f.write(cookies_data)
+                cookies_file = temp_cookies
+                print(f"Using cookies from environment variable, written to: {temp_cookies}")
+                print(f"Cookies file size: {len(cookies_data)} bytes")
+            except Exception as e:
+                print(f"Failed to write temp cookies: {e}")
+        
+        # Try direct extraction without extractor_args (simpler approach)
         ydl_opts = {
-            'quiet': False,  # Show more output for debugging
-            'no_warnings': False,
+            'quiet': True,
+            'no_warnings': True,
             'skip_download': True,
             'no_check_certificate': True,
             'extract_flat': False,
             'ignoreerrors': True,
-            # Use multiple player clients to bypass bot detection
-            'extractor_args': {
-                'youtube': {
-                    'player_client': ['web', 'web_embedded', 'android', 'ios'],
-                    'player_skip': ['webpage'],
-                }
-            },
         }
         
-        # Add cookies if available
-        if cookies_path and os.path.exists(cookies_path):
-            ydl_opts['cookies'] = cookies_path
-            print(f"Using cookies from file: {cookies_path}")
-        elif cookies_data:
-            # Write cookies to temp file in /tmp directory (writable on Render)
-            temp_cookies = '/tmp/youtube_cookies.txt'
-            try:
-                with open(temp_cookies, 'w') as f:
-                    f.write(cookies_data)
-                ydl_opts['cookies'] = temp_cookies
-                print(f"Using cookies from environment variable, written to: {temp_cookies}")
-                print(f"Cookies file size: {len(cookies_data)} bytes")
-                # Verify first few lines
-                first_lines = cookies_data.split('\n')[:3]
-                print(f"Cookies header: {first_lines}")
-            except Exception as e:
-                print(f"Failed to write temp cookies: {e}")
-                ydl_opts['cookies'] = None
-        else:
-            print("No cookies configured")
-        
-        print(f"yt-dlp options: {ydl_opts}")
+        if cookies_file:
+            ydl_opts['cookies'] = cookies_file
         
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -105,7 +95,7 @@ class YouTubeSubtitleExtractor:
                 
                 if info is None:
                     print(f"No info returned for video {video_id}")
-                    result['error'] = 'No data returned from YouTube - cookies may be expired'
+                    result['error'] = 'No data returned from YouTube'
                     return result
                 
                 # Get manual subtitles (subtitles key)
@@ -120,8 +110,7 @@ class YouTubeSubtitleExtractor:
                 
                 if not result['manual'] and not result['auto']:
                     print(f"No subtitles found for video {video_id}")
-                    print(f"Available info keys: {list(info.keys()) if info else 'None'}")
-                    result['error'] = 'No subtitles available for this video'
+                    result['error'] = 'No subtitles available'
                 
                 return result
                 

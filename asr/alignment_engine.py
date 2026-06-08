@@ -2,6 +2,10 @@
 """Core ASR alignment engine - shared between Tkinter and web app."""
 import re
 import numpy as np
+import os
+
+# Alignment threshold (configurable via environment)
+ALIGNMENT_THRESHOLD = int(os.getenv('ASR_ALIGNMENT_THRESHOLD', 100_000_000))
 
 
 def clean_word(w):
@@ -97,8 +101,8 @@ def run_alignment(true_lines, asr_lines):
 
     n, m = len(ref_norm), len(asr_norm)
 
-    # Choose algorithm based on size
-    if n * m > 100_000_000:
+    # Choose algorithm based on size (use configurable threshold)
+    if n * m > ALIGNMENT_THRESHOLD:
         aligned_pairs = hirschberg(ref_disp, asr_disp, ref_norm, asr_norm, ref_sid)
     else:
         dp = np.zeros((n + 1, m + 1), dtype=np.int32)

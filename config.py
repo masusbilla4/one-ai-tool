@@ -52,12 +52,16 @@ class Config:
     for directory in [EXPORTS_DIR, UPLOADS_DIR, LOGS_DIR]:
         os.makedirs(directory, exist_ok=True)
     
-    # ASR Aligner settings
-    ASR_BATCH_SIZE = 40
-    ASR_OVERLAP_CONTEXT = 3
-    ASR_RETRY_DELAY = 10
-    ASR_MAX_RETRIES = 5
-    ASR_BATCH_DELAY = 15
+    # ASR Aligner settings (configurable via environment)
+    ASR_BATCH_SIZE = int(os.getenv('ASR_BATCH_SIZE', 40))
+    ASR_OVERLAP_CONTEXT = int(os.getenv('ASR_OVERLAP_CONTEXT', 3))
+    ASR_RETRY_DELAY = int(os.getenv('ASR_RETRY_DELAY', 10))
+    ASR_MAX_RETRIES = int(os.getenv('ASR_MAX_RETRIES', 5))
+    ASR_BATCH_DELAY = int(os.getenv('ASR_BATCH_DELAY', 15))
+    ASR_ALIGNMENT_THRESHOLD = int(os.getenv('ASR_ALIGNMENT_THRESHOLD', 100_000_000))
+    
+    # Stats cache TTL (in seconds, configurable via environment)
+    STATS_CACHE_TTL = int(os.getenv('STATS_CACHE_TTL', '30'))
     
     # Available Gemini models
     AVAILABLE_MODELS = [

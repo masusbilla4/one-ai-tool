@@ -1,6 +1,8 @@
 """
 Authentication routes - Login, Register, Logout, User Management.
+Uses absolute path for templates to avoid path resolution issues.
 """
+import os
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from functools import wraps
 from flask_limiter import Limiter
@@ -19,7 +21,9 @@ limiter = Limiter(
     storage_uri="memory://"
 )
 
-auth_bp = Blueprint('auth', __name__, template_folder='../templates')
+# Use absolute path for templates to avoid relative path issues
+template_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
+auth_bp = Blueprint('auth', __name__, template_folder=template_folder)
 
 
 def login_required(f):

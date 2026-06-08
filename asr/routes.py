@@ -19,39 +19,31 @@ from openpyxl.cell.rich_text import CellRichText, TextBlock
 from .alignment_engine import run_alignment, align_translation_local
 from auth.routes import login_required
 from settings.routes import get_gemini_api_key
+from config import Config
 
 asr_bp = Blueprint('asr', __name__, template_folder='templates')
 
-# Configuration (from actual ASR web app)
+# Configuration (imported from Config class)
 DEFAULT_MODEL = "gemini-2.5-flash"
-AVAILABLE_MODELS = [
-    "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.5-pro",
-    "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"
-]
-MODEL_RPM_LIMITS = {
-    "gemini-2.5-flash": 15, "gemini-2.5-flash-lite": 15,
-    "gemini-2.5-pro": 10, "gemini-2.0-flash": 15,
-    "gemini-1.5-flash": 15, "gemini-1.5-pro": 10
-}
-BATCH_SIZE = 40
-OVERLAP_CONTEXT = 3
-RETRY_DELAY = 10
-MAX_RETRIES = 5
-BATCH_DELAY = 15
+BATCH_SIZE = Config.ASR_BATCH_SIZE
+OVERLAP_CONTEXT = Config.ASR_OVERLAP_CONTEXT
+RETRY_DELAY = Config.ASR_RETRY_DELAY
+MAX_RETRIES = Config.ASR_MAX_RETRIES
+BATCH_DELAY = Config.ASR_BATCH_DELAY
 
 # Thread-safety lock for shared state
 _asr_lock = threading.Lock()
 
-# Server-side stored alignment data
+# Server-side stored alignment data (protected by _asr_lock)
 _stored_alignment = {"data": None, "overall_wer": 0, "overall_stats": {}}
 
-# Async alignment store
+# Async alignment store (protected by _asr_lock)
 _align_store = {"result": None, "error": None, "done": False, "task_id": 0}
 
-# Re-evaluate store
+# Re-evaluate store (protected by _asr_lock)
 _reeval_store = {"result": None, "error": None, "done": False, "task_id": 0}
 
-# Progress store for AI tasks
+# Progress store for AI tasks (protected by _asr_lock)
 _progress_store = {
     "logs": [], "progress": 0, "status": "", "running": False,
     "task_id": 0, "partial_data": None, "partial_count": 0
@@ -145,11 +137,20 @@ def api_align():
     true_text = data.get('true_text', '').strip()
     asr_text = data.get('asr_text', '').strip()
 
+    # Input validation
     if not true_text or not asr_text:
         return jsonify({"error": "Both True Text and ASR Result are required."}), 400
+    
+    # Validate input size (prevent DoS)
+    if len(true_text) > 1_000_000 or len(asr_text) > 1_000_000:
+        return jsonify({"error": "Input text too large. Maximum 1MB allowed."}), 400
 
     true_lines = [l.strip() for l in true_text.split("\n") if l.strip()]
     asr_lines = [l.rstrip() for l in asr_text.splitlines() if l.strip()]
+
+    # Validate line counts
+    if not true_lines or not asr_lines:
+        return jsonify({"error": "Input must contain at least one line."}), 400
 
     # Word count mismatch warning
     ref_wc = sum(len(l.split()) for l in true_lines)
@@ -162,12 +163,13 @@ def api_align():
                 "message": f"Significant word count mismatch: True Text={ref_wc}, ASR={hyp_wc}, Ratio={ratio:.1f}x"
             })
 
-    # Run alignment in background thread
-    _align_store["result"] = None
-    _align_store["error"] = None
-    _align_store["done"] = False
-    _align_store["task_id"] += 1
-    task_id = _align_store["task_id"]
+    # Run alignment in background thread (thread-safe)
+    with _asr_lock:
+        _align_store["result"] = None
+        _align_store["error"] = None
+        _align_store["done"] = False
+        _align_store["task_id"] += 1
+        task_id = _align_store["task_id"]
 
     def _run():
         try:

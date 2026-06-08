@@ -16,7 +16,7 @@ from .db import get_supabase_client, get_table_name, TABLE_FIL, TABLE_ENG
 
 # Cache for stats (invalidate when data changes)
 _stats_cache = {}
-_CACHE_TTL = 30  # Cache TTL in seconds
+_CACHE_TTL = Config.STATS_CACHE_TTL  # Use configurable cache TTL
 
 
 def _get_cached(key):
