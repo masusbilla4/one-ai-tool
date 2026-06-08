@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
 """ASR Aligner - Flask routes (based on actual ASR Web App)."""
 import os
 import io
@@ -96,7 +96,8 @@ def upload_file():
     try:
         if filename.endswith('.txt'):
             content = file.read().decode('utf-8')
-            lines = [l.strip() for l in content.split('\n') if l.strip()]
+            # Use splitlines() to handle all line ending types (\n, \r\n, \r)
+            lines = [l.strip() for l in content.splitlines() if l.strip()]
         elif filename.endswith('.srt'):
             content = file.read().decode('utf-8')
             # Extract subtitle text from SRT
@@ -342,10 +343,11 @@ def export_csv(task_id):
 
 # File import helper
 def read_txt_file(file):
-    """Read TXT file and return lines."""
+    """Read TXT file and return lines. Uses splitlines() for cross-platform line ending support."""
     try:
         content = file.read().decode('utf-8')
-        lines = [l.strip() for l in content.split('\n') if l.strip()]
+        # Use splitlines() to handle \n, \r\n, and \r
+        lines = [l.strip() for l in content.splitlines() if l.strip()]
         return lines
     except Exception as e:
         raise Exception(f"Error reading {file.filename}: {str(e)}")
