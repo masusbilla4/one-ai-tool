@@ -1294,56 +1294,81 @@
 
         // ASR Textarea Line Numbers and Drag-Drop
         function updateASRLineNums(id) {
-            const ta = document.getElementById('asr-' + id + '-text');
-            const lnEl = document.getElementById(id + 'Lines');
+            var ta, lnEl;
+            if (id === 'trueText') { ta = document.getElementById('asr-true-text'); lnEl = document.getElementById('trueLines'); }
+            else if (id === 'asrText') { ta = document.getElementById('asr-asr-text'); lnEl = document.getElementById('asrLines'); }
+            else if (id === 'transText') { ta = document.getElementById('asr-trans-text'); lnEl = document.getElementById('transLines'); }
+            if (!ta || !lnEl) return;
             const lines = ta.value.split('\n');
             let nums = [];
             for (let i = 1; i <= lines.length; i++) nums.push(i);
             lnEl.textContent = nums.join('\n');
         }
         function syncASRScroll(id) {
-            const ta = document.getElementById('asr-' + id + '-text');
-            const lnEl = document.getElementById(id + 'Lines');
+            var ta, lnEl;
+            if (id === 'trueText') { ta = document.getElementById('asr-true-text'); lnEl = document.getElementById('trueLines'); }
+            else if (id === 'asrText') { ta = document.getElementById('asr-asr-text'); lnEl = document.getElementById('asrLines'); }
+            else if (id === 'transText') { ta = document.getElementById('asr-trans-text'); lnEl = document.getElementById('transLines'); }
+            if (!ta || !lnEl) return;
             lnEl.scrollTop = ta.scrollTop;
         }
-        // Initialize line numbers on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            ['trueText', 'asrText', 'transText'].forEach(function(id) {
-                const ta = document.getElementById('asr-' + id + '-text');
-                if (ta) {
-                    ta.addEventListener('input', function() { updateASRLineNums(id); });
-                    ta.addEventListener('scroll', function() { syncASRScroll(id); });
-                    updateASRLineNums(id);
-                }
-            });
-            // Add drag-drop to textareas
-            ['trueTextWrap', 'asrTextWrap', 'transTextWrap'].forEach(function(wrapId) {
-                const wrap = document.getElementById(wrapId);
-                if (wrap) {
-                    wrap.addEventListener('dragover', function(e) { e.preventDefault(); e.stopPropagation(); wrap.classList.add('drag-over'); });
-                    wrap.addEventListener('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); wrap.classList.remove('drag-over'); });
-                    wrap.addEventListener('drop', function(e) {
-                        e.preventDefault(); e.stopPropagation(); wrap.classList.remove('drag-over');
-                        const files = Array.from(e.dataTransfer.files).filter(f => f.name.toLowerCase().endsWith('.txt'));
-                        if (files.length === 0) return;
-                        const textareaId = wrapId.replace('Wrap', '');
-                        loadASRTextFiles(files, textareaId);
-                    });
-                }
-            });
-        });
-        function loadASRTextFiles(files, textareaId) {
-            const file = files[0];
+        function loadASRTextIntoTextarea(textareaEl, file) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const content = e.target.result;
                 const lines = content.split('\n').map(l => l.trim()).filter(l => l);
-                document.getElementById('asr-' + textareaId + '-text').value = lines.join('\n');
-                updateASRLineNums(textareaId);
+                textareaEl.value = lines.join('\n');
+                // Trigger input event to update line numbers
+                const event = new Event('input');
+                textareaEl.dispatchEvent(event);
                 updateASRLineCounts();
             };
             reader.readAsText(file, 'utf-8');
         }
+        // Initialize line numbers and drag-drop on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Setup line numbers for each textarea
+            var trueText = document.getElementById('asr-true-text');
+            var asrText = document.getElementById('asr-asr-text');
+            var transText = document.getElementById('asr-trans-text');
+            
+            if (trueText) {
+                trueText.addEventListener('input', function() { updateASRLineNums('trueText'); });
+                trueText.addEventListener('scroll', function() { syncASRScroll('trueText'); });
+                updateASRLineNums('trueText');
+            }
+            if (asrText) {
+                asrText.addEventListener('input', function() { updateASRLineNums('asrText'); });
+                asrText.addEventListener('scroll', function() { syncASRScroll('asrText'); });
+                updateASRLineNums('asrText');
+            }
+            if (transText) {
+                transText.addEventListener('input', function() { updateASRLineNums('transText'); });
+                transText.addEventListener('scroll', function() { syncASRScroll('transText'); });
+                updateASRLineNums('transText');
+            }
+            
+            // Add drag-drop to textarea wraps
+            var trueTextWrap = document.getElementById('trueTextWrap');
+            var asrTextWrap = document.getElementById('asrTextWrap');
+            var transTextWrap = document.getElementById('transTextWrap');
+            
+            function setupTextareaDragDrop(wrap, textarea) {
+                if (!wrap || !textarea) return;
+                wrap.addEventListener('dragover', function(e) { e.preventDefault(); e.stopPropagation(); wrap.classList.add('drag-over'); });
+                wrap.addEventListener('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); wrap.classList.remove('drag-over'); });
+                wrap.addEventListener('drop', function(e) {
+                    e.preventDefault(); e.stopPropagation(); wrap.classList.remove('drag-over');
+                    var files = Array.from(e.dataTransfer.files).filter(function(f) { return f.name.toLowerCase().endsWith('.txt'); });
+                    if (files.length === 0) return;
+                    loadASRTextIntoTextarea(textarea, files[0]);
+                });
+            }
+            
+            setupTextareaDragDrop(trueTextWrap, trueText);
+            setupTextareaDragDrop(asrTextWrap, asrText);
+            setupTextareaDragDrop(transTextWrap, transText);
+        });
     </script>
 </body>
 </html>
