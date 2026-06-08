@@ -171,6 +171,21 @@
             .sidebar-link { flex-direction: column; padding: 8px 16px; font-size: 0.75rem; }
             .sidebar-link span { display: block; }
         }
+        
+        /* ASR Resizable Table */
+        .asr-resizer {
+            transition: background 0.2s, width 0.2s;
+        }
+        .asr-resizer:hover,
+        .asr-resizing .asr-resizer {
+            background: #818cf8 !important;
+            width: 7px !important;
+        }
+        
+        /* ASR Loading Overlay */
+        #asr-loading-overlay {
+            backdrop-filter: blur(4px);
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 min-h-screen flex">
@@ -789,16 +804,35 @@
                                 <i class="fas fa-redo mr-2"></i>Re-evaluate
                             </button>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm">
-                                <thead class="bg-indigo-600 text-white">
+                        <!-- Scrollable table container with resizable columns -->
+                        <div class="asr-table-container" style="max-height: 450px; overflow-y: auto; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 6px;">
+                            <table class="asr-resizable-table" id="asrResultsTable" style="border-collapse: separate; border-spacing: 0; min-width: 100%; table-layout: auto;">
+                                <thead class="bg-indigo-600 text-white" style="position: sticky; top: 0; z-index: 10;">
                                     <tr>
-                                        <th class="py-2 px-3 text-center">No</th>
-                                        <th class="py-2 px-3">Test Language</th>
-                                        <th class="py-2 px-3">ASR Separated</th>
-                                        <th class="py-2 px-3">Differences</th>
-                                        <th class="py-2 px-3 text-center">WER%</th>
-                                        <th class="py-2 px-3">Translation</th>
+                                        <th class="asr-resizable" style="width: 50px; min-width: 40px; padding: 8px 12px; border: 1px solid #e2e8f0; background: #4f46e5; color: white; position: relative; user-select: none;">
+                                            No
+                                            <div class="asr-resizer" data-index="0" style="position: absolute; right: 0; top: 0; width: 5px; height: 100%; cursor: col-resize; user-select: none; z-index: 10;"></div>
+                                        </th>
+                                        <th class="asr-resizable" style="width: 200px; min-width: 100px; padding: 8px 12px; border: 1px solid #e2e8f0; background: #4f46e5; color: white; position: relative; user-select: none;">
+                                            Test Language
+                                            <div class="asr-resizer" data-index="1" style="position: absolute; right: 0; top: 0; width: 5px; height: 100%; cursor: col-resize; user-select: none; z-index: 10;"></div>
+                                        </th>
+                                        <th class="asr-resizable" style="width: 300px; min-width: 150px; padding: 8px 12px; border: 1px solid #e2e8f0; background: #4f46e5; color: white; position: relative; user-select: none;">
+                                            ASR Separated
+                                            <div class="asr-resizer" data-index="2" style="position: absolute; right: 0; top: 0; width: 5px; height: 100%; cursor: col-resize; user-select: none; z-index: 10;"></div>
+                                        </th>
+                                        <th class="asr-resizable" style="width: 200px; min-width: 100px; padding: 8px 12px; border: 1px solid #e2e8f0; background: #4f46e5; color: white; position: relative; user-select: none;">
+                                            Differences
+                                            <div class="asr-resizer" data-index="3" style="position: absolute; right: 0; top: 0; width: 5px; height: 100%; cursor: col-resize; user-select: none; z-index: 10;"></div>
+                                        </th>
+                                        <th class="asr-resizable text-center" style="width: 80px; min-width: 60px; padding: 8px 12px; border: 1px solid #e2e8f0; background: #4f46e5; color: white; position: relative; user-select: none;">
+                                            WER%
+                                            <div class="asr-resizer" data-index="4" style="position: absolute; right: 0; top: 0; width: 5px; height: 100%; cursor: col-resize; user-select: none; z-index: 10;"></div>
+                                        </th>
+                                        <th class="asr-resizable" style="width: 300px; min-width: 150px; padding: 8px 12px; border: 1px solid #e2e8f0; background: #4f46e5; color: white; position: relative; user-select: none;">
+                                            Translation
+                                            <div class="asr-resizer" data-index="5" style="position: absolute; right: 0; top: 0; width: 5px; height: 100%; cursor: col-resize; user-select: none; z-index: 10;"></div>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody id="asr-results-body"></tbody>
@@ -1397,6 +1431,73 @@
             setupTextareaDragDrop(asrTextWrap, asrText);
             setupTextareaDragDrop(transTextWrap, transText);
         });
+        
+        // ========== ASR Table Column Resizing ==========
+        let asrIsResizing = false;
+        let asrCurrentResizer = null;
+        let asrStartX = 0;
+        let asrStartWidth = 0;
+        let asrCurrentTh = null;
+        
+        function initASRTableResizer() {
+            const resizers = document.querySelectorAll('.asr-resizer');
+            resizers.forEach(resizer => {
+                resizer.addEventListener('mousedown', handleASRResizerMouseDown);
+            });
+        }
+        
+        function handleASRResizerMouseDown(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            asrIsResizing = true;
+            asrCurrentResizer = e.target;
+            asrCurrentTh = e.target.closest('th');
+            if (!asrCurrentTh) return;
+            asrStartX = e.pageX;
+            asrStartWidth = asrCurrentTh.offsetWidth;
+            asrCurrentTh.classList.add('asr-resizing');
+            document.addEventListener('mousemove', handleASRResizerMouseMove);
+            document.addEventListener('mouseup', handleASRResizerMouseUp);
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+        }
+        
+        function handleASRResizerMouseMove(e) {
+            if (!asrIsResizing || !asrCurrentTh) return;
+            const diff = e.pageX - asrStartX;
+            const minWidth = parseInt(asrCurrentTh.style.minWidth) || 40;
+            const newWidth = Math.max(minWidth, asrStartWidth + diff);
+            const columnIndex = Array.from(asrCurrentTh.parentNode.children).indexOf(asrCurrentTh);
+            const table = asrCurrentTh.closest('table');
+            asrCurrentTh.style.width = newWidth + 'px';
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const cell = row.children[columnIndex];
+                if (cell) cell.style.width = newWidth + 'px';
+            });
+        }
+        
+        function handleASRResizerMouseUp() {
+            if (!asrIsResizing) return;
+            asrIsResizing = false;
+            if (asrCurrentTh) asrCurrentTh.classList.remove('asr-resizing');
+            document.removeEventListener('mousemove', handleASRResizerMouseMove);
+            document.removeEventListener('mouseup', handleASRResizerMouseUp);
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            asrCurrentResizer = null;
+            asrCurrentTh = null;
+        }
+        
+        // Initialize resizers when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initASRTableResizer);
+        
+        // Re-initialize resizers after results are rendered
+        const originalRenderASRResults = renderASRResults;
+        renderASRResults = function() {
+            originalRenderASRResults();
+            setTimeout(initASRTableResizer, 50);
+        };
     </script>
 </body>
 </html>
