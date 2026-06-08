@@ -174,6 +174,64 @@
         
         /* Loading overlay */
         #loading { z-index: 1000; }
+        
+        /* Full-screen loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            pointer-events: all;
+        }
+        .loading-overlay.hidden {
+            display: none;
+        }
+        .loading-content {
+            background: white;
+            padding: 40px 60px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 15px;
+        }
+        .loading-progress {
+            width: 200px;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+        .loading-progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.3s;
+            width: 0%;
+        }
     </style>
 </head>
 <body>
@@ -382,6 +440,17 @@
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
+
+<!-- Full-screen Loading Overlay -->
+<div class="loading-overlay hidden" id="loadingOverlay">
+    <div class="loading-content">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Processing...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-fill" id="loadingProgressFill"></div>
+        </div>
+    </div>
+</div>
 
 <script>
 // State
@@ -645,6 +714,31 @@ function setProgress(pct, text) {
     if (text) document.getElementById('statusText').textContent = text;
 }
 
+// Loading Overlay - Full screen blocking overlay
+function showLoadingOverlay(text, pct) {
+    const overlay = document.getElementById('loadingOverlay');
+    const loadingText = document.getElementById('loadingText');
+    const loadingProgress = document.getElementById('loadingProgressFill');
+    
+    if (text) loadingText.textContent = text;
+    if (pct !== undefined) loadingProgress.style.width = pct + '%';
+    
+    overlay.classList.remove('hidden');
+}
+
+function hideLoadingOverlay() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.classList.add('hidden');
+}
+
+function updateLoadingProgress(pct, text) {
+    const loadingProgress = document.getElementById('loadingProgressFill');
+    const loadingText = document.getElementById('loadingText');
+    
+    loadingProgress.style.width = pct + '%';
+    if (text) loadingText.textContent = text;
+}
+
 // Modals
 function openModal(id) { document.getElementById(id).style.display = 'flex'; }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -674,6 +768,7 @@ async function pollAlignResult() {
             const res = await fetch('/asr/align-result');
             const data = await res.json();
             if (data.done) {
+                hideLoadingOverlay();
                 if (data.error) {
                     showToast(data.error, 'error');
                     setProgress(0, '❌ Alignment failed');
@@ -687,8 +782,14 @@ async function pollAlignResult() {
                     renderResults();
                 }
                 return;
+            } else {
+                // Update loading progress while polling
+                if (data.progress !== undefined) {
+                    updateLoadingProgress(data.progress, data.message || 'Processing...');
+                }
             }
         } catch (e) {
+            hideLoadingOverlay();
             showToast('Polling error: ' + e.message, 'error');
             setProgress(0, '❌ Alignment failed');
             return;
@@ -710,6 +811,9 @@ async function runAlignment() {
     btn.disabled = true;
     setProgress(10, '⏳ Aligning ASR sentences...');
 
+    // Show loading overlay to block user interaction
+    showLoadingOverlay('⏳ Starting alignment...', 10);
+
     try {
         let res = await fetch('/asr/align', {
             method: 'POST',
@@ -719,12 +823,13 @@ async function runAlignment() {
         let data = await res.json();
 
         if (data.warning) {
+            hideLoadingOverlay();
             if (!confirm(data.message + '\n\nContinue anyway?')) {
                 btn.disabled = false;
                 setProgress(0, 'Ready to align');
                 return;
             }
-            setProgress(10, '⏳ Aligning (forced)...');
+            showLoadingOverlay('⏳ Aligning (forced)...', 10);
             res = await fetch('/asr/align', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -734,12 +839,15 @@ async function runAlignment() {
         }
 
         if (data.error) {
+            hideLoadingOverlay();
             showToast(data.error, 'error');
             setProgress(0, '❌ Alignment failed');
+            btn.disabled = false;
         } else if (data.status === 'started') {
-            setProgress(30, '⏳ Processing alignment...');
+            updateLoadingProgress(30, '⏳ Processing alignment...');
             await pollAlignResult();
         } else {
+            hideLoadingOverlay();
             alignmentData = data.alignment_data;
             overallWer = data.overall_wer;
             overallStats = data.overall_stats;
@@ -747,12 +855,14 @@ async function runAlignment() {
             document.getElementById('btnResults').disabled = false;
             showToast(`Alignment complete! WER: ${overallWer}%`);
             renderResults();
+            btn.disabled = false;
         }
     } catch (e) {
+        hideLoadingOverlay();
         showToast('Network error: ' + e.message, 'error');
         setProgress(0, '❌ Alignment failed');
+        btn.disabled = false;
     }
-    btn.disabled = false;
 }
 
 // Render results table
@@ -818,15 +928,24 @@ async function exportExcel() {
 async function reevaluate() {
     if (!alignmentData.length) { showToast('No data to re-evaluate.', 'warning'); return; }
     setProgress(30, '⏳ Re-evaluating...');
+    
+    // Show loading overlay to block user interaction
+    showLoadingOverlay('⏳ Re-evaluating alignment...', 30);
+    
     try {
         const res = await fetch('/asr/reevaluate', { method: 'POST' });
         const data = await res.json();
-        if (data.error) { showToast(data.error, 'error'); return; }
+        if (data.error) { 
+            hideLoadingOverlay();
+            showToast(data.error, 'error'); 
+            return; 
+        }
         if (data.status === 'started') {
             while (true) {
                 const pollRes = await fetch('/asr/reevaluate-result');
                 const pollData = await pollRes.json();
                 if (pollData.done) {
+                    hideLoadingOverlay();
                     if (pollData.error) { showToast(pollData.error, 'error'); return; }
                     alignmentData = pollData.result.alignment_data;
                     overallWer = pollData.result.overall_wer;
@@ -840,6 +959,7 @@ async function reevaluate() {
             }
         }
     } catch (e) {
+        hideLoadingOverlay();
         showToast('Error: ' + e.message, 'error');
     }
 }
