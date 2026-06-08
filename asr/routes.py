@@ -21,7 +21,8 @@ from auth.routes import login_required
 from settings.routes import get_gemini_api_key
 from config import Config
 
-asr_bp = Blueprint('asr', __name__, template_folder='templates')
+# Use absolute path for templates
+asr_bp = Blueprint('asr', __name__, template_folder=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates'))
 
 # Configuration (imported from Config class)
 DEFAULT_MODEL = "gemini-2.5-flash"
