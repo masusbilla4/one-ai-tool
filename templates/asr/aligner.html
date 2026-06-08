@@ -26,6 +26,71 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); color: var(--text); }
         
+        /* Resizable Table Columns */
+        .resizable-table-wrapper {
+            position: relative;
+            overflow: auto;
+            max-height: 500px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+        .resizable-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 100%;
+            table-layout: fixed;
+        }
+        .resizable-table th, .resizable-table td {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .resizable-table th {
+            position: relative;
+            background: var(--primary);
+            color: white;
+            user-select: none;
+        }
+        .resizable-table th.resizable {
+            position: relative;
+        }
+        .resizable-table th .resizer {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 5px;
+            height: 100%;
+            cursor: col-resize;
+            user-select: none;
+            z-index: 10;
+        }
+        .resizable-table th .resizer:hover,
+        .resizable-table th.resizing .resizer {
+            background: var(--primary-light);
+            width: 7px;
+        }
+        .resizable-table tbody tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        .resizable-table tbody tr:hover {
+            background: #f3f4f6;
+        }
+        .table-container {
+            max-height: 450px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+        .table-container thead {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+        .table-container th {
+            z-index: 21;
+        }
+        
         /* Drop Zone */
         .drop-zone {
             border: 2px dashed var(--border); border-radius: 8px; padding: 25px;
@@ -247,18 +312,39 @@
                 </button>
             </div>
         </div>
-        <!-- Table with fixed height container for vertical scroll -->
-        <div class="overflow-auto border border-gray-300 rounded" style="max-height: 500px; min-height: 400px;">
-            <table class="w-full text-sm" style="table-layout: fixed;">
-                <thead class="bg-purple-600 text-white sticky top-0 z-10">
+        <!-- Table with resizable columns and scrollable container -->
+        <div class="table-container border border-gray-300 rounded">
+            <table class="resizable-table" id="resultsTable">
+                <thead class="bg-purple-600 text-white">
                     <tr>
-                        <th class="py-2 px-3 text-center" style="width: 50px;">No</th>
-                        <th class="py-2 px-3" style="width: 150px;">Test Language</th>
-                        <th class="py-2 px-3" style="width: 300px;">ASR Separated</th>
-                        <th class="py-2 px-3" style="width: 200px;">Differences</th>
-                        <th class="py-2 px-3 text-center" style="width: 80px;">WER%</th>
-                        <th class="py-2 px-3 text-center" style="width: 80px;">AI Score</th>
-                        <th class="py-2 px-3" style="width: 300px;">Translation</th>
+                        <th class="resizable" style="width: 50px; min-width: 40px;">
+                            No
+                            <div class="resizer" data-index="0"></div>
+                        </th>
+                        <th class="resizable" style="width: 200px; min-width: 100px;">
+                            Test Language
+                            <div class="resizer" data-index="1"></div>
+                        </th>
+                        <th class="resizable" style="width: 300px; min-width: 150px;">
+                            ASR Separated
+                            <div class="resizer" data-index="2"></div>
+                        </th>
+                        <th class="resizable" style="width: 200px; min-width: 100px;">
+                            Differences
+                            <div class="resizer" data-index="3"></div>
+                        </th>
+                        <th class="resizable text-center" style="width: 80px; min-width: 60px;">
+                            WER%
+                            <div class="resizer" data-index="4"></div>
+                        </th>
+                        <th class="resizable text-center" style="width: 80px; min-width: 60px;">
+                            AI Score
+                            <div class="resizer" data-index="5"></div>
+                        </th>
+                        <th class="resizable" style="width: 300px; min-width: 150px;">
+                            Translation
+                            <div class="resizer" data-index="6"></div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody id="resultsBody"></tbody>
@@ -788,6 +874,103 @@ async function alignTranslationAi() {
         showToast('Error: ' + e.message, 'error');
     }
 }
+
+// ========== Table Column Resizing Functionality ==========
+let isResizing = false;
+let currentResizer = null;
+let startX = 0;
+let startWidth = 0;
+let currentTh = null;
+
+function initTableResizer() {
+    const resizers = document.querySelectorAll('.resizer');
+    resizers.forEach(resizer => {
+        resizer.addEventListener('mousedown', handleResizerMouseDown);
+    });
+}
+
+function handleResizerMouseDown(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    isResizing = true;
+    currentResizer = e.target;
+    currentTh = e.target.closest('th');
+    
+    if (!currentTh) return;
+    
+    startX = e.pageX;
+    startWidth = currentTh.offsetWidth;
+    
+    currentTh.classList.add('resizing');
+    currentResizer.style.background = 'var(--primary-light)';
+    currentResizer.style.width = '7px';
+    
+    document.addEventListener('mousemove', handleResizerMouseMove);
+    document.addEventListener('mouseup', handleResizerMouseUp);
+    
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+}
+
+function handleResizerMouseMove(e) {
+    if (!isResizing || !currentTh) return;
+    
+    const diff = e.pageX - startX;
+    const newWidth = Math.max(
+        parseInt(currentTh.style.minWidth) || 40,
+        startWidth + diff
+    );
+    
+    const columnIndex = Array.from(currentTh.parentNode.children).indexOf(currentTh);
+    const table = currentTh.closest('table');
+    
+    // Set width on both header and cells
+    currentTh.style.width = newWidth + 'px';
+    
+    // Update all cells in this column
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const cell = row.children[columnIndex];
+        if (cell) {
+            cell.style.width = newWidth + 'px';
+        }
+    });
+}
+
+function handleResizerMouseUp(e) {
+    if (!isResizing) return;
+    
+    isResizing = false;
+    
+    if (currentTh) {
+        currentTh.classList.remove('resizing');
+    }
+    if (currentResizer) {
+        currentResizer.style.background = '';
+        currentResizer.style.width = '5px';
+    }
+    
+    document.removeEventListener('mousemove', handleResizerMouseMove);
+    document.removeEventListener('mouseup', handleResizerMouseUp);
+    
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+    
+    currentResizer = null;
+    currentTh = null;
+}
+
+// Initialize resizers when DOM is loaded
+document.addEventListener('DOMContentLoaded', initTableResizer);
+
+// Re-initialize resizers after results are rendered
+const originalRenderResults = renderResults;
+renderResults = function() {
+    originalRenderResults();
+    // Re-init resizers after table is populated
+    setTimeout(initTableResizer, 50);
+};
 </script>
 </body>
 </html>
