@@ -106,6 +106,55 @@
         .asr-step.completed { opacity: 1; }
         .asr-step.completed .step-indicator { background: #10b981; }
         
+        /* ASR Textarea with line numbers */
+        .asr-textarea-wrap {
+            display: flex; 
+            border: 2px solid #475569; 
+            border-radius: 0 0 8px 8px; 
+            overflow: hidden;
+            background: #1e293b;
+        }
+        .asr-line-numbers {
+            width: 45px; 
+            min-height: 200px; 
+            padding: 10px 8px;
+            background: linear-gradient(180deg, #475569 0%, #334155 100%); 
+            color: #fbbf24; 
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem; 
+            font-weight: 600;
+            text-align: right; 
+            user-select: none;
+            overflow: hidden; 
+            line-height: 1.45; 
+            white-space: pre-line;
+            border-right: 1px solid #64748b;
+            flex-shrink: 0;
+        }
+        .asr-textarea {
+            width: 100%; 
+            min-height: 200px; 
+            padding: 10px 12px;
+            border: none; 
+            border-radius: 0;
+            font-family: 'Consolas', 'Courier New', monospace; 
+            font-size: 0.85rem;
+            resize: vertical; 
+            outline: none; 
+            background: #0f172a;
+            color: #f1f5f9; 
+            line-height: 1.45;
+        }
+        .asr-textarea:focus { 
+            box-shadow: inset 0 0 0 2px #818cf8;
+            background: #1e293b;
+        }
+        .asr-textarea-wrap.drag-over { 
+            border-color: #818cf8; 
+            background: #1e293b;
+            box-shadow: 0 0 15px rgba(129,140,248,0.3);
+        }
+        
         /* Animations */
         @keyframes progressSlide { from { width: 0; } }
         .progress-animate { animation: progressSlide 1s ease-out forwards; }
@@ -655,7 +704,10 @@
                                 <span><i class="fas fa-file-alt mr-2"></i>True Text</span>
                                 <span class="text-xs font-normal" id="true-count">0 lines</span>
                             </div>
-                            <textarea id="asr-true-text" rows="10" class="input-field w-full rounded-t-none" placeholder="Paste or drop .txt file..." style="min-height: 200px;" oninput="updateASRLineCounts()"></textarea>
+                            <div class="asr-textarea-wrap" id="trueTextWrap">
+                                <div class="asr-line-numbers" id="trueLines">1</div>
+                                <textarea id="asr-true-text" class="asr-textarea" placeholder="Paste or drop .txt file..." oninput="updateASRLineNums('trueText'); updateASRLineCounts();" onscroll="syncASRScroll('trueText');"></textarea>
+                            </div>
                         </div>
                         <!-- ASR Result -->
                         <div>
@@ -663,7 +715,10 @@
                                 <span><i class="fas fa-microphone mr-2"></i>ASR Result</span>
                                 <span class="text-xs font-normal" id="asr-count">0 lines</span>
                             </div>
-                            <textarea id="asr-asr-text" rows="10" class="input-field w-full rounded-t-none" placeholder="Paste or drop .txt file..." style="min-height: 200px;" oninput="updateASRLineCounts()"></textarea>
+                            <div class="asr-textarea-wrap" id="asrTextWrap">
+                                <div class="asr-line-numbers" id="asrLines">1</div>
+                                <textarea id="asr-asr-text" class="asr-textarea" placeholder="Paste or drop .txt file..." oninput="updateASRLineNums('asrText'); updateASRLineCounts();" onscroll="syncASRScroll('asrText');"></textarea>
+                            </div>
                         </div>
                         <!-- Translation -->
                         <div>
@@ -671,7 +726,10 @@
                                 <span><i class="fas fa-language mr-2"></i>Translation</span>
                                 <span class="text-xs font-normal" id="trans-count">0 lines</span>
                             </div>
-                            <textarea id="asr-trans-text" rows="10" class="input-field w-full rounded-t-none" placeholder="Paste or drop .txt file..." style="min-height: 200px;" oninput="updateASRLineCounts()"></textarea>
+                            <div class="asr-textarea-wrap" id="transTextWrap">
+                                <div class="asr-line-numbers" id="transLines">1</div>
+                                <textarea id="asr-trans-text" class="asr-textarea" placeholder="Paste or drop .txt file..." oninput="updateASRLineNums('transText'); updateASRLineCounts();" onscroll="syncASRScroll('transText');"></textarea>
+                            </div>
                         </div>
                     </div>
                     <button onclick="showASRStep(2)" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition">
@@ -1233,6 +1291,59 @@
         }
         function readFileAsText(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = (e) => resolve(e.target.result); reader.onerror = (e) => reject(e); reader.readAsText(file, 'utf-8'); }); }
         function clearASRSplitter() { asrSplitterFiles = []; document.getElementById('asr-splitter-filelist').classList.add('hidden'); document.getElementById('asr-splitter-items').innerHTML = ''; document.getElementById('asr-splitter-file').value = ''; }
+
+        // ASR Textarea Line Numbers and Drag-Drop
+        function updateASRLineNums(id) {
+            const ta = document.getElementById('asr-' + id + '-text');
+            const lnEl = document.getElementById(id + 'Lines');
+            const lines = ta.value.split('\n');
+            let nums = [];
+            for (let i = 1; i <= lines.length; i++) nums.push(i);
+            lnEl.textContent = nums.join('\n');
+        }
+        function syncASRScroll(id) {
+            const ta = document.getElementById('asr-' + id + '-text');
+            const lnEl = document.getElementById(id + 'Lines');
+            lnEl.scrollTop = ta.scrollTop;
+        }
+        // Initialize line numbers on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            ['trueText', 'asrText', 'transText'].forEach(function(id) {
+                const ta = document.getElementById('asr-' + id + '-text');
+                if (ta) {
+                    ta.addEventListener('input', function() { updateASRLineNums(id); });
+                    ta.addEventListener('scroll', function() { syncASRScroll(id); });
+                    updateASRLineNums(id);
+                }
+            });
+            // Add drag-drop to textareas
+            ['trueTextWrap', 'asrTextWrap', 'transTextWrap'].forEach(function(wrapId) {
+                const wrap = document.getElementById(wrapId);
+                if (wrap) {
+                    wrap.addEventListener('dragover', function(e) { e.preventDefault(); e.stopPropagation(); wrap.classList.add('drag-over'); });
+                    wrap.addEventListener('dragleave', function(e) { e.preventDefault(); e.stopPropagation(); wrap.classList.remove('drag-over'); });
+                    wrap.addEventListener('drop', function(e) {
+                        e.preventDefault(); e.stopPropagation(); wrap.classList.remove('drag-over');
+                        const files = Array.from(e.dataTransfer.files).filter(f => f.name.toLowerCase().endsWith('.txt'));
+                        if (files.length === 0) return;
+                        const textareaId = wrapId.replace('Wrap', '');
+                        loadASRTextFiles(files, textareaId);
+                    });
+                }
+            });
+        });
+        function loadASRTextFiles(files, textareaId) {
+            const file = files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const lines = content.split('\n').map(l => l.trim()).filter(l => l);
+                document.getElementById('asr-' + textareaId + '-text').value = lines.join('\n');
+                updateASRLineNums(textareaId);
+                updateASRLineCounts();
+            };
+            reader.readAsText(file, 'utf-8');
+        }
     </script>
 </body>
 </html>
