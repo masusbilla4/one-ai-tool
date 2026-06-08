@@ -29,29 +29,29 @@
         /* Resizable Table Columns */
         .resizable-table-wrapper {
             position: relative;
-            overflow: auto;
+            overflow: auto !important;
             max-height: 500px;
             border: 1px solid var(--border);
             border-radius: 4px;
         }
         .resizable-table {
-            border-collapse: separate;
+            border-collapse: separate !important;
             border-spacing: 0;
             min-width: 100%;
-            table-layout: auto;
+            table-layout: auto !important;
         }
         .resizable-table th, .resizable-table td {
-            padding: 8px 12px;
+            padding: 8px 12px !important;
             border: 1px solid var(--border);
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: normal;
-            word-wrap: break-word;
+            white-space: normal !important;
+            word-wrap: break-word !important;
         }
         .resizable-table th {
             position: relative;
-            background: var(--primary);
-            color: white;
+            background: var(--primary) !important;
+            color: white !important;
             user-select: none;
         }
         .resizable-table th.resizable {
@@ -79,12 +79,12 @@
             background: #f3f4f6;
         }
         .table-container {
-            max-height: 450px;
-            overflow-y: auto;
-            overflow-x: auto;
+            max-height: 450px !important;
+            overflow-y: auto !important;
+            overflow-x: auto !important;
         }
         .table-container thead {
-            position: sticky;
+            position: sticky !important;
             top: 0;
             z-index: 20;
         }
